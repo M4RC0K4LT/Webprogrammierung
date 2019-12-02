@@ -1,38 +1,27 @@
+// NPM-Module
 const express = require("express");
 const app = express();
-
-const user = require("./routes/user");
-const booksapi = require("./routes/booksapi");
-
 const bodyParser = require('body-parser');
 
-app.use(bodyParser.json());
+const serverport = 3001;
 
+// Router
+const user = require("./routes/user");
+const orderapi = require("./routes/ordersapi");
+const customerapi = require("./routes/customersapi");
+
+app.use(bodyParser.json());
 
 // User Funktionen
 app.use("/user", user);
 
-// Buch Funktionen
-app.use("/api/v1/books", booksapi);
+// Order Funktionen
+app.use("/api/orders", orderapi);
 
-//Detail Seite Template
-/*app.get('/books/:id', async (request, response) => {
-  const book = await books.findById(request.params.id);
-  
-  if (book == null) {
-    response.status(404).send({error: `Book ${request.params.id} not found`});
-    return;
-  }
-  
-  response.render('book', {
-    title: book.title,
-    author: book.author
-  });
-});
-
-*/
+// Customer Funktionen
+app.use("/api/customers", customerapi);
 
 // listen for requests
-app.listen(3001, function() {
-  console.log("Your app is listening on port " + 3000);
+app.listen(serverport, function() {
+  console.log("Your app is listening on port " + serverport);
 });
