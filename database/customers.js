@@ -47,7 +47,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       db.run(
 
-        `INSERT INTO customers (customer_name, customer_company, customer_mail, customer_country, customer_zipcode, customer_town, customer_street_number) VALUES($name, $company, $mail, $country, $zipcode, $town, $street_number)`, 
+        `INSERT INTO customers (customer_name, customer_company, customer_mail, customer_country, customer_zipcode, customer_town, customer_street_number, customer_hourlyrate) VALUES($name, $company, $mail, $country, $zipcode, $town, $street_number, $hourlyrate)`, 
         {
           $name: jsonObject.name,
           $company: jsonObject.company,
@@ -55,7 +55,8 @@ module.exports = {
           $country: jsonObject.country,
           $zipcode: jsonObject.zipcode,
           $town: jsonObject.town,
-          $street_number: jsonObject.street_number
+          $street_number: jsonObject.street_number,
+          $hourlyrate: jsonObject.hourlyrate
         },
         function (err) {
           if (err) {
@@ -87,7 +88,7 @@ module.exports = {
         id = parseInt(id);
         db.run(
             
-          `UPDATE customers SET customer_name = $name, customer_company = $company, customer_mail = $mail, customer_country = $country, customer_zipcode = $zipcode, customer_town = $town, customer_street_number = $street_number WHERE customer_id = $id`, 
+          `UPDATE customers SET customer_name = $name, customer_company = $company, customer_mail = $mail, customer_country = $country, customer_zipcode = $zipcode, customer_town = $town, customer_street_number = $street_number, customer_hourlyrate = $hourlyrate WHERE customer_id = $id`, 
           {
             $name: jsonObject.name,
             $company: jsonObject.company,
@@ -95,7 +96,8 @@ module.exports = {
             $country: jsonObject.country,
             $zipcode: jsonObject.zipcode,
             $town: jsonObject.town,
-            $street_number: jsonObject.street_number
+            $street_number: jsonObject.street_number,
+            $hourlyrate: jsonObject.hourlyrate
           },
           function (err) {
             if (err) {

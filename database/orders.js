@@ -38,23 +38,40 @@ module.exports = {
     });
   },
 
-  create: jsonObject => {
+  create: async jsonObject => {
     
     //Überprüfung des Datumformats
     if(!(date.isValid(jsonObject.starting.toString(), "YYYY-MM-DD HH:mm:ss") && date.isValid(jsonObject.ending.toString(), "YYYY-MM-DD HH:mm:ss"))){
         return({error: `Use correct date and time format!`});
     }
 
+    //Überprüfung ob Standardstundensatz abgeändert
+    hourlyrate = jsonObject.hourlyrate;
+    if(hourlyrate == null){
+      const gethour = await new Promise((resolve, reject) => {
+        db.get(`SELECT customer_hourlyrate FROM customers WHERE customer_id = $id`, { $id: jsonObject.customer }, (err, result) => {
+          if (err) {
+            reject(err);
+          }
+          else {
+            resolve(hourlyrate = result.customer_hourlyrate);
+          }
+        });
+      })
+    }
+
     return new Promise((resolve, reject) => {
       db.run(
 
-        `INSERT INTO orders (order_title, order_customer, order_description, order_starting, order_ending) VALUES ($title, $customer, $description, $starting, $ending)`, 
+        `INSERT INTO orders (order_title, order_customer, order_description, order_starting, order_ending, order_hourlyrate, order_traveldistance) VALUES ($title, $customer, $description, $starting, $ending, $hourlyrate, $traveldistance)`, 
         {
           $title: jsonObject.title,
           $customer: jsonObject.customer,
           $description: jsonObject.description,
           $starting: jsonObject.starting,
-          $ending: jsonObject.ending
+          $ending: jsonObject.ending,
+          $hourlyrate: hourlyrate,
+          $traveldistance: jsonObject.traveldistance
         },
         function (err) {
           if (err) {
@@ -74,24 +91,42 @@ module.exports = {
 
   },
 
-  update: (id, jsonObject) => {  
+  update: async (id, jsonObject) => {  
 
     //Überprüfung des Datumformats
     if(!(date.isValid(jsonObject.starting.toString(), "YYYY-MM-DD HH:mm:ss") && date.isValid(jsonObject.ending.toString(), "YYYY-MM-DD HH:mm:ss"))){
         return({error: `Use correct date and time format!`});
     }
 
+    //Überprüfung ob Standardstundensatz abgeändert
+    hourlyrate = jsonObject.hourlyrate;
+    if(hourlyrate == null){
+      const gethour = await new Promise((resolve, reject) => {
+        db.get(`SELECT customer_hourlyrate FROM customers WHERE customer_id = $id`, { $id: jsonObject.customer }, (err, result) => {
+          if (err) {
+            reject(err);
+          }
+          else {
+            resolve(hourlyrate = result.customer_hourlyrate);
+          }
+        });
+      })
+    }
+
     return new Promise((resolve, reject) => {
         id = parseInt(id);
+        
         db.run(
             
-          `UPDATE orders SET order_title = $title, order_customer = $customer, order_description = $description, order_starting = $starting, order_ending = $ending WHERE order_id = $id`, 
+          `UPDATE orders SET order_title = $title, order_customer = $customer, order_description = $description, order_starting = $starting, order_ending = $ending, order_hourlyrate = $hourlyrate, order_traveldistance = $traveldistance WHERE order_id = $id`, 
           {
             $title: jsonObject.title,
             $customer: jsonObject.customer,
             $description: jsonObject.description,
             $starting: jsonObject.starting,
             $ending: jsonObject.ending,
+            $hourlyrate: hourlyrate,
+            $traveldistance: jsonObject.traveldistance,
             $id: id
           },
           function (err) {

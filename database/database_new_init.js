@@ -18,7 +18,8 @@ if (!dbExist) {
       customer_country TEXT,
       customer_zipcode TEXT,
       customer_town TEXT,
-      customer_street_number TEXT
+      customer_street_number TEXT,
+      customer_hourlyrate REAL
     )
   `);
 
@@ -30,6 +31,8 @@ if (!dbExist) {
       order_description TEXT, 
       order_starting DATETIME, 
       order_ending DATETIME,
+      order_hourlyrate REAL,
+      order_traveldistance REAL,
       order_customer INTEGER,
       FOREIGN KEY(order_customer) REFERENCES 'customers'(customer_id)
     )
