@@ -16,7 +16,8 @@
     "express-handlebars": "^3.1.0",
     "node-geocoder": "^3.25.0",
     "pdfkit": "^0.10.0",
-    "sqlite3": "^4.1.0"
+    "sqlite3": "^4.1.0",
+    "timediff": "^1.1.1"
   },
   "devDependencies": {
     "nodemon": "^2.0.1"

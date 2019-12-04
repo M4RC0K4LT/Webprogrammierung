@@ -97,7 +97,8 @@ module.exports = {
             $zipcode: jsonObject.zipcode,
             $town: jsonObject.town,
             $street_number: jsonObject.street_number,
-            $hourlyrate: jsonObject.hourlyrate
+            $hourlyrate: jsonObject.hourlyrate,
+            $id: id
           },
           function (err) {
             if (err) {
