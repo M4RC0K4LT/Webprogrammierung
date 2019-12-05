@@ -45,6 +45,7 @@ if (!dbExist) {
       user_name TEXT,
       user_mail TEXT, 
       user_password TEXT, 
+      user_tokens TEXT
     )
   `);
 }

@@ -2,26 +2,26 @@
 const express = require("express");
 const app = express();
 const bodyParser = require('body-parser');
-
-const serverport = 3001;
+require("dotenv").config()
 
 // Router
 const user = require("./routes/usersapi");
 const orderapi = require("./routes/ordersapi");
 const customerapi = require("./routes/customersapi");
+const auth = require("./database/auth");
 
 app.use(bodyParser.json());
 
 // User Funktionen
-app.use("/api/user", user);
+app.use("/api/user", auth, user);
 
 // Order Funktionen
 app.use("/api/orders", orderapi);
 
 // Customer Funktionens
-app.use("/api/customers", customerapi);
+app.use("/api/customers", auth, customerapi);
 
 // listen for requests
-app.listen(serverport, function() {
-  console.log("Your app is listening on port " + serverport);
+app.listen(process.env.PORT, function() {
+  console.log("Your app is listening on port " + process.env.PORT);
 });

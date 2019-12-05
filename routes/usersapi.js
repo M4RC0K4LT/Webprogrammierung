@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const bcrypt = require("bcryptjs");
-var jwt = require('jsonwebtoken');
+const auth = require("../database/auth");
 
 const users = require("../database/users");
 
+//User Übersicht
 router.get('/', async function(request, response) {
     try {
         response.send(await users.getAll());
@@ -13,25 +13,17 @@ router.get('/', async function(request, response) {
     }
 });
 
+//User Login
 router.post('/login', async function(request, response) {
     try {
-        const passwordhash = await users.findPasswordByMail(request.body.mail);
-        if(passwordhash == null){
-            return response.send("No user found!");
-        }
-        var correct = bcrypt.compareSync(request.body.password.toString(), passwordhash);
-        if (correct == true) {
-            var token = jwt.sign({ foo: 'bar' }, 'shhhhh');
-            response.status(201).send("Password correct!" + token);
-        } else {
-            response.status(201).send("Password wrong!");
-        }
-        
+        const login = await users.login(request.body.mail, request.body.password);
+        response.send(login);       
     } catch (err) {
         response.send(err);
     }
 });
 
+//User Registrierung
 router.post('/register', async function(request, response) {
     try {
         const user = await users.create(request.body);
@@ -41,7 +33,18 @@ router.post('/register', async function(request, response) {
     }
 });
 
-router.put('/change', async function(request, response) {
+//User Logout
+router.delete('/logout', auth, async function(request, response){
+    try {
+        const user = await users.logout(request.token);
+        response.status(201).send(user);
+    } catch (err) {
+        response.send(err);
+    }
+});
+
+//Userdaten abändern
+router.put('/change', auth, async function(request, response) {
     try {
         const user = await users.update(request.body);
         response.status(201).send(user);
