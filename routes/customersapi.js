@@ -31,8 +31,13 @@ router.get('/:id', async (request, response) => {
 
 //Customer hinzufügen
 router.post('/', async (request, response) => {
-    const customer = await customers.create(request.body);
-    response.status(201).send(customer);
+    try {
+        const customer = await customers.create(request.body);
+        response.status(201).send(customer);
+    } catch (err) {
+        response.send(err);
+    }
+    
 });
 
 //Customer ändern/updaten

@@ -6,19 +6,19 @@ const bodyParser = require('body-parser');
 const serverport = 3001;
 
 // Router
-const user = require("./routes/user");
+const user = require("./routes/usersapi");
 const orderapi = require("./routes/ordersapi");
 const customerapi = require("./routes/customersapi");
 
 app.use(bodyParser.json());
 
 // User Funktionen
-app.use("/user", user);
+app.use("/api/user", user);
 
 // Order Funktionen
 app.use("/api/orders", orderapi);
 
-// Customer Funktionen
+// Customer Funktionens
 app.use("/api/customers", customerapi);
 
 // listen for requests

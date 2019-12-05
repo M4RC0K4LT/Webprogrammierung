@@ -37,9 +37,18 @@ if (!dbExist) {
       FOREIGN KEY(order_customer) REFERENCES 'customers'(customer_id)
     )
   `);
+
+  // Usertabelle
+  db.run(`
+    CREATE TABLE 'users' (
+      user_id INTEGER PRIMARY KEY AUTOINCREMENT, 
+      user_name TEXT,
+      user_mail TEXT, 
+      user_password TEXT, 
+    )
+  `);
 }
 
 // Aktiviere ForeignKeys
 db.run(`PRAGMA foreign_keys = ON`);
-
 module.exports = db;
