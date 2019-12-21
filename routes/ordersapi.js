@@ -35,7 +35,7 @@ router.get('/:id', async (request, response) => {
 router.get('/get/invoice', async (request, response) => {
 
     // --- TODO --- nicht vergessen
-    let orders_for_invoice = '"list": [3,4,6,1,2]'; //8, 9, 10, 11, 12, 13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44
+    let orders_for_invoice = '"list": [6,4,12,23,2]'; //8, 9, 10, 11, 12, 13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44
     const eur_per_km = 1.2; 
     all_order_elements_for_invoice = [];
     try{
