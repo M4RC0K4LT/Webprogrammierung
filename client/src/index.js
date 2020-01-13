@@ -21,11 +21,13 @@ import ButtonGroup from '@material-ui/core/ButtonGroup';
 
 import { Route, Link, NavLink, BrowserRouter as Router, Switch } from 'react-router-dom'
 
-
 class Routing extends React.Component{
 
   constructor(props) {
     super(props);
+    this.state = {
+      isLoggedIn: false,
+    };
     this.handleClick = this.handleClick.bind(this);
   }
 
@@ -34,20 +36,43 @@ class Routing extends React.Component{
     window.location.reload();
   }
 
+  componentDidMount(){
+    if (sessionStorage.getItem("authToken") != null){
+      this.setState({ isLoggedIn: true })
+    }else {
+      this.setState({ isLoggedIn: false })
+    }
+  }
+
   render(){
+
+    const isLoggedIn = this.state.isLoggedIn;
+    let userbuttons;
+
+    if (isLoggedIn) {
+      userbuttons = (
+        <ButtonGroup size="small" aria-label="small outlined button group" style={{margin: "15px"}}>
+                <Button onClick={this.handleClick}>Logout</Button>
+        </ButtonGroup>
+      );
+    } else {
+      userbuttons = (
+        <ButtonGroup size="small" aria-label="small outlined button group" style={{margin: "15px"}}>
+                <Button href="/register">Register</Button>
+                <Button href="/login">Login</Button>
+        </ButtonGroup>
+      );
+    }
     return (
     <Router>
       <div>
-          <AppBar position="fixed" color="default">
+          <AppBar position="fixed" color="default" style={{ paddingLeft: "calc(100vw - 100%)" }}>
             <Tabs centered>
               <Tab label="Home" component={Link} to="/"/>
               <Tab label="Orders" component={Link} to="/orders"/>
               <Tab label="Customers" component={Link} to="/customers" />
               <Tab label="Profile" component={Link} to="/profile" />
-              <ButtonGroup size="small" aria-label="small outlined button group" style={{margin: "15px"}}>
-                <Button onClick={this.handleClick}>Logout</Button>
-                <Button href="/login">Login</Button>
-              </ButtonGroup>
+              {userbuttons}
             </Tabs>
           </AppBar>
 

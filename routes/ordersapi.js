@@ -35,6 +35,9 @@ router.get('/:id', async (request, response) => {
 router.post('/get/invoice', async (request, response) => {
 
     let orders_for_invoice = request.body.idlist
+    if(orders_for_invoice.length<1){
+        return response.status(400).send("Wrong InvoiceIDs sent!")
+    }
     const eur_per_km = 1.2; 
     all_order_elements_for_invoice = [];
     try{

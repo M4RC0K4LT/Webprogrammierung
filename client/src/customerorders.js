@@ -66,11 +66,15 @@ class CustomerOrders extends React.Component {
   }
 
   handleCheck(orderid){
+    this.setState({ buttondisabled: false })
     const id = parseInt(orderid)
     this.setState({ checkedforinvoice: [...this.state.checkedforinvoice, id] });
     if(this.state.checkedforinvoice.includes(id)){
       let filteredArray = this.state.checkedforinvoice.filter(item => item !== id)
       this.setState({ checkedforinvoice: filteredArray });
+      if(filteredArray.length == 0){
+        this.setState({ buttondisabled: true })
+      }
     }
   }
 
@@ -183,6 +187,7 @@ class CustomerOrders extends React.Component {
           <Button
             type="submit"
             fullWidth
+            disabled={this.state.buttondisabled}
             variant="contained"
             color="secondary"
             className={classes.submit}

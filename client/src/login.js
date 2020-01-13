@@ -93,7 +93,7 @@ class Login extends Component {
         
         if(response.login === "successful"){
             sessionStorage.setItem('authToken', response.token);
-            return <div className={classes.paper}><CheckCircleIcon /><br/><h1>Login successful!</h1><br/><Redirect to="/profile" /></div>;
+            return window.location.replace("/profile");
         }
 
         if (sessionStorage.getItem("authToken") != null){

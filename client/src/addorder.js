@@ -12,6 +12,9 @@ import PermContactCalendarOutlinedIcon from '@material-ui/icons/PermContactCalen
 import { Redirect } from 'react-router-dom'
 import GavelOutlinedIcon from '@material-ui/icons/GavelOutlined';
 import { green } from '@material-ui/core/colors';
+import 'date-fns';
+import DateFnsUtils from '@date-io/date-fns';
+import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers';
 
 const useStyles = theme => ({
     paper: {
@@ -54,10 +57,18 @@ class AddOrder extends Component {
             message: "",
             open: false,
             snackcolor: "error",
+            data: null,
+            startDate: null,
         };
         this.handleSubmit = this.handleSubmit.bind(this);
-        
-    }    
+        this.handleStartDate = this.handleStartDate.bind(this); 
+    } 
+    
+    handleStartDate = (date) => {
+        this.setState({
+            startDate: date
+        });
+    };
     
     handleSubmit(event){ 
         var that = this;
@@ -94,7 +105,6 @@ class AddOrder extends Component {
     }
 
     render() {
-        
         const { classes } = this.props;
         const { response, isLoading, error, open, message } = this.state;
 
@@ -191,6 +201,19 @@ class AddOrder extends Component {
                         fullWidth
                         label="Hourlyrate - order specific"
                     />
+                    <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                        <KeyboardDatePicker
+                            margin="normal"
+                            id="date-picker-dialog"
+                            label="Date picker dialog"
+                            format="MM-dd-yyyy"
+                            value={this.state.startDate}
+                            onChange={this.handleStartDate}
+                            KeyboardButtonProps={{
+                              'aria-label': 'change date',
+                            }}
+                        />
+                    </MuiPickersUtilsProvider>
                     <Button
                         type="submit"
                         fullWidth
