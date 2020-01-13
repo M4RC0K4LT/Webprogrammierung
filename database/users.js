@@ -16,6 +16,30 @@ module.exports = {
     });
   },
 
+  findByMail: mail => {
+    return new Promise((resolve, reject) => {
+      db.get(`SELECT * FROM users WHERE user_mail = $mail`, {$mail: mail}, (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  },
+
+  findByName: username => {
+    return new Promise((resolve, reject) => {
+      db.get(`SELECT * FROM users WHERE user_name = $username`, {$username: username}, (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  },
+
   findById: id => {
     return new Promise((resolve, reject) => {
       db.get(`SELECT * FROM users WHERE user_id = $id`, {$id: id}, (err, result) => {
@@ -28,6 +52,21 @@ module.exports = {
     });
   },
 
+  findByToken: token => {
+    return jwt.verify(token, JWT_KEY, async (err, userid) => {
+      if(err){
+          return ({"request": "failed", "message": err});
+      }
+      user = await module.exports.findById(parseInt(userid));
+      if(user.user_tokens != token){
+          return ({"request": "failed"})
+      }  
+      return ({"request": "successful", "user_id": user.user_id, "user_name": user.user_name, "user_mail": user.user_mail, "user_password": user.user_password}); 
+    });
+    
+     
+  },
+
   login: (mail, password) => {
     return new Promise((resolve, reject) => {
       db.get(`SELECT user_id, user_password FROM users WHERE user_mail = $mail`, {$mail: mail}, (err, result) => {
@@ -35,13 +74,12 @@ module.exports = {
           reject(err);
         } else {
           if(result == null){
-              resolve(null);
+              resolve({"login": "failed"});
           }else{
             var correct = bcrypt.compareSync(password, result.user_password);
             if (correct == true) {
               userid = result.user_id;
               const token = jwt.sign(userid, JWT_KEY);
-
               db.run(
           
                 `UPDATE users SET user_tokens = $token WHERE user_id = $id`, 
@@ -53,12 +91,12 @@ module.exports = {
                   if (err) {
                     return reject(err);
                   }
-                  resolve({"login": "successfull", "token": token, "userid": userid});
+                  resolve({"login": "successful", "token": token, "userid": userid});
                 }
               );
 
             } else {
-              resolve("password wrong");
+              resolve({"login": "failed"});
             }
           }    
         }
@@ -115,7 +153,7 @@ module.exports = {
             if (err) {
               reject(err);
             } else {
-              resolve(result);
+              resolve({"request": "successful", "user_name": result.user_name, "user_mail": result.user_mail});
             }
           });         
         }
@@ -130,21 +168,21 @@ module.exports = {
         
         db.run(
             
-          `UPDATE users SET user_name = $name, user_mail = $mail, user_password = $password, user_tokens = $token WHERE user_id = $id`, 
+          `UPDATE users SET user_name = $name, user_mail = $mail, user_password = $password WHERE user_id = $id`, 
           {
             $name: jsonObject.name,
             $mail: jsonObject.mail,
-            $password: jsonObject.password,
+            $password: password,
             $token: jsonObject.token,
             $id: id
           },
           function (err) {
             if (err) {
-              return reject(err);
+              return reject({"request": "failed", "message": err.message});
             }
             db.get(`SELECT * FROM users WHERE user_id = $id`, {$id: id}, (err, result) => {
               if (err) {
-                reject(err);
+                reject({"request": "failed", "message": err.message});
               } else {
                 resolve(result);
               }
@@ -159,7 +197,7 @@ module.exports = {
         id = parseInt(id);
         db.get(`SELECT * FROM users WHERE user_id = $id`, {$id: id}, (err, result) => {
             if (err) {
-              reject(err);
+              reject({"request": "failed", "message": err.message});
             } else {
               if (result != null){
                 db.run(          

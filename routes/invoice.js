@@ -7,7 +7,7 @@ function createInvoice(customerdata, all_order_elements_for_invoice, response){
     });
 
     filename = 'test.pdf';
-    response.setHeader('Content-disposition', 'inline; filename="' + filename + '"');
+    response.setHeader('Content-disposition', 'attachment; filename="' + filename + '"');
     response.setHeader('Content-type', 'application/pdf');
 
     const eur_per_km = 1.2; 

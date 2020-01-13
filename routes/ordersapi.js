@@ -3,17 +3,17 @@ const router = express.Router();
 const invoice = require("./invoice");
 var timediff = require('timediff');
 
-//Datenbankoperationen bei Ordern und Kunden
 const orders = require("../database/orders");
 const customers = require("../database/customers");
 
 
-//Übersicht
+//Order Übersicht
 router.get('/', async (request, response) => {
     try{
-        response.send(await orders.getAll());
+        const allorders = await orders.getAll();
+        response.status(201).send(allorders);
     } catch (err){
-        response.send(err);
+        responseawait.status(503).send(err);
     }
 });
   
@@ -25,17 +25,16 @@ router.get('/:id', async (request, response) => {
             response.status(404).send({error: `Order ${request.params.id} not found`});
             return;
         }
-        response.send(order);
+        response.status(201).send(order);
     } catch(err){
-        response.send(err);
+        response.status(503).send(err);
     }  
 });
 
 //Rechnungserstellung
-router.get('/get/invoice', async (request, response) => {
+router.post('/get/invoice', async (request, response) => {
 
-    // --- TODO --- nicht vergessen
-    let orders_for_invoice = '"list": [6,4,12,23,2]'; //8, 9, 10, 11, 12, 13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44
+    let orders_for_invoice = request.body.idlist
     const eur_per_km = 1.2; 
     all_order_elements_for_invoice = [];
     try{
@@ -49,7 +48,7 @@ router.get('/get/invoice', async (request, response) => {
             var workingtime = (parseInt(timedifference.minutes)/60).toFixed(2);
             order_elements_for_invoice.push(workingtime);
             order_elements_for_invoice.push(order.order_hourlyrate);
-            order_elements_for_invoice.push(order.order_description);
+            order_elements_for_invoice.push(order.order_title);
             var workingcost = parseFloat((workingtime*order.order_hourlyrate).toFixed(2));
             order_elements_for_invoice.push(workingcost);
             order_elements_for_invoice.push(order.order_traveldistance);
@@ -67,6 +66,7 @@ router.get('/get/invoice', async (request, response) => {
     const customerdata = await customers.findById(customerid);
     response = invoice(customerdata, all_order_elements_for_invoice, response);
 
+
   })
 
 
@@ -78,9 +78,9 @@ router.get('/customer/:id', async (request, response) => {
             response.status(404).send({error: `Customer ${request.params.id} not found / Customer has no associated orders`});
             return;
         }
-        response.send(relatedorders);
+        response.status(201).send(relatedorders);
     } catch (err){
-        response.send(err);
+        response.status(503).send(err);
     }
     
 });
@@ -89,9 +89,9 @@ router.get('/customer/:id', async (request, response) => {
 router.post('/', async (request, response) => {
     try{
         const order = await orders.create(request.body);
-        response.send(order);
+        response.status(201).send(order);
     } catch(err){
-        response.send(err);
+        response.status(503).send(err);
     }  
 });
 
@@ -101,22 +101,22 @@ router.put('/:id', async (request, response) => {
         const order = await orders.update(request.params.id, request.body);
         response.status(201).send(order);
     } catch (err){
-        response.send(err);
+        response.status(503).send(err);
     }
     
 });
 
 //Auftrag löschen
-router.delete('/:id', async (request, response) => {
+router.delete('/', async (request, response) => {
     try {
-        const isDeleted = await orders.remove(request.params.id);
+        const isDeleted = await orders.remove(request.body.id);
         if (isDeleted == null) {
-            response.status(404).send({error: `Order ${request.params.id} not found`});
+            response.status(404).send({"request": "failed", "error": `Order ${request.params.id} not found`});
             return;
         }
-        response.status(202).send("Erfolgreich gelöscht!");
+        response.status(202).send({"request": "successful"});
     } catch (err){
-        response.send(err);
+        response.status(503).send({"request": "failed", "error": err});
     }
     
 });
