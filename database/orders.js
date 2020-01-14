@@ -41,7 +41,7 @@ module.exports = {
   create: async jsonObject => {
     
     //Überprüfung des Datumformats
-    if(!(date.isValid(jsonObject.starting.toString(), "YYYY-MM-DD HH:mm:ss") && date.isValid(jsonObject.ending.toString(), "YYYY-MM-DD HH:mm:ss"))){
+    if(!(date.isValid(jsonObject.starting.toString(), "YYYY-MM-DD HH:mm"))){
         return({error: `Use correct date and time format!`});
     }
 
@@ -63,13 +63,13 @@ module.exports = {
     return new Promise((resolve, reject) => {
       db.run(
 
-        `INSERT INTO orders (order_title, order_customer, order_description, order_starting, order_ending, order_hourlyrate, order_traveldistance) VALUES ($title, $customer, $description, $starting, $ending, $hourlyrate, $traveldistance)`, 
+        `INSERT INTO orders (order_title, order_customer, order_description, order_starting, order_duration, order_hourlyrate, order_traveldistance) VALUES ($title, $customer, $description, $starting, $duration, $hourlyrate, $traveldistance)`, 
         {
           $title: jsonObject.title,
           $customer: jsonObject.customer,
           $description: jsonObject.description,
           $starting: jsonObject.starting,
-          $ending: jsonObject.ending,
+          $duration: jsonObject.duration,
           $hourlyrate: hourlyrate,
           $traveldistance: jsonObject.traveldistance
         },
@@ -94,8 +94,9 @@ module.exports = {
   update: async (id, jsonObject) => {  
 
     //Überprüfung des Datumformats
-    if(!(date.isValid(jsonObject.starting.toString(), "YYYY-MM-DD HH:mm:ss") && date.isValid(jsonObject.ending.toString(), "YYYY-MM-DD HH:mm:ss"))){
-        return({error: `Use correct date and time format!`});
+    if(!(date.isValid(jsonObject.starting.toString(), "YYYY-MM-DD HH:mm"))){
+        console.log("fdsg")
+        return({"request": "failed", "error": `Use correct date and time format!`});
     }
 
     //Überprüfung ob Standardstundensatz abgeändert
@@ -118,13 +119,13 @@ module.exports = {
         
         db.run(
             
-          `UPDATE orders SET order_title = $title, order_customer = $customer, order_description = $description, order_starting = $starting, order_ending = $ending, order_hourlyrate = $hourlyrate, order_traveldistance = $traveldistance WHERE order_id = $id`, 
+          `UPDATE orders SET order_title = $title, order_customer = $customer, order_description = $description, order_starting = $starting, order_duration = $duration, order_hourlyrate = $hourlyrate, order_traveldistance = $traveldistance WHERE order_id = $id`, 
           {
             $title: jsonObject.title,
             $customer: jsonObject.customer,
             $description: jsonObject.description,
             $starting: jsonObject.starting,
-            $ending: jsonObject.ending,
+            $duration: jsonObject.duration,
             $hourlyrate: hourlyrate,
             $traveldistance: jsonObject.traveldistance,
             $id: id

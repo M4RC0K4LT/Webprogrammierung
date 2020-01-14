@@ -1,8 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const invoice = require("./invoice");
-var timediff = require('timediff');
-
 const orders = require("../database/orders");
 const customers = require("../database/customers");
 
@@ -47,8 +45,7 @@ router.post('/get/invoice', async (request, response) => {
             if (order == null){
                 continue;
             }
-            var timedifference = timediff(order.order_starting, order.order_ending, 'm');
-            var workingtime = (parseInt(timedifference.minutes)/60).toFixed(2);
+            var workingtime = order.order_duration;
             order_elements_for_invoice.push(workingtime);
             order_elements_for_invoice.push(order.order_hourlyrate);
             order_elements_for_invoice.push(order.order_title);

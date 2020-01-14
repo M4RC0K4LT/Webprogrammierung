@@ -30,7 +30,7 @@ if (!dbExist) {
       order_title TEXT,
       order_description TEXT, 
       order_starting DATETIME, 
-      order_ending DATETIME,
+      order_duration REAL,
       order_hourlyrate REAL,
       order_traveldistance REAL,
       order_customer INTEGER,

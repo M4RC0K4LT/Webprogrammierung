@@ -117,7 +117,7 @@ class Orders extends React.Component {
                   <GavelOutlinedIcon  />
                 </Avatar>
               </ListItemAvatar>
-              <ListItemText primary={order.order_id + ": " + order.order_title} secondary={order.order_ending} />
+              <ListItemText primary={order.order_id + ": " + order.order_title} secondary={order.order_starting} />
               <ListItemSecondaryAction>
                 <IconButton href={"/order/" + order.order_id} edge="end">
                   <EditIcon />

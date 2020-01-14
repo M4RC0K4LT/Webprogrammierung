@@ -13,6 +13,12 @@ import { Redirect } from 'react-router-dom'
 import GavelOutlinedIcon from '@material-ui/icons/GavelOutlined';
 import { green } from '@material-ui/core/colors';
 import DeleteOutlineOutlinedIcon from '@material-ui/icons/DeleteOutlineOutlined';
+import 'date-fns';
+import DateFnsUtils from '@date-io/date-fns';
+import { MuiPickersUtilsProvider, KeyboardDatePicker, DateTimePicker } from '@material-ui/pickers';
+import Slider from '@material-ui/core/Slider';
+import Grid from '@material-ui/core/Grid';
+import moment from "moment";
 
 const useStyles = theme => ({
     paper: {
@@ -55,11 +61,23 @@ class Orderdetail extends Component {
             message: "",
             open: false,
             snackcolor: "error",
+            startTime: null,
+            duration: null,
         };
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleDelete = this.handleDelete.bind(this);
-        
+        this.handleStartTime = this.handleStartTime.bind(this);
+        this.valuetext = this.valuetext.bind(this)
     }    
+
+    handleStartTime = (time) => {
+        this.setState({ startTime: time })
+    }
+
+    valuetext(value){
+        var hours = value/60;
+        return hours;
+    }
     
     handleSubmit(event){ 
         var that = this;
@@ -76,8 +94,8 @@ class Orderdetail extends Component {
             body: JSON.stringify({
                 "title": this.order_title.value,
                 "description": this.order_description.value,
-                "starting": this.order_starting.value,
-                "ending": this.order_ending.value,
+                "starting":  moment(this.state.startTime).format("YYYY-MM-DD HH:mm"),
+                "duration": this.state.duration/60,
                 "hourlyrate": this.order_hourlyrate.value,
                 "traveldistance": this.order_traveldistance.value,
                 "customer": this.order_customer.value
@@ -145,7 +163,7 @@ class Orderdetail extends Component {
               throw new Error('Something went wrong ...');
             }
           })
-          .then(data => this.setState({ orderdata: data, isLoading: false, message: data.request }))
+          .then(data => this.setState({ orderdata: data, isLoading: false, message: data.request, startTime: data.order_starting, duration: data.order_duration*60 }))
           .then(function(){
             if(that.state.message == "failed"){
                 that.setState({ open: true, message: that.state.orderdata.error.message, snackcolor: "error"})
@@ -243,24 +261,6 @@ class Orderdetail extends Component {
                         defaultValue={this.state.orderdata.order_customer}
                     />
                     <TextField
-                        inputRef={(inputRef) => {this.order_starting = inputRef}}
-                        variant="outlined"
-                        margin="normal"
-                        required
-                        fullWidth
-                        label="Starting Time"
-                        defaultValue={this.state.orderdata.order_starting}
-                    />
-                    <TextField
-                        inputRef={(inputRef) => {this.order_ending = inputRef}}
-                        variant="outlined"
-                        margin="normal"
-                        required
-                        fullWidth
-                        label="Ending Time"
-                        defaultValue={this.state.orderdata.order_ending}
-                    />
-                    <TextField
                         inputRef={(inputRef) => {this.order_traveldistance = inputRef}}
                         variant="outlined"
                         margin="normal"
@@ -278,6 +278,49 @@ class Orderdetail extends Component {
                         label="Hourlyrate - order specific"
                         defaultValue={this.state.orderdata.order_hourlyrate}
                     />
+                    <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                        <DateTimePicker
+                            disableFuture
+                            inputVariant="outlined"
+                            fullWidth
+                            ampm={false}
+                            margin="normal"
+                            id="time-picker"
+                            label="Time picker"
+                            format="yyyy-MM-dd HH:mm"
+                            value={this.state.startTime}
+                            onChange={this.handleStartTime}
+                            KeyboardButtonProps={{
+                                'aria-label': 'change time',
+                            }}
+                        />
+                    </MuiPickersUtilsProvider>
+                    <Grid container spacing={2} alignItems="center">
+                        <Grid item xs={8}>
+                            <Slider
+                                margin="normal"
+                                defaultValue={this.state.duration}
+                                AriaValueText={this.valuetext}
+                                aria-labelledby="discrete-slider-small-steps"
+                                step={15}
+                                min={15}
+                                max={600}
+                                valueLabelDisplay="off"
+                                onChange={ (e, value) => this.setState({ duration: value }) }
+                                valueLabelFormat={this.valuetext}
+
+                            />
+                        </Grid>
+                        <Grid item xs={4}>
+                            <TextField
+                                value={this.state.duration/60 + " - " + moment(this.state.startTime).add(this.state.duration, "m").format("HH:mm")}
+                                disabled="true"
+                                variant="outlined"
+                                margin="normal"
+                                label="Dauer - Ende"
+                            />
+                        </Grid>                     
+                    </Grid>
                     <Button
                         type="submit"
                         fullWidth

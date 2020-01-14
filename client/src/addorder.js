@@ -14,7 +14,10 @@ import GavelOutlinedIcon from '@material-ui/icons/GavelOutlined';
 import { green } from '@material-ui/core/colors';
 import 'date-fns';
 import DateFnsUtils from '@date-io/date-fns';
-import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers';
+import { MuiPickersUtilsProvider, KeyboardDatePicker, DateTimePicker } from '@material-ui/pickers';
+import Slider from '@material-ui/core/Slider';
+import Grid from '@material-ui/core/Grid';
+import moment from "moment";
 
 const useStyles = theme => ({
     paper: {
@@ -42,7 +45,10 @@ const useStyles = theme => ({
     },
     message: {
         display: 'flex',
-      },
+    },
+    margin: {
+        marginTop: "30px"
+    }
 });
 
 class AddOrder extends Component {
@@ -50,6 +56,8 @@ class AddOrder extends Component {
     constructor(props){
         super(props);
         
+        var today = new Date().toISOString().slice(0,10).toString() + " 06:00";
+
         this.state = {
             orderdata: [],
             isLoading: false,
@@ -58,17 +66,24 @@ class AddOrder extends Component {
             open: false,
             snackcolor: "error",
             data: null,
-            startDate: null,
+            startTime: today,
+            duration: 15
         };
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.handleStartDate = this.handleStartDate.bind(this); 
+        this.handleStartTime = this.handleStartTime.bind(this); 
+        this.valuetext = this.valuetext.bind(this)
     } 
-    
-    handleStartDate = (date) => {
+
+    handleStartTime = (time) => {
         this.setState({
-            startDate: date
-        });
-    };
+            startTime: time
+        })
+    }
+
+    valuetext(value){
+        var hours = value/60;
+        return hours;
+    }
     
     handleSubmit(event){ 
         var that = this;
@@ -85,8 +100,8 @@ class AddOrder extends Component {
             body: JSON.stringify({
                 "title": this.order_title.value,
                 "description": this.order_description.value,
-                "starting": this.order_starting.value,
-                "ending": this.order_ending.value,
+                "starting": moment(this.state.startTime).format("YYYY-MM-DD HH:mm"),
+                "duration": this.state.duration/60,
                 "hourlyrate": this.order_hourlyrate.value,
                 "traveldistance": this.order_traveldistance.value,
                 "customer": this.order_customer.value
@@ -169,22 +184,7 @@ class AddOrder extends Component {
                         label="Associated Customer"
                         type="mail"
                     />
-                    <TextField
-                        inputRef={(inputRef) => {this.order_starting = inputRef}}
-                        variant="outlined"
-                        margin="normal"
-                        required
-                        fullWidth
-                        label="Starting Time"
-                    />
-                    <TextField
-                        inputRef={(inputRef) => {this.order_ending = inputRef}}
-                        variant="outlined"
-                        margin="normal"
-                        required
-                        fullWidth
-                        label="Ending Time"
-                    />
+                    
                     <TextField
                         inputRef={(inputRef) => {this.order_traveldistance = inputRef}}
                         variant="outlined"
@@ -202,18 +202,49 @@ class AddOrder extends Component {
                         label="Hourlyrate - order specific"
                     />
                     <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                        <KeyboardDatePicker
+                        <DateTimePicker
+                            disableFuture
+                            inputVariant="outlined"
+                            fullWidth
+                            ampm={false}
                             margin="normal"
-                            id="date-picker-dialog"
-                            label="Date picker dialog"
-                            format="MM-dd-yyyy"
-                            value={this.state.startDate}
-                            onChange={this.handleStartDate}
+                            id="time-picker"
+                            label="Time picker"
+                            format="yyyy-MM-dd HH:mm"
+                            value={this.state.startTime}
+                            onChange={this.handleStartTime}
                             KeyboardButtonProps={{
-                              'aria-label': 'change date',
+                                'aria-label': 'change time',
                             }}
                         />
                     </MuiPickersUtilsProvider>
+                    <Grid container spacing={2} alignItems="center">
+                        <Grid item xs={8}>
+                            <Slider
+                                margin="normal"
+                                defaultValue={15}
+                                AriaValueText={this.valuetext}
+                                aria-labelledby="discrete-slider-small-steps"
+                                step={15}
+                                min={15}
+                                max={600}
+                                valueLabelDisplay="off"
+                                onChange={ (e, value) => this.setState({ duration: value }) }
+                                valueLabelFormat={this.valuetext}
+
+                            />
+                        </Grid>
+                        <Grid item xs={4}>
+                            <TextField
+                                value={this.state.duration/60 + " - " + moment(this.state.startTime).add(this.state.duration, "m").format("HH:mm")}
+                                disabled="true"
+                                variant="outlined"
+                                margin="normal"
+                                label="Dauer - Ende"
+                            />
+                        </Grid>                     
+                    </Grid>
+                    
                     <Button
                         type="submit"
                         fullWidth
@@ -231,3 +262,22 @@ class AddOrder extends Component {
 }
 
 export default withStyles(useStyles) (AddOrder);
+
+/**
+ * <TextField
+                        inputRef={(inputRef) => {this.order_starting = inputRef}}
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        label="Starting Time"
+                    />
+                    <TextField
+                        inputRef={(inputRef) => {this.order_ending = inputRef}}
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        label="Ending Time"
+                    />
+ */
