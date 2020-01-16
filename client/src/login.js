@@ -9,9 +9,8 @@ import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { withStyles } from '@material-ui/core/styles';
-import { Snackbar, SnackbarContent } from '@material-ui/core';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-import { Redirect } from 'react-router-dom'
+import SnackbarMessage from './components/snackbarmessage'
 
 const useStyles = theme => ({
     paper: {
@@ -31,9 +30,6 @@ const useStyles = theme => ({
     submit: {
       margin: theme.spacing(3, 0, 2),
     },
-    error: {
-        backgroundColor: theme.palette.error.dark,
-    },
     message: {
         display: 'flex',
       },
@@ -48,11 +44,17 @@ class Login extends Component {
             isLoading: false,
             error: null,
             message: "",
-            open: false
+            open: false,
+            snackcolor: "error"
         };
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleSnackbarClose = this.handleSnackbarClose.bind(this)
         
-    }    
+    }   
+    
+    handleSnackbarClose(){
+        this.setState({ open: false })
+    }
     
     handleSubmit(event){ 
         var that = this;
@@ -84,7 +86,7 @@ class Login extends Component {
     render() {
         
         const { classes } = this.props;
-        const { response, isLoading, error, open, message } = this.state;
+        const { response, isLoading, open, message } = this.state;
 
         if (isLoading) {
 
@@ -108,17 +110,16 @@ class Login extends Component {
                     <LockOutlinedIcon />
                     </Avatar>
                     <Typography component="h1" variant="h5">
-                    Sign in
+                    Anmelden
                     </Typography>
-                    <Snackbar
-                        open={open}
-                        autoHideDuration={2000}
-                        onClose={() => this.setState({open: false})}>
-                        <SnackbarContent 
-                            className={classes.error}
-                            message={<span id="client-snackbar" className={classes.message}>{message}</span>}>
-                        </SnackbarContent>
-                    </Snackbar>
+
+                    <SnackbarMessage
+                        open={this.state.open}
+                        onClose={this.handleSnackbarClose}
+                        message={this.state.message}
+                        color={this.state.snackcolor}>
+                    </SnackbarMessage>
+
                     <form className={classes.form} onSubmit={this.handleSubmit}>
                     <TextField
                         inputRef={(inputRef) => {this.mail = inputRef}}
@@ -126,9 +127,7 @@ class Login extends Component {
                         margin="normal"
                         required
                         fullWidth
-                        id="email"
-                        label="Email Address"
-                        name="email"
+                        label="E-Mail"
                         autoComplete="email"
                         autoFocus
                     />
@@ -138,10 +137,8 @@ class Login extends Component {
                         margin="normal"
                         required
                         fullWidth
-                        name="password"
-                        label="Password"
+                        label="Passwort"
                         type="password"
-                        id="password"
                         autoComplete="current-password"
                     />
                     <Button
@@ -151,7 +148,7 @@ class Login extends Component {
                         color="primary"
                         className={classes.submit}
                     >
-                        Sign In
+                        Login
                     </Button>
                     <Button
                         href="/register"
@@ -159,7 +156,7 @@ class Login extends Component {
                         variant="contained"
                         color="primary"
                     >
-                        Register
+                        Registrieren
                     </Button>
                     </form>
                 </div>

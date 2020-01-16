@@ -148,5 +148,71 @@ module.exports = {
       });
 
     });
-  }
+  },
+
+  getAvgTraveldistance: id => {
+    return  new Promise((resolve, reject) => {
+      id = parseInt(id);
+      db.get(`SELECT AVG(order_traveldistance) AS avg_traveldistance FROM orders WHERE order_customer = $id GROUP BY order_customer`, { $id: id }, (err, result) =>{
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  },
+
+  getAvgHourlyrate: id => {
+    return  new Promise((resolve, reject) => {
+      id = parseInt(id);
+      db.get(`SELECT AVG(order_hourlyrate) AS avg_hourlyrate FROM orders WHERE order_customer = $id GROUP BY order_customer`, { $id: id }, (err, result) =>{
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  },
+
+  getAvgDuration: id => {
+    return  new Promise((resolve, reject) => {
+      id = parseInt(id);
+      db.get(`SELECT AVG(order_duration) AS avg_duration FROM orders WHERE order_customer = $id GROUP BY order_customer`, { $id: id }, (err, result) =>{
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  },
+
+  getAvgOrderCost: id => {
+    return  new Promise((resolve, reject) => {
+      id = parseInt(id);
+      db.get(`SELECT AVG(order_hourlyrate*order_duration) AS avg_ordercost FROM orders WHERE order_customer = $id GROUP BY order_customer`, { $id: id }, (err, result) =>{
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  },
+
+  getOrderAmountMonth: (jsonObject) => {
+    return  new Promise((resolve, reject) => {
+      id = parseInt(jsonObject.id);
+      db.all(`SELECT strftime('%m', order_starting) as month, strftime('%Y', order_starting) as year, COUNT(*) as anzahl FROM orders WHERE order_customer = $id AND Year = $year GROUP BY month`, { $id: id, $year: jsonObject.year }, (err, result) =>{
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  },
+
 };

@@ -11,10 +11,8 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
 import PermIdentityOutlinedIcon from '@material-ui/icons/PermIdentityOutlined';
-import Divider from '@material-ui/core/Divider';
 import EditIcon from '@material-ui/icons/Edit';
 import IconButton from '@material-ui/core/IconButton';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import AddIcon from '@material-ui/icons/Add';
 import ListIcon from '@material-ui/icons/List';
@@ -48,6 +46,14 @@ const useStyles = theme => ({
     width: '100%',
     marginTop: theme.spacing(1)
   },
+  addbutton: {
+    margin: 20,
+    top: 'auto',
+    right: 20,
+    bottom: 20,
+    left: 'auto',
+    position: 'fixed'
+  }
 });
 
 
@@ -88,7 +94,7 @@ class Customers extends React.Component {
   }
 
   render() {
-    const { customers, isLoading, error } = this.state;
+    const { customers, isLoading } = this.state;
     const { classes } = this.props;
 
     if (sessionStorage.getItem("authToken") == null){
@@ -100,11 +106,11 @@ class Customers extends React.Component {
     }
 
     return (
-      <Container component="main" maxWidth="xs">
+      <Container component="main" maxWidth="sm">
         <CssBaseline />
         <div  className={classes.paper}>
-        <h1>Customer Overview</h1>
-        <Fab size="medium" color="primary" aria-label="add" href="addcustomer">
+        <h1>Kundenübersicht</h1>
+        <Fab className={classes.addbutton} size="large" color="primary" aria-label="add" href="addcustomer">
           <AddIcon />
         </Fab>
         <List className={classes.root}>
@@ -116,12 +122,12 @@ class Customers extends React.Component {
                 <PermIdentityOutlinedIcon />
               </Avatar>
             </ListItemAvatar>
-            <ListItemText primary={customer.customer_name} secondary={customer.customer_company} />
+            <ListItemText primary={customer.customer_name} secondary={customer.customer_id + " - " + customer.customer_company + " - " + customer.customer_town} />
             <ListItemSecondaryAction>
               <IconButton href={"/customer/" + customer.customer_id} edge="end">
                 <EditIcon />
               </IconButton>
-              <IconButton href={"/customer/orders/" + customer.customer_id} edge="end">
+              <IconButton href={"/customer/statistics/" + customer.customer_id} edge="end">
                 <ListIcon />
               </IconButton>
             </ListItemSecondaryAction>

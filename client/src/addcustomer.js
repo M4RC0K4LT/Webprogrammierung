@@ -12,6 +12,7 @@ import { Snackbar, SnackbarContent } from '@material-ui/core';
 import PermContactCalendarOutlinedIcon from '@material-ui/icons/PermContactCalendarOutlined';
 import { Redirect } from 'react-router-dom'
 import { green } from '@material-ui/core/colors';
+import SnackbarMessage from './components/snackbarmessage'
 
 const useStyles = theme => ({
     paper: {
@@ -30,12 +31,6 @@ const useStyles = theme => ({
     },
     submit: {
       margin: theme.spacing(3, 0, 2),
-    },
-    error: {
-        backgroundColor: theme.palette.error.dark,
-    },
-    success: {
-        backgroundColor: green[500],
     },
     message: {
         display: 'flex',
@@ -56,8 +51,13 @@ class AddCustomer extends Component {
             snackcolor: "error",
         };
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleSnackbarClose = this.handleSnackbarClose.bind(this)
         
     }    
+
+    handleSnackbarClose(){
+        this.setState({ open: false })
+    }
     
     handleSubmit(event){ 
         var that = this;
@@ -96,7 +96,7 @@ class AddCustomer extends Component {
     render() {
         
         const { classes } = this.props;
-        const { response, isLoading, error, open, message } = this.state;
+        const { isLoading, open, message } = this.state;
 
         if (isLoading) {
             return (<div className={classes.paper}><CircularProgress/></div>);
@@ -105,12 +105,6 @@ class AddCustomer extends Component {
         if (sessionStorage.getItem("authToken") == null){
             return <Redirect to='/login' />
         }
-        if (this.state.snackcolor == "success"){
-            var color = classes.success;
-        }else{
-            var color = classes.error;
-        }
-
 
         return (
             <Container component="main" maxWidth="xs">
@@ -124,18 +118,16 @@ class AddCustomer extends Component {
                     Add a new Customer
                     </Typography>
                     <br/>
-                    <Snackbar
-                        open={open}
-                        autoHideDuration={2000}
-                        onClose={() => this.setState({open: false})}>
-                        <SnackbarContent 
-                            className={color}
-                            message={<span id="client-snackbar" className={classes.message}>{message}</span>}>
-                        </SnackbarContent>
-                    </Snackbar>
+                    <SnackbarMessage
+                        open={this.state.open}
+                        onClose={this.handleSnackbarClose}
+                        message={this.state.message}
+                        color={this.state.snackcolor}>
+                    </SnackbarMessage>
                     <form className={classes.form} onSubmit={this.handleSubmit}>
                     <TextField
                         inputRef={(inputRef) => {this.customer_name = inputRef}}
+                        defaultValue={this.customer_name}
                         variant="outlined"
                         margin="normal"
                         required
@@ -146,6 +138,7 @@ class AddCustomer extends Component {
                     />
                     <TextField
                         inputRef={(inputRef) => {this.customer_company = inputRef}}
+                        defaultValue={this.customer_company}
                         variant="outlined"
                         margin="normal"
                         required
@@ -156,6 +149,7 @@ class AddCustomer extends Component {
                     />
                     <TextField
                         inputRef={(inputRef) => {this.customer_mail = inputRef}}
+                        defaultValue={this.customer_mail}
                         variant="outlined"
                         margin="normal"
                         fullWidth
@@ -167,6 +161,7 @@ class AddCustomer extends Component {
                     />
                     <TextField
                         inputRef={(inputRef) => {this.customer_country = inputRef}}
+                        defaultValue={this.customer_country}
                         variant="outlined"
                         margin="normal"
                         required
@@ -177,6 +172,7 @@ class AddCustomer extends Component {
                     />
                     <TextField
                         inputRef={(inputRef) => {this.customer_zipcode = inputRef}}
+                        defaultValue={this.customer_zipcode}
                         variant="outlined"
                         margin="normal"
                         required
@@ -187,6 +183,7 @@ class AddCustomer extends Component {
                     />
                     <TextField
                         inputRef={(inputRef) => {this.customer_town = inputRef}}
+                        defaultValue={this.customer_town}
                         variant="outlined"
                         margin="normal"
                         required
@@ -197,6 +194,7 @@ class AddCustomer extends Component {
                     />
                     <TextField
                         inputRef={(inputRef) => {this.customer_street_number = inputRef}}
+                        defaultValue={this.customer_street_number}
                         variant="outlined"
                         margin="normal"
                         required
@@ -207,6 +205,7 @@ class AddCustomer extends Component {
                     />
                     <TextField
                         inputRef={(inputRef) => {this.customer_hourlyrate = inputRef}}
+                        defaultValue={this.customer_hourlyrate}
                         variant="outlined"
                         margin="normal"
                         required

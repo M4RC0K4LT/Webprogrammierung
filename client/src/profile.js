@@ -3,17 +3,14 @@ import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
-
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { withStyles } from '@material-ui/core/styles';
 import { Snackbar, SnackbarContent } from '@material-ui/core';
 import AccountCircleOutlinedIcon from '@material-ui/icons/AccountCircleOutlined';
-import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import { Redirect } from 'react-router-dom'
-import { green } from '@material-ui/core/colors';
+import SnackbarMessage from './components/snackbarmessage'
 
 const useStyles = theme => ({
     paper: {
@@ -33,12 +30,6 @@ const useStyles = theme => ({
     submit: {
       margin: theme.spacing(3, 0, 2),
     },
-    error: {
-        backgroundColor: theme.palette.error.dark,
-    },
-    success: {
-        backgroundColor: green[500],
-    },
     message: {
         display: 'flex',
       },
@@ -57,16 +48,20 @@ class Profile extends Component {
             snackcolor: "error",
         };
         this.handleSubmit = this.handleSubmit.bind(this);
-        
-    }    
+        this.handleSnackbarClose = this.handleSnackbarClose.bind(this)        
+    }
+    
+    handleSnackbarClose(){
+        this.setState({ open: false })
+    }
     
     handleSubmit(event){ 
         var that = this;
         event.preventDefault();
         this.setState({ isLoading: true });
 
-        if(that.user_password.value != that.passwordconfirm.value){
-            that.setState({ message: "Passwords do not match!", open: true, isLoading: false, snackcolor: "error" })
+        if(that.user_password.value !== that.passwordconfirm.value){
+            that.setState({ message: "Passwörter stimmen nicht überein!", open: true, isLoading: false, snackcolor: "error" })
             return;
         }
         fetch('http://localhost:3001/api/user/change', {
@@ -82,7 +77,7 @@ class Profile extends Component {
             })
         })
         .then(response => response.json())
-        .then(data => this.setState({ userdata: data, isLoading: false, message: "Changes saved successfully!", snackcolor: "success", open: true}))
+        .then(data => this.setState({ userdata: data, isLoading: false, message: "Änderungen erfolgreich übernommen!", snackcolor: "success", open: true}))
         .then(function(){
             if(that.state.message === "failed"){
                 that.setState({ message: "Failed", open: true, snackcolor: "error" })
@@ -127,7 +122,7 @@ class Profile extends Component {
     render() {
         
         const { classes } = this.props;
-        const { response, isLoading, error, open, message } = this.state;
+        const { isLoading, open, message } = this.state;
 
         if (isLoading) {
             return (<div className={classes.paper}><CircularProgress/></div>);
@@ -136,12 +131,6 @@ class Profile extends Component {
         if (sessionStorage.getItem("authToken") == null){
             return <Redirect to='/login' />
         }
-        if (this.state.snackcolor == "success"){
-            var color = classes.success;
-        }else{
-            var color = classes.error;
-        }
-
 
         return (
             <Container component="main" maxWidth="xs">
@@ -152,18 +141,15 @@ class Profile extends Component {
                     </Avatar>
                     <br/>
                     <Typography component="h1" variant="h5">
-                    Profile Overview
+                    Profilübersicht
                     </Typography>
                     <br/>
-                    <Snackbar
-                        open={open}
-                        autoHideDuration={2000}
-                        onClose={() => this.setState({open: false})}>
-                        <SnackbarContent 
-                            className={color}
-                            message={<span id="client-snackbar" className={classes.message}>{message}</span>}>
-                        </SnackbarContent>
-                    </Snackbar>
+                    <SnackbarMessage
+                        open={this.state.open}
+                        onClose={this.handleSnackbarClose}
+                        message={this.state.message}
+                        color={this.state.snackcolor}>
+                    </SnackbarMessage>
                     <form className={classes.form} onSubmit={this.handleSubmit}>
                     <TextField
                         inputRef={(inputRef) => {this.user_id = inputRef}}
@@ -183,7 +169,7 @@ class Profile extends Component {
                         required
                         fullWidth
                         id="username"
-                        label="Username"
+                        label="Benutzername"
                         name="username"
                         defaultValue={this.state.userdata.user_name}
                     />
@@ -194,7 +180,7 @@ class Profile extends Component {
                         fullWidth
                         required
                         name="mail"
-                        label="Mail"
+                        label="E-Mail"
                         type="mail"
                         id="mail"
                         defaultValue={this.state.userdata.user_mail}
@@ -206,7 +192,7 @@ class Profile extends Component {
                         required
                         fullWidth
                         name="password"
-                        label="Password"
+                        label="Passwort"
                         type="password"
                         id="password"
                         autoComplete="12"
@@ -218,7 +204,7 @@ class Profile extends Component {
                         required
                         fullWidth
                         name="passwordconfirm"
-                        label="Confirm Password"
+                        label="Passwort bestätigen "
                         type="password"
                         id="passwordconfirm"
                         autoComplete="current-password"
@@ -230,7 +216,7 @@ class Profile extends Component {
                         color="primary"
                         className={classes.submit}
                     >
-                        Change Values
+                        Benutzerprofil aktualisieren
                     </Button>
                     </form>
                 </div>

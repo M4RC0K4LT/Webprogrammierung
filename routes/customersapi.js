@@ -23,11 +23,22 @@ router.get('/:id', async (request, response) => {
             response.status(404).send({error: `Customer ${request.params.id} not found`});
             return;
         }
-        response.status(201).send(customer);
+        const avgtraveldistance = await customers.getAvgTraveldistance(request.params.id);
+        const avghourlyrate = await customers.getAvgHourlyrate(request.params.id);
+        const avgduration = await customers.getAvgDuration(request.params.id);
+        const avgordercost = await customers.getAvgOrderCost(request.params.id);
+        let data = Object.assign(customer, avghourlyrate, avgtraveldistance, avgduration, avgordercost);
+        response.status(201).send(data);
     } catch (err){
         response.status(503).send(err);
     }
     
+});
+
+//Kundenstatistiken - Aufträge pro Monat
+router.post('/statistics/', async (request, response) => {   
+    const month = await customers.getOrderAmountMonth(request.body);
+    response.send(month);
 });
 
 //Customer hinzufügen

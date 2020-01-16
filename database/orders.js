@@ -45,19 +45,29 @@ module.exports = {
         return({error: `Use correct date and time format!`});
     }
 
+    var traveldistance = jsonObject.traveldistance;
+    if(traveldistance.length==0){
+      traveldistance = null;
+    }
+
     //Überprüfung ob Standardstundensatz abgeändert
-    hourlyrate = jsonObject.hourlyrate;
-    if(hourlyrate == null){
-      const gethour = await new Promise((resolve, reject) => {
+    var hourlyrate = jsonObject.hourlyrate;
+    console.log(hourlyrate)
+    if(hourlyrate.length==0){
+      console.log("hier1")
+      await new Promise((resolve, reject) => {
         db.get(`SELECT customer_hourlyrate FROM customers WHERE customer_id = $id`, { $id: jsonObject.customer }, (err, result) => {
           if (err) {
             reject(err);
           }
           else {
-            resolve(hourlyrate = result.customer_hourlyrate);
+            console.log("hier2")
+            hourlyrate = result.customer_hourlyrate;
+            resolve(result);
           }
         });
       })
+      
     }
 
     return new Promise((resolve, reject) => {
@@ -71,7 +81,7 @@ module.exports = {
           $starting: jsonObject.starting,
           $duration: jsonObject.duration,
           $hourlyrate: hourlyrate,
-          $traveldistance: jsonObject.traveldistance
+          $traveldistance: traveldistance
         },
         function (err) {
           if (err) {

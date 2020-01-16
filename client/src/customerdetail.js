@@ -7,11 +7,10 @@ import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { withStyles } from '@material-ui/core/styles';
-import { Snackbar, SnackbarContent } from '@material-ui/core';
 import PermContactCalendarOutlinedIcon from '@material-ui/icons/PermContactCalendarOutlined';
 import { Redirect } from 'react-router-dom'
-import { green } from '@material-ui/core/colors';
 import DeleteOutlineOutlinedIcon from '@material-ui/icons/DeleteOutlineOutlined';
+import SnackbarMessage from './components/snackbarmessage'
 
 const useStyles = theme => ({
     paper: {
@@ -35,12 +34,6 @@ const useStyles = theme => ({
       color: theme.palette.error.dark,
       margin: theme.spacing(0, 0, 3),
     },
-    error: {
-        backgroundColor: theme.palette.error.dark,
-    },
-    success: {
-        backgroundColor: green[500],
-    },
     message: {
         display: 'flex',
       },
@@ -61,13 +54,19 @@ class Customerdetail extends Component {
         };
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleDelete = this.handleDelete.bind(this);
+        this.handleSnackbarClose = this.handleSnackbarClose.bind(this)
         
-    }    
+    } 
+    
+    handleSnackbarClose(){
+        this.setState({ open: false })
+    }
     
     handleSubmit(event){ 
-        var that = this;
-        const id = this.props.match.params.id;
         event.preventDefault();
+        var that = this;
+        var updatedCustomer = [];
+        const id = this.props.match.params.id;
         this.setState({ isLoading: true });
 
         fetch('http://localhost:3001/api/customers/' + id, {
@@ -88,15 +87,12 @@ class Customerdetail extends Component {
             })
         })
         .then(response => response.json())
-        .then(data => this.setState({ customerdata: data, isLoading: false}))
+        .then(data => updatedCustomer=data)
         .then(function(){
-            if(that.state.customerdata.request === "failed"){
-                that.setState({ message: "Something went wrong", open: true, snackcolor: "error" });
-                setTimeout(() => {
-                    that.fetchCustomer();
-                  }, 1000);
+            if(updatedCustomer.request === "failed"){
+                that.setState({ isLoading: false, message: "Something went wrong", open: true, snackcolor: "error" });
             }else{
-                that.setState({ message: "Changes saved successfully!", snackcolor: "success", open: true })
+                that.setState({ isLoading: false, customerdata: updatedCustomer, message: "Changes saved successfully!", snackcolor: "success", open: true })
             }
         })
         .catch(error => this.setState({ error, isLoading: false, open: true, message: error.message, snackcolor: "error" }));
@@ -151,7 +147,7 @@ class Customerdetail extends Component {
           })
           .then(data => this.setState({ customerdata: data, isLoading: false, message: data.request }))
           .then(function(){
-            if(that.state.message == "failed"){
+            if(that.state.message === "failed"){
                 that.setState({ open: true, message: that.state.customerdata.error.message, snackcolor: "error"})
             }else{
                 that.setState({ open: false })
@@ -164,14 +160,12 @@ class Customerdetail extends Component {
         if (sessionStorage.getItem("authToken") != null){
             this.fetchCustomer();
         }
-        
-
     }
 
     render() {
         
         const { classes } = this.props;
-        const { response, isLoading, error, open, message } = this.state;
+        const { isLoading } = this.state;
 
         if (isLoading) {
             return (<div className={classes.paper}><CircularProgress/></div>);
@@ -179,11 +173,6 @@ class Customerdetail extends Component {
 
         if (sessionStorage.getItem("authToken") == null){
             return <Redirect to='/login' />
-        }
-        if (this.state.snackcolor == "success"){
-            var color = classes.success;
-        }else{
-            var color = classes.error;
         }
 
 
@@ -196,18 +185,17 @@ class Customerdetail extends Component {
                     </Avatar>
                     <br/>
                     <Typography component="h1" variant="h5">
-                    Customer Overview
+                    Kunde bearbeiten
                     </Typography>
                     <br/>
-                    <Snackbar
-                        open={open}
-                        autoHideDuration={2000}
-                        onClose={() => this.setState({open: false})}>
-                        <SnackbarContent 
-                            className={color}
-                            message={<span id="client-snackbar" className={classes.message}>{message}</span>}>
-                        </SnackbarContent>
-                    </Snackbar>
+
+                    <SnackbarMessage
+                        open={this.state.open}
+                        onClose={this.handleSnackbarClose}
+                        message={this.state.message}
+                        color={this.state.snackcolor}>
+                    </SnackbarMessage>
+
                     <form className={classes.form} onSubmit={this.handleSubmit}>
                     <TextField
                         inputRef={(inputRef) => {this.customer_id = inputRef}}

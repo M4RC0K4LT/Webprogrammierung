@@ -10,16 +10,14 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
 import GavelOutlinedIcon from '@material-ui/icons/GavelOutlined';
-import Divider from '@material-ui/core/Divider';
 import EditIcon from '@material-ui/icons/Edit';
 import IconButton from '@material-ui/core/IconButton';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import AddIcon from '@material-ui/icons/Add';
-import ListIcon from '@material-ui/icons/List';
 import Fab from '@material-ui/core/Fab';
 import { withStyles } from '@material-ui/core/styles';
-import TextField from '@material-ui/core/TextField';
+import DeleteIcon from '@material-ui/icons/Delete';
+import AccountBalanceIcon from '@material-ui/icons/AccountBalance';
 
 const useStyles = theme => ({
   paper: {
@@ -49,6 +47,14 @@ const useStyles = theme => ({
     width: '100%',
     marginTop: theme.spacing(1)
   },
+  addbutton: {
+    margin: 20,
+    top: 'auto',
+    right: 20,
+    bottom: 20,
+    left: 'auto',
+    position: 'fixed'
+  }
 });
 
 class Orders extends React.Component {
@@ -61,6 +67,57 @@ class Orders extends React.Component {
       error: null,
       filtered: [],
     };
+    this.requestInvoice = this.requestInvoice.bind(this);
+    this.fetchOrders = this.fetchOrders.bind(this);
+    this.handleDelete = this.handleDelete.bind(this);
+  }
+
+  requestInvoice(id) {
+    var invoicelist = [];
+    invoicelist.push(id);
+    fetch("http://localhost:3001/api/orders/get/invoice", {
+      method: 'POST',
+      headers: {
+        'Content-Type':'application/json',
+        'Authorization': 'Bearer ' + sessionStorage.getItem("authToken")
+     },body: JSON.stringify({
+        "idlist": invoicelist,
+    })})
+      .then(res => res.blob())
+      .then(response => {
+        const file = new Blob(
+          [response], 
+          {type: 'application/pdf'});
+        const fileURL = URL.createObjectURL(file);
+        window.open(fileURL);
+      })
+      .catch(error => this.setState({ error, isLoading: false }));
+  }
+
+  handleDelete(id){
+    var that = this;
+
+    fetch('http://localhost:3001/api/orders/', {
+        method: 'DELETE',
+        headers: {
+            'Content-Type':'application/json',
+            'Authorization': 'Bearer ' + sessionStorage.getItem("authToken")
+        },
+        body: JSON.stringify({
+            "id": id,
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.request === "failed"){
+            that.setState({ isLoading: false });
+        }else{
+            that.setState({ isLoading: false})
+            this.fetchOrders();
+
+        }
+    })
+    .catch(error => this.setState({ error, isLoading: false, open: true, message: error.message, snackcolor: "error" }));
   }
 
   fetchOrders() {
@@ -90,7 +147,7 @@ class Orders extends React.Component {
   }
 
   render() {
-    const { orders, filtered, isLoading, error } = this.state;
+    const { filtered, isLoading } = this.state;
     const { classes } = this.props;
 
     if (sessionStorage.getItem("authToken") == null){
@@ -101,11 +158,11 @@ class Orders extends React.Component {
       return (<div className={classes.paper}><CircularProgress/></div>);
     }
     return (
-      <Container component="main" maxWidth="xs">
+      <Container component="main" maxWidth="sm">
           <CssBaseline />
           <div  className={classes.paper}>
-          <h1>Order Overview</h1>
-          <Fab size="medium" color="primary" aria-label="add" href="/addorder">
+          <h1>Auftragsübersicht</h1>
+          <Fab className={classes.addbutton} size="large" color="primary" aria-label="add" href="/addorder">
             <AddIcon/>
           </Fab>
           <List className={classes.root}>
@@ -114,13 +171,19 @@ class Orders extends React.Component {
             <ListItem key={order.order_title}>
               <ListItemAvatar>
                 <Avatar >
-                  <GavelOutlinedIcon  />
+                  {order.order_id}
                 </Avatar>
               </ListItemAvatar>
-              <ListItemText primary={order.order_id + ": " + order.order_title} secondary={order.order_starting} />
+              <ListItemText primary={order.order_title} secondary={order.order_starting + ":  " + order.order_description.slice(0, 15)} />
               <ListItemSecondaryAction>
-                <IconButton href={"/order/" + order.order_id} edge="end">
+                <IconButton title="Bearbeiten" href={"/order/" + order.order_id} edge="end">
                   <EditIcon />
+                </IconButton>
+                <IconButton title="Löschen" onClick={() => this.handleDelete(order.order_id)}edge="end">
+                  <DeleteIcon />
+                </IconButton>
+                <IconButton title="Rechnung" onClick={() => this.requestInvoice(order.order_id)} edge="end">
+                  <AccountBalanceIcon />
                 </IconButton>
               </ListItemSecondaryAction>
             </ListItem>

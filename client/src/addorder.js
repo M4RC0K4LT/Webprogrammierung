@@ -8,16 +8,18 @@ import Container from '@material-ui/core/Container';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { withStyles } from '@material-ui/core/styles';
 import { Snackbar, SnackbarContent } from '@material-ui/core';
-import PermContactCalendarOutlinedIcon from '@material-ui/icons/PermContactCalendarOutlined';
 import { Redirect } from 'react-router-dom'
 import GavelOutlinedIcon from '@material-ui/icons/GavelOutlined';
 import { green } from '@material-ui/core/colors';
 import 'date-fns';
 import DateFnsUtils from '@date-io/date-fns';
-import { MuiPickersUtilsProvider, KeyboardDatePicker, DateTimePicker } from '@material-ui/pickers';
+import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers';
 import Slider from '@material-ui/core/Slider';
 import Grid from '@material-ui/core/Grid';
 import moment from "moment";
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import SnackbarMessage from './components/snackbarmessage'
+
 
 const useStyles = theme => ({
     paper: {
@@ -60,6 +62,8 @@ class AddOrder extends Component {
 
         this.state = {
             orderdata: [],
+            customers: [],
+            customer: null,
             isLoading: false,
             error: null,
             message: "",
@@ -67,12 +71,19 @@ class AddOrder extends Component {
             snackcolor: "error",
             data: null,
             startTime: today,
-            duration: 15
+            duration: 0,
+            disablefields: false
         };
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleStartTime = this.handleStartTime.bind(this); 
-        this.valuetext = this.valuetext.bind(this)
+        this.valuetext = this.valuetext.bind(this);
+        this.fetchCustomers = this.fetchCustomers.bind(this);
+        this.handleSnackbarClose = this.handleSnackbarClose.bind(this)
     } 
+
+    handleSnackbarClose(){
+        this.setState({ open: false })
+    }
 
     handleStartTime = (time) => {
         this.setState({
@@ -80,15 +91,41 @@ class AddOrder extends Component {
         })
     }
 
+    fetchCustomers() {    
+        this.setState({ isLoading: true });
+        fetch("http://localhost:3001/api/customers/", {
+          method: 'GET',
+          headers: {
+              'Accept': 'application/json',
+              'Authorization': 'Bearer ' + sessionStorage.getItem("authToken")
+          }})
+          .then(response => {
+            if (response.ok) {
+              return response.json();
+            } else {
+              throw new Error('Something went wrong ...');
+            }
+          })
+          .then(data => this.setState({ customers: data, isLoading: false }))
+          .catch(error => this.setState({ error, isLoading: false }));
+        }
+
     valuetext(value){
         var hours = value/60;
         return hours;
     }
     
     handleSubmit(event){ 
-        var that = this;
-        const id = this.props.match.params.id;
         event.preventDefault();
+        if(!(this.state.customers.includes(this.state.customer))){
+            this.setState({ open: true, message: "Bitte wähle einen gültigen Kunden"})
+            return;
+        }
+        if(this.state.duration == 0){
+            this.setState({ open: true, message: "Bitte wähle eine gültige Dauer"})
+            return;
+        }
+        var that = this;
         this.setState({ isLoading: true });
 
         fetch('http://localhost:3001/api/orders/', {
@@ -104,24 +141,33 @@ class AddOrder extends Component {
                 "duration": this.state.duration/60,
                 "hourlyrate": this.order_hourlyrate.value,
                 "traveldistance": this.order_traveldistance.value,
-                "customer": this.order_customer.value
+                "customer": this.state.customer.customer_id
             })
         })
         .then(response => response.json())
         .then(data => this.setState({ orderdata: data, isLoading: false}))
         .then(function(){
             if(that.state.orderdata.request === "failed"){
-                that.setState({ message: "Something went wrong", open: true, snackcolor: "error" });
+                that.setState({ message: "Fehler bei der Bearbeitung", open: true, snackcolor: "error" });
             }else{
-                that.setState({ message: "Changes saved successfully!", snackcolor: "success", open: true })
+                that.setState({ message: "Auftrag erfolgreich hinzugefügt", snackcolor: "success", open: true, disablefields: true })
             }
         })
         .catch(error => this.setState({ error, isLoading: false, open: true, message: error.message, snackcolor: "error" }));
     }
 
+    componentDidMount() {
+        if (sessionStorage.getItem("authToken") != null){
+          this.fetchCustomers();
+          if(!(this.state.orderdata.length==0)){
+              this.setState({ startTime: this.state.orderdata.order_starting, duration: this.state.orderdata.order_duration })
+          }
+        }   
+    }
+
     render() {
         const { classes } = this.props;
-        const { response, isLoading, error, open, message } = this.state;
+        const { isLoading, open, message } = this.state;
 
         if (isLoading) {
             return (<div className={classes.paper}><CircularProgress/></div>);
@@ -130,10 +176,39 @@ class AddOrder extends Component {
         if (sessionStorage.getItem("authToken") == null){
             return <Redirect to='/login' />
         }
-        if (this.state.snackcolor == "success"){
-            var color = classes.success;
+        var buttons = ""
+        if(this.state.disablefields){
+            buttons = (
+            <Grid
+              justify="space-between"
+              container
+              margin="normal" 
+            >
+              <Grid item>
+                <Button className={classes.submit} variant="outlined" color="primary" href={"/order/" + this.state.orderdata.order_id}>
+                Bearbeiten
+              </Button>
+              </Grid>
+              <Grid item>
+                <Button className={classes.submit} variant="outlined" color="primary" href={"/orders"}>
+                Zur Übersicht
+              </Button>
+              </Grid>
+            </Grid>
+            );
         }else{
-            var color = classes.error;
+            buttons = (
+                <Button
+                        type="submit"
+                        fullWidth
+                        variant="contained"
+                        color="primary"
+                        disabled={this.state.disablefields}
+                        className={classes.submit}
+                    >
+                        Auftrag hinzufügen
+                    </Button>
+            )  
         }
 
 
@@ -146,26 +221,25 @@ class AddOrder extends Component {
                     </Avatar>
                     <br/>
                     <Typography component="h1" variant="h5">
-                    Add new order
+                    Auftrag hinzufügen
                     </Typography>
                     <br/>
-                    <Snackbar
-                        open={open}
-                        autoHideDuration={2000}
-                        onClose={() => this.setState({open: false})}>
-                        <SnackbarContent 
-                            className={color}
-                            message={<span id="client-snackbar" className={classes.message}>{message}</span>}>
-                        </SnackbarContent>
-                    </Snackbar>
+                    <SnackbarMessage
+                        open={this.state.open}
+                        onClose={this.handleSnackbarClose}
+                        message={this.state.message}
+                        color={this.state.snackcolor}>
+                    </SnackbarMessage>
                     <form className={classes.form} onSubmit={this.handleSubmit}>
                     <TextField
                         inputRef={(inputRef) => {this.order_title = inputRef}}
                         variant="outlined"
+                        defaultValue={this.state.orderdata.order_title}
                         margin="normal"
                         required
                         fullWidth
-                        label="Title"
+                        label="Titel"
+                        disabled={this.state.disablefields}
                     />
                     <TextField
                         inputRef={(inputRef) => {this.order_description = inputRef}}
@@ -173,33 +247,42 @@ class AddOrder extends Component {
                         margin="normal"
                         required
                         fullWidth
-                        label="Description"
+                        label="Beschreibung"
+                        defaultValue={this.state.orderdata.order_description}
+                        disabled={this.state.disablefields}
                     />
-                    <TextField
-                        inputRef={(inputRef) => {this.order_customer = inputRef}}
-                        variant="outlined"
-                        margin="normal"
+                    <Autocomplete
+                        options={this.state.customers}
+                        getOptionLabel={option => option.customer_id + " - " + option.customer_name}
+                        autoSelect={true}
+                        autoHighlight={true}
+                        autoComplete={true}
+                        clearOnEscape={true}
                         fullWidth
-                        required
-                        label="Associated Customer"
-                        type="mail"
-                    />
-                    
+                        disabled={this.state.disablefields}
+                        inputValue={this.state.orderdata.order_customer}
+                        onChange={(event, value) => this.setState({ customer: value})}
+                        renderInput={params => (
+                            <TextField {...params} margin="normal" fullWidth label="Zugehöriger Kunde" variant="outlined" required />
+                        )}
+                    />                    
                     <TextField
                         inputRef={(inputRef) => {this.order_traveldistance = inputRef}}
                         variant="outlined"
                         margin="normal"
-                        required
                         fullWidth
-                        label="Traveldistance"
+                        label="Fahrtstrecke - optional"
+                        defaultValue={this.state.orderdata.order_traveldistance}
+                        disabled={this.state.disablefields}
                     />
                     <TextField
                         inputRef={(inputRef) => {this.order_hourlyrate = inputRef}}
                         variant="outlined"
                         margin="normal"
-                        required
                         fullWidth
-                        label="Hourlyrate - order specific"
+                        defaultValue={this.state.orderdata.order_hourlyrate}
+                        label="Stundensatz - nur wenn auftragsspezifisch"
+                        disabled={this.state.disablefields}
                     />
                     <MuiPickersUtilsProvider utils={DateFnsUtils}>
                         <DateTimePicker
@@ -209,34 +292,36 @@ class AddOrder extends Component {
                             ampm={false}
                             margin="normal"
                             id="time-picker"
-                            label="Time picker"
+                            label="Auftragsbeginn"
                             format="yyyy-MM-dd HH:mm"
                             value={this.state.startTime}
                             onChange={this.handleStartTime}
                             KeyboardButtonProps={{
                                 'aria-label': 'change time',
                             }}
+                            disabled={this.state.disablefields}
                         />
                     </MuiPickersUtilsProvider>
                     <Grid container spacing={2} alignItems="center">
-                        <Grid item xs={8}>
+                        <Grid item xs={7}>
                             <Slider
                                 margin="normal"
                                 defaultValue={15}
                                 AriaValueText={this.valuetext}
                                 aria-labelledby="discrete-slider-small-steps"
                                 step={15}
-                                min={15}
+                                min={0}
                                 max={600}
                                 valueLabelDisplay="off"
                                 onChange={ (e, value) => this.setState({ duration: value }) }
                                 valueLabelFormat={this.valuetext}
+                                disabled={this.state.disablefields}
 
                             />
                         </Grid>
-                        <Grid item xs={4}>
+                        <Grid item xs={5}>
                             <TextField
-                                value={this.state.duration/60 + " - " + moment(this.state.startTime).add(this.state.duration, "m").format("HH:mm")}
+                                value={this.state.duration/60 + "h - " + moment(this.state.startTime).add(this.state.duration, "m").format("HH:mm")}
                                 disabled="true"
                                 variant="outlined"
                                 margin="normal"
@@ -244,16 +329,7 @@ class AddOrder extends Component {
                             />
                         </Grid>                     
                     </Grid>
-                    
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        color="primary"
-                        className={classes.submit}
-                    >
-                        Add Order
-                    </Button>
+                    {buttons}
                     </form>
                 </div>
             </Container>
@@ -262,22 +338,3 @@ class AddOrder extends Component {
 }
 
 export default withStyles(useStyles) (AddOrder);
-
-/**
- * <TextField
-                        inputRef={(inputRef) => {this.order_starting = inputRef}}
-                        variant="outlined"
-                        margin="normal"
-                        required
-                        fullWidth
-                        label="Starting Time"
-                    />
-                    <TextField
-                        inputRef={(inputRef) => {this.order_ending = inputRef}}
-                        variant="outlined"
-                        margin="normal"
-                        required
-                        fullWidth
-                        label="Ending Time"
-                    />
- */

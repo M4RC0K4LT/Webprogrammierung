@@ -11,7 +11,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { Snackbar, SnackbarContent } from '@material-ui/core';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined';
-import { Redirect } from 'react-router-dom'
+import SnackbarMessage from './components/snackbarmessage'
 
 const useStyles = theme => ({
     paper: {
@@ -31,9 +31,6 @@ const useStyles = theme => ({
     submit: {
       margin: theme.spacing(3, 0, 2),
     },
-    error: {
-        backgroundColor: theme.palette.error.dark,
-    },
     message: {
         display: 'flex',
       },
@@ -48,17 +45,22 @@ class Register extends Component {
             isLoading: false,
             error: null,
             message: "",
-            open: false
+            open: false,
+            snackcolor: "error"
         };
         this.handleSubmit = this.handleSubmit.bind(this);
-        
+        this.handleSnackbarClose = this.handleSnackbarClose.bind(this)
     }    
+
+    handleSnackbarClose(){
+        this.setState({ open: false })
+    }
     
     handleSubmit(event){ 
         var that = this;
         event.preventDefault();
         this.setState({ isLoading: true });
-        if(that.password.value != that.confirmpassword.value){
+        if(that.password.value !== that.confirmpassword.value){
             that.setState({ message: "Passwords do not match!", open: true, isLoading: false, snackcolor: "error" })
             return;
         }
@@ -89,18 +91,18 @@ class Register extends Component {
     render() {
         
         const { classes } = this.props;
-        const { response, isLoading, error, open, message } = this.state;
+        const { response, isLoading, open, message } = this.state;
 
         if (isLoading) {
             return (<div className={classes.paper}><CircularProgress/></div>);
         }
 
         if (sessionStorage.getItem("authToken") != null){
-            return <div className={classes.paper}><CheckCircleIcon /><br/><h1>Already loged in!</h1><br/><Button variant="contained" color="primary" href="/profile">Profile</Button><br/><Button variant="contained" color="primary" onClick={this.handleClick}>Logout</Button></div>;
+            return <div className={classes.paper}><CheckCircleIcon /><br/><h1>Bereits angemeldet!</h1><br/><Button variant="contained" color="primary" href="/profile">Profile</Button><br/><Button variant="contained" color="primary" onClick={this.handleClick}>Logout</Button></div>;
         }
 
         if(message === "successful"){
-        return <div className={classes.paper}><p>User {response.user_name} with mailadress {response.user_mail} was successfully registered! Please log in.</p><br/><br/><Button variant="contained" color="primary" href="/login">Login</Button></div>
+        return <div className={classes.paper}><p>User {response.user_name} mit E-Mail {response.user_mail} wurde erfolgreich erstellt! Bitte anmelden.</p><br/><br/><Button variant="contained" color="primary" href="/login">Login</Button></div>
         }
 
         return (
@@ -111,17 +113,14 @@ class Register extends Component {
                     <PersonAddOutlinedIcon />
                     </Avatar>
                     <Typography component="h1" variant="h5">
-                    Register new Account
+                    Registrierung
                     </Typography>
-                    <Snackbar
-                        open={open}
-                        autoHideDuration={2000}
-                        onClose={() => this.setState({open: false})}>
-                        <SnackbarContent 
-                            className={classes.error}
-                            message={<span id="client-snackbar" className={classes.message}>{message}</span>}>
-                        </SnackbarContent>
-                    </Snackbar>
+                    <SnackbarMessage
+                        open={this.state.open}
+                        onClose={this.handleSnackbarClose}
+                        message={this.state.message}
+                        color={this.state.snackcolor}>
+                    </SnackbarMessage>
                     <form className={classes.form} onSubmit={this.handleSubmit}>
                     <TextField
                         inputRef={(inputRef) => {this.username = inputRef}}
@@ -130,7 +129,7 @@ class Register extends Component {
                         required
                         fullWidth
                         id="username"
-                        label="Username"
+                        label="Benutzername"
                         name="username"
                         autoComplete="username"
                         autoFocus
@@ -143,7 +142,7 @@ class Register extends Component {
                         required
                         fullWidth
                         id="email"
-                        label="Email Address"
+                        label="E-Mail"
                         name="email"
                         autoComplete="email"
                     />
@@ -154,7 +153,7 @@ class Register extends Component {
                         required
                         fullWidth
                         name="password"
-                        label="Password"
+                        label="Passwort"
                         type="password"
                         id="password"
                         autoComplete="current-password"
@@ -166,7 +165,7 @@ class Register extends Component {
                         required
                         fullWidth
                         name="confirmpassword"
-                        label="Confirm Password"
+                        label="Bestätige Passwort"
                         type="password"
                         id="confirmpassword"
                     />
@@ -177,7 +176,7 @@ class Register extends Component {
                         color="primary"
                         className={classes.submit}
                     >
-                        Register Account
+                        Registrieren
                     </Button>
                     </form>
                 </div>

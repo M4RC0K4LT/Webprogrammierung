@@ -15,11 +15,10 @@ import Customerdetail from "./customerdetail";
 import Orderdetail from "./orderdetail";
 import AddOrder from "./addorder";
 import CustomerOrders from "./customerorders";
-import Home from "./home";
+import CustomerStatistics from "./customerstatistics";
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
-
-import { Route, Link, NavLink, BrowserRouter as Router, Switch } from 'react-router-dom'
+import { Route, Link, BrowserRouter as Router, Switch } from 'react-router-dom'
 
 class Routing extends React.Component{
 
@@ -58,7 +57,7 @@ class Routing extends React.Component{
     } else {
       userbuttons = (
         <ButtonGroup size="small" aria-label="small outlined button group" style={{margin: "15px"}}>
-                <Button href="/register">Register</Button>
+                <Button href="/register">Registrieren</Button>
                 <Button href="/login">Login</Button>
         </ButtonGroup>
       );
@@ -68,19 +67,19 @@ class Routing extends React.Component{
       <div>
           <AppBar position="fixed" color="default" style={{ paddingLeft: "calc(100vw - 100%)" }}>
             <Tabs centered>
-              <Tab label="Home" component={Link} to="/"/>
-              <Tab label="Orders" component={Link} to="/orders"/>
-              <Tab label="Customers" component={Link} to="/customers" />
-              <Tab label="Profile" component={Link} to="/profile" />
+              <Tab label="Aufträge" component={Link} to="/orders"/>
+              <Tab label="Kunden" component={Link} to="/customers" />
+              <Tab label="Profil" component={Link} to="/profile" />
               {userbuttons}
             </Tabs>
           </AppBar>
 
         <Switch>
-          <Route exact path="/" component={Home} />
+          <Route exact path="/" component={Profile} />
           <Route path="/customers" component={Customers} />
           <Route exact path="/customer/:id" component={Customerdetail} />
           <Route exact path="/customer/orders/:id" component={CustomerOrders} />
+          <Route exact path="/customer/statistics/:id" component={CustomerStatistics} />
           <Route path="/orders" component={Orders} />
           <Route path="/addorder" component={AddOrder} />
           <Route path="/order/:id" component={Orderdetail} />
@@ -95,7 +94,5 @@ class Routing extends React.Component{
     );
   }
 }
-
-//<NavLink style={{ textDecoration: 'none' }} onClick={handleClick} to="/">Logout</NavLink>
 
 ReactDOM.render(<Routing />, document.getElementById('root'))

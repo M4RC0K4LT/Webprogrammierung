@@ -8,17 +8,18 @@ import Container from '@material-ui/core/Container';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { withStyles } from '@material-ui/core/styles';
 import { Snackbar, SnackbarContent } from '@material-ui/core';
-import PermContactCalendarOutlinedIcon from '@material-ui/icons/PermContactCalendarOutlined';
 import { Redirect } from 'react-router-dom'
 import GavelOutlinedIcon from '@material-ui/icons/GavelOutlined';
 import { green } from '@material-ui/core/colors';
 import DeleteOutlineOutlinedIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import 'date-fns';
 import DateFnsUtils from '@date-io/date-fns';
-import { MuiPickersUtilsProvider, KeyboardDatePicker, DateTimePicker } from '@material-ui/pickers';
+import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers';
 import Slider from '@material-ui/core/Slider';
 import Grid from '@material-ui/core/Grid';
 import moment from "moment";
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import SnackbarMessage from './components/snackbarmessage'
 
 const useStyles = theme => ({
     paper: {
@@ -32,7 +33,7 @@ const useStyles = theme => ({
       backgroundColor: theme.palette.secondary.main,
     },
     form: {
-      width: '100%', // Fix IE 11 issue.
+      width: '100%',
       marginTop: theme.spacing(1),
     },
     submit: {
@@ -46,7 +47,7 @@ const useStyles = theme => ({
     },
     message: {
         display: 'flex',
-      },
+    },
 });
 
 class Orderdetail extends Component {
@@ -56,6 +57,8 @@ class Orderdetail extends Component {
         
         this.state = {
             orderdata: [],
+            customers: [],
+            customer: null,
             isLoading: false,
             error: null,
             message: "",
@@ -63,12 +66,19 @@ class Orderdetail extends Component {
             snackcolor: "error",
             startTime: null,
             duration: null,
+            disablefields: false
         };
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleDelete = this.handleDelete.bind(this);
         this.handleStartTime = this.handleStartTime.bind(this);
-        this.valuetext = this.valuetext.bind(this)
-    }    
+        this.valuetext = this.valuetext.bind(this);
+        this.fetchCustomers = this.fetchCustomers.bind(this);
+        this.handleSnackbarClose = this.handleSnackbarClose.bind(this)
+    }   
+    
+    handleSnackbarClose(){
+        this.setState({ open: false })
+    }
 
     handleStartTime = (time) => {
         this.setState({ startTime: time })
@@ -80,9 +90,17 @@ class Orderdetail extends Component {
     }
     
     handleSubmit(event){ 
+        event.preventDefault();
+        if(!(this.state.customers.includes(this.state.customer))){
+            this.setState({ open: true, message: "Bitte wähle einen gültigen Kunden", snackcolor: "error"})
+            return;
+        }
+        if(this.state.duration == 0){
+            this.setState({ open: true, message: "Bitte wähle eine gültige Dauer", snackcolor: "error"})
+            return;
+        }
         var that = this;
         const id = this.props.match.params.id;
-        event.preventDefault();
         this.setState({ isLoading: true });
 
         fetch('http://localhost:3001/api/orders/' + id, {
@@ -98,7 +116,7 @@ class Orderdetail extends Component {
                 "duration": this.state.duration/60,
                 "hourlyrate": this.order_hourlyrate.value,
                 "traveldistance": this.order_traveldistance.value,
-                "customer": this.order_customer.value
+                "customer": this.state.customer.customer_id
             })
         })
         .then(response => response.json())
@@ -110,7 +128,7 @@ class Orderdetail extends Component {
                     that.fetchOrder();
                   }, 1000);
             }else{
-                that.setState({ message: "Changes saved successfully!", snackcolor: "success", open: true })
+                that.setState({ message: "Changes saved successfully!", snackcolor: "success", open: true, disablefields: true })
             }
         })
         .catch(error => this.setState({ error, isLoading: false, open: true, message: error.message, snackcolor: "error" }));
@@ -165,7 +183,7 @@ class Orderdetail extends Component {
           })
           .then(data => this.setState({ orderdata: data, isLoading: false, message: data.request, startTime: data.order_starting, duration: data.order_duration*60 }))
           .then(function(){
-            if(that.state.message == "failed"){
+            if(that.state.message === "failed"){
                 that.setState({ open: true, message: that.state.orderdata.error.message, snackcolor: "error"})
             }else{
                 that.setState({ open: false })
@@ -174,18 +192,46 @@ class Orderdetail extends Component {
           .catch(error => this.setState({ error, isLoading: false, message: error.message, open: true, snackcolor: "error" }));
     }
 
+    fetchCustomers() { 
+        var that = this;   
+        this.setState({ isLoading: true });
+        fetch("http://localhost:3001/api/customers/", {
+          method: 'GET',
+          headers: {
+              'Accept': 'application/json',
+              'Authorization': 'Bearer ' + sessionStorage.getItem("authToken")
+          }})
+          .then(response => {
+            if (response.ok) {
+              return response.json();
+            } else {
+              throw new Error('Something went wrong ...');
+            }
+          })
+          .then(data => this.setState({ customers: data, isLoading: false }))
+          .then(function(){
+                that.state.customers.map((cust) => {
+                if(cust.customer_id == that.state.orderdata.order_customer){
+                    that.setState({ customer: cust})
+                }
+            });
+          })
+          .catch(error => this.setState({ error, isLoading: false }));
+    }
+
     componentDidMount() {
         if (sessionStorage.getItem("authToken") != null){
-            this.fetchOrder();
+            if(!(this.state.disablefields)){
+                this.fetchOrder();
+                this.fetchCustomers();
+            }          
         }
-        
-
     }
 
     render() {
         
         const { classes } = this.props;
-        const { response, isLoading, error, open, message } = this.state;
+        const { isLoading, open, message } = this.state;
 
         if (isLoading) {
             return (<div className={classes.paper}><CircularProgress/></div>);
@@ -194,12 +240,49 @@ class Orderdetail extends Component {
         if (sessionStorage.getItem("authToken") == null){
             return <Redirect to='/login' />
         }
-        if (this.state.snackcolor == "success"){
-            var color = classes.success;
-        }else{
-            var color = classes.error;
-        }
 
+        var buttons = ""
+        if(this.state.disablefields){
+            buttons = (
+                <Grid
+                  justify="space-between"
+                  container
+                  margin="normal" 
+                >
+                  <Grid item>
+                    <Button className={classes.submit} variant="outlined" color="primary" onClick={() => this.setState({ disablefields: false })}>
+                    Bearbeiten
+                  </Button>
+                  </Grid>
+                  <Grid item>
+                    <Button className={classes.submit} variant="outlined" color="primary" href={"/orders"}>
+                    Zur Übersicht
+                  </Button>
+                  </Grid>
+                </Grid>
+                );
+        }else {
+            buttons = (<div><Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                color="primary"
+                className={classes.submit}
+            >
+                Auftrag abändern
+            </Button>
+            <Button
+                fullWidth
+                variant="outlined"
+                color="secondary"
+                size="large"
+                className={classes.delete}
+                onClick={() => {this.handleDelete()}}
+            >
+                    <DeleteOutlineOutlinedIcon edge="end" />
+            </Button></div>
+        )
+        }
 
         return (
             <Container component="main" maxWidth="xs">
@@ -210,18 +293,15 @@ class Orderdetail extends Component {
                     </Avatar>
                     <br/>
                     <Typography component="h1" variant="h5">
-                    Order Details
+                    Auftragsdetails
                     </Typography>
                     <br/>
-                    <Snackbar
-                        open={open}
-                        autoHideDuration={2000}
-                        onClose={() => this.setState({open: false})}>
-                        <SnackbarContent 
-                            className={color}
-                            message={<span id="client-snackbar" className={classes.message}>{message}</span>}>
-                        </SnackbarContent>
-                    </Snackbar>
+                    <SnackbarMessage
+                        open={this.state.open}
+                        onClose={this.handleSnackbarClose}
+                        message={this.state.message}
+                        color={this.state.snackcolor}>
+                    </SnackbarMessage>
                     <form className={classes.form} onSubmit={this.handleSubmit}>
                     <TextField
                         inputRef={(inputRef) => {this.order_id = inputRef}}
@@ -229,7 +309,7 @@ class Orderdetail extends Component {
                         margin="normal"
                         fullWidth
                         disabled="true"
-                        label="CustomerID"
+                        label="AuftragsID"
                         value={this.state.orderdata.order_id}
                     />
                     <TextField
@@ -238,7 +318,8 @@ class Orderdetail extends Component {
                         margin="normal"
                         required
                         fullWidth
-                        label="Title"
+                        label="Titel"   
+                        disabled={this.state.disablefields}
                         defaultValue={this.state.orderdata.order_title}
                     />
                     <TextField
@@ -247,35 +328,43 @@ class Orderdetail extends Component {
                         margin="normal"
                         required
                         fullWidth
-                        label="Description"
+                        label="Beschreibung"
+                        disabled={this.state.disablefields}
                         defaultValue={this.state.orderdata.order_description}
                     />
-                    <TextField
-                        inputRef={(inputRef) => {this.order_customer = inputRef}}
-                        variant="outlined"
-                        margin="normal"
+                    <Autocomplete
+                        options={this.state.customers}
+                        getOptionLabel={option => option.customer_id + " - " + option.customer_name}
+                        autoSelect={true}
+                        autoHighlight={true}
+                        autoComplete={true}
+                        clearOnEscape={true}
                         fullWidth
-                        required
-                        label="Associated Customer"
-                        type="mail"
-                        defaultValue={this.state.orderdata.order_customer}
-                    />
+                        disabled={this.state.disablefields}
+                        value={this.state.customer}
+                        //onInputChange={(event, value, reason) => this.setState({ customer: value})}
+                        onChange={(event, value) => this.setState({ customer: value})}
+                        
+                        renderInput={params => (
+                            <TextField {...params} margin="normal" fullWidth label="Zugehöriger Kunde" variant="outlined" required />
+                        )}
+                    />     
                     <TextField
                         inputRef={(inputRef) => {this.order_traveldistance = inputRef}}
                         variant="outlined"
                         margin="normal"
-                        required
                         fullWidth
-                        label="Traveldistance"
+                        label="Fahrtstrecke - optional"
+                        disabled={this.state.disablefields}
                         defaultValue={this.state.orderdata.order_traveldistance}
                     />
                     <TextField
                         inputRef={(inputRef) => {this.order_hourlyrate = inputRef}}
                         variant="outlined"
                         margin="normal"
-                        required
                         fullWidth
-                        label="Hourlyrate - order specific"
+                        label="Stundensatz - nur wenn auftragsspezifisch"
+                        disabled={this.state.disablefields}
                         defaultValue={this.state.orderdata.order_hourlyrate}
                     />
                     <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -285,18 +374,18 @@ class Orderdetail extends Component {
                             fullWidth
                             ampm={false}
                             margin="normal"
-                            id="time-picker"
-                            label="Time picker"
+                            label="Auftragsbeginn"
                             format="yyyy-MM-dd HH:mm"
                             value={this.state.startTime}
                             onChange={this.handleStartTime}
+                            disabled={this.state.disablefields}
                             KeyboardButtonProps={{
                                 'aria-label': 'change time',
                             }}
                         />
                     </MuiPickersUtilsProvider>
                     <Grid container spacing={2} alignItems="center">
-                        <Grid item xs={8}>
+                        <Grid item xs={7}>
                             <Slider
                                 margin="normal"
                                 defaultValue={this.state.duration}
@@ -306,14 +395,15 @@ class Orderdetail extends Component {
                                 min={15}
                                 max={600}
                                 valueLabelDisplay="off"
+                                disabled={this.state.disablefields}
                                 onChange={ (e, value) => this.setState({ duration: value }) }
                                 valueLabelFormat={this.valuetext}
 
                             />
                         </Grid>
-                        <Grid item xs={4}>
+                        <Grid item xs={5}>
                             <TextField
-                                value={this.state.duration/60 + " - " + moment(this.state.startTime).add(this.state.duration, "m").format("HH:mm")}
+                                value={this.state.duration/60 + "h - " + moment(this.state.startTime).add(this.state.duration, "m").format("HH:mm")}
                                 disabled="true"
                                 variant="outlined"
                                 margin="normal"
@@ -321,26 +411,8 @@ class Orderdetail extends Component {
                             />
                         </Grid>                     
                     </Grid>
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        color="primary"
-                        className={classes.submit}
-                    >
-                        Change Values
-                    </Button>
-                    </form>
-                    <Button
-                        fullWidth
-                        variant="outlined"
-                        color="secondary"
-                        size="large"
-                        className={classes.delete}
-                        onClick={() => {this.handleDelete()}}
-                    >
-                            <DeleteOutlineOutlinedIcon edge="end" />
-                    </Button>
+                    {buttons}
+                    </form>                   
                 </div>
             </Container>
         );
