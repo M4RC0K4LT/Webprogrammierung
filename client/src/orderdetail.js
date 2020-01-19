@@ -7,10 +7,8 @@ import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { withStyles } from '@material-ui/core/styles';
-import { Snackbar, SnackbarContent } from '@material-ui/core';
 import { Redirect } from 'react-router-dom'
 import GavelOutlinedIcon from '@material-ui/icons/GavelOutlined';
-import { green } from '@material-ui/core/colors';
 import DeleteOutlineOutlinedIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import 'date-fns';
 import DateFnsUtils from '@date-io/date-fns';
@@ -19,36 +17,12 @@ import Slider from '@material-ui/core/Slider';
 import Grid from '@material-ui/core/Grid';
 import moment from "moment";
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import SnackbarMessage from './components/snackbarmessage'
-
-const useStyles = theme => ({
-    paper: {
-      marginTop: theme.spacing(15),
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-    },
-    avatar: {
-      margin: theme.spacing(1),
-      backgroundColor: theme.palette.secondary.main,
-    },
-    form: {
-      width: '100%',
-      marginTop: theme.spacing(1),
-    },
-    submit: {
-      margin: theme.spacing(3, 0, 2),
-    },
-    error: {
-        backgroundColor: theme.palette.error.dark,
-    },
-    success: {
-        backgroundColor: green[500],
-    },
-    message: {
-        display: 'flex',
-    },
-});
+import SnackbarMessage from './components/snackbarmessage';
+import useStyles from "./components/useStyles";
+import getCustomers from './api/getCustomers'
+import deleteOrder from './api/deleteOrder';
+import getOrder from './api/getOrder';
+import putOrder from './api/putOrder';
 
 class Orderdetail extends Component {
 
@@ -56,7 +30,6 @@ class Orderdetail extends Component {
         super(props);
         
         this.state = {
-            orderdata: [],
             customers: [],
             customer: null,
             isLoading: false,
@@ -64,16 +37,24 @@ class Orderdetail extends Component {
             message: "",
             open: false,
             snackcolor: "error",
+            disablefields: false,
+
+            order_id: "",
+            title: "",
+            description: "",
+            customerid: "",
+            traveldistance: "",
+            hourlyrate: "",
             startTime: null,
-            duration: null,
-            disablefields: false
+            duration: 0,
         };
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleDelete = this.handleDelete.bind(this);
         this.handleStartTime = this.handleStartTime.bind(this);
         this.valuetext = this.valuetext.bind(this);
         this.fetchCustomers = this.fetchCustomers.bind(this);
-        this.handleSnackbarClose = this.handleSnackbarClose.bind(this)
+        this.handleSnackbarClose = this.handleSnackbarClose.bind(this);
+        this.handleInputChange = this.handleInputChange.bind(this);
     }   
     
     handleSnackbarClose(){
@@ -88,6 +69,16 @@ class Orderdetail extends Component {
         var hours = value/60;
         return hours;
     }
+
+    handleInputChange(event) {
+        const target = event.target;
+        const value = target.value
+        const name = target.name;
+    
+        this.setState({
+          [name]: value
+        });
+    }
     
     handleSubmit(event){ 
         event.preventDefault();
@@ -95,128 +86,88 @@ class Orderdetail extends Component {
             this.setState({ open: true, message: "Bitte wähle einen gültigen Kunden", snackcolor: "error"})
             return;
         }
-        if(this.state.duration == 0){
+        if(this.state.duration === 0){
             this.setState({ open: true, message: "Bitte wähle eine gültige Dauer", snackcolor: "error"})
             return;
         }
-        var that = this;
         const id = this.props.match.params.id;
-        this.setState({ isLoading: true });
+        this.setState({ isLoading: true, disablefields: true});
 
-        fetch('http://localhost:3001/api/orders/' + id, {
-            method: 'PUT',
-            headers: {
-                'Content-Type':'application/json',
-                'Authorization': 'Bearer ' + sessionStorage.getItem("authToken")
-            },
-            body: JSON.stringify({
-                "title": this.order_title.value,
-                "description": this.order_description.value,
-                "starting":  moment(this.state.startTime).format("YYYY-MM-DD HH:mm"),
-                "duration": this.state.duration/60,
-                "hourlyrate": this.order_hourlyrate.value,
-                "traveldistance": this.order_traveldistance.value,
-                "customer": this.state.customer.customer_id
-            })
-        })
-        .then(response => response.json())
-        .then(data => this.setState({ orderdata: data, isLoading: false}))
-        .then(function(){
-            if(that.state.orderdata.request === "failed"){
-                that.setState({ message: "Something went wrong", open: true, snackcolor: "error" });
-                setTimeout(() => {
-                    that.fetchOrder();
-                  }, 1000);
+        const { title, description, startTime, duration, hourlyrate, traveldistance, customer } = this.state;
+        putOrder(id, [title, description, startTime, duration, hourlyrate, traveldistance, customer.customer_id]).then(data => {
+            this.setState({ isLoading: false })
+            if(data.length<1 || data.request === "failed"){
+                this.setState({ message: data.error, open: true, snackcolor: "error", disablefields: false });
             }else{
-                that.setState({ message: "Changes saved successfully!", snackcolor: "success", open: true, disablefields: true })
+                this.setState({ 
+                    message: "Auftrag erfolgreich hinzugefügt", 
+                    snackcolor: "success", 
+                    open: true, 
+                    order_id: data.order_id,
+                    title: data.order_title,
+                    description: data.order_description,
+                    customerid: data.order_customer,
+                    startTime: data.order_starting,
+                    duration: data.order_duration*60,
+                    hourlyrate: data.order_hourlyrate,
+                    traveldistance: data.order_traveldistance,
+                    disablefields: true })
             }
         })
-        .catch(error => this.setState({ error, isLoading: false, open: true, message: error.message, snackcolor: "error" }));
     }
 
     handleDelete(){
-        var that = this;
         const id = this.props.match.params.id;
         this.setState({ isLoading: true });
-
-        fetch('http://localhost:3001/api/orders/', {
-            method: 'DELETE',
-            headers: {
-                'Content-Type':'application/json',
-                'Authorization': 'Bearer ' + sessionStorage.getItem("authToken")
-            },
-            body: JSON.stringify({
-                "id": id,
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if(data.request === "failed"){
-                that.setState({ message: "Something went wrong", open: true, snackcolor: "error", isLoading: false });
+        deleteOrder(id).then(data => {
+            this.setState({ isLoading: false });
+            if(data.length<1 || data.request === "failed"){
+                this.setState({ message: data.error, open: true, snackcolor: "error", isLoading: false });
             }else{
-                that.setState({ message: "Order deleted successfully! You get redirected", snackcolor: "success", open: true, isLoading: false, orderdata: [] })
+                this.setState({ message: "Auftrag erfolgreich gelöscht", snackcolor: "success", open: true, orderdata: [] })
                 setTimeout(() => {
                     window.location.replace("/orders")
                 }, 2000);
-
             }
         })
-        .catch(error => this.setState({ error, isLoading: false, open: true, message: error.message, snackcolor: "error" }));
     }
 
     fetchOrder() {
-        var that = this;
         const id = this.props.match.params.id;
         this.setState({ isLoading: true });
-        fetch("http://localhost:3001/api/orders/" + id, {
-          method: 'GET',
-          headers: {
-              'Accept': 'application/json',
-              'Authorization': 'Bearer ' + sessionStorage.getItem("authToken")
-          }})
-          .then(response => {
-            if (response.ok) {
-              return response.json();
-            } else {
-              throw new Error('Something went wrong ...');
-            }
-          })
-          .then(data => this.setState({ orderdata: data, isLoading: false, message: data.request, startTime: data.order_starting, duration: data.order_duration*60 }))
-          .then(function(){
-            if(that.state.message === "failed"){
-                that.setState({ open: true, message: that.state.orderdata.error.message, snackcolor: "error"})
+        getOrder(id).then(data => {
+            this.setState({ isLoading: false });
+            if(data.length<1 || data.request === "failed"){
+                this.setState({ open: true, message: data.error, snackcolor: "error"});
             }else{
-                that.setState({ open: false })
+                this.setState({ 
+                    order_id: data.order_id,
+                    title: data.order_title, 
+                    description: data.order_description,
+                    customerid: data.order_customer,
+                    traveldistance: data.order_traveldistance,
+                    hourlyrate: data.order_hourlyrate,
+                    startTime: data.order_starting, 
+                    duration: data.order_duration*60 })
             }
         })
-          .catch(error => this.setState({ error, isLoading: false, message: error.message, open: true, snackcolor: "error" }));
     }
 
-    fetchCustomers() { 
-        var that = this;   
+    fetchCustomers() {  
         this.setState({ isLoading: true });
-        fetch("http://localhost:3001/api/customers/", {
-          method: 'GET',
-          headers: {
-              'Accept': 'application/json',
-              'Authorization': 'Bearer ' + sessionStorage.getItem("authToken")
-          }})
-          .then(response => {
-            if (response.ok) {
-              return response.json();
-            } else {
-              throw new Error('Something went wrong ...');
+        getCustomers().then(data => {
+            this.setState({ isLoading: false, customers: data })
+            if(data.length<1 || data.request === "failed"){
+                this.setState({ open: true, message: data.error})
+            }else {
+                this.state.customers.map((cust) => {
+                    if(cust.customer_id === this.state.customerid){
+                        return (this.setState({ customer: cust}));              
+                    }
+                    return cust;
+                });
             }
-          })
-          .then(data => this.setState({ customers: data, isLoading: false }))
-          .then(function(){
-                that.state.customers.map((cust) => {
-                if(cust.customer_id == that.state.orderdata.order_customer){
-                    that.setState({ customer: cust})
-                }
-            });
-          })
-          .catch(error => this.setState({ error, isLoading: false }));
+        })
     }
 
     componentDidMount() {
@@ -231,9 +182,14 @@ class Orderdetail extends Component {
     render() {
         
         const { classes } = this.props;
-        const { isLoading, open, message } = this.state;
+        const { isLoading, disablefields } = this.state;
 
-        if (isLoading) {
+        var loading = null;
+        if (isLoading && disablefields) {
+            loading = <CircularProgress style={{position: "absolute", top: "45%"}} size={100}/>;
+        }
+
+        if (isLoading && disablefields === false) {
             return (<div className={classes.paper}><CircularProgress/></div>);
         }
 
@@ -302,35 +258,37 @@ class Orderdetail extends Component {
                         message={this.state.message}
                         color={this.state.snackcolor}>
                     </SnackbarMessage>
+                    {loading}
                     <form className={classes.form} onSubmit={this.handleSubmit}>
                     <TextField
-                        inputRef={(inputRef) => {this.order_id = inputRef}}
                         variant="outlined"
                         margin="normal"
                         fullWidth
-                        disabled="true"
+                        disabled={true}
                         label="AuftragsID"
-                        value={this.state.orderdata.order_id}
+                        value={this.state.order_id}
                     />
                     <TextField
-                        inputRef={(inputRef) => {this.order_title = inputRef}}
                         variant="outlined"
                         margin="normal"
                         required
                         fullWidth
-                        label="Titel"   
+                        label="Titel"
+                        name="title"   
                         disabled={this.state.disablefields}
-                        defaultValue={this.state.orderdata.order_title}
+                        onChange={this.handleInputChange}
+                        value={this.state.title}
                     />
                     <TextField
-                        inputRef={(inputRef) => {this.order_description = inputRef}}
                         variant="outlined"
                         margin="normal"
                         required
                         fullWidth
                         label="Beschreibung"
+                        name="description"
                         disabled={this.state.disablefields}
-                        defaultValue={this.state.orderdata.order_description}
+                        onChange={this.handleInputChange}
+                        value={this.state.description}
                     />
                     <Autocomplete
                         options={this.state.customers}
@@ -339,33 +297,33 @@ class Orderdetail extends Component {
                         autoHighlight={true}
                         autoComplete={true}
                         clearOnEscape={true}
-                        fullWidth
                         disabled={this.state.disablefields}
+                        name="customer"
                         value={this.state.customer}
-                        //onInputChange={(event, value, reason) => this.setState({ customer: value})}
-                        onChange={(event, value) => this.setState({ customer: value})}
-                        
+                        onChange={(event, value) => this.setState({ customer: value })}                    
                         renderInput={params => (
                             <TextField {...params} margin="normal" fullWidth label="Zugehöriger Kunde" variant="outlined" required />
                         )}
                     />     
                     <TextField
-                        inputRef={(inputRef) => {this.order_traveldistance = inputRef}}
                         variant="outlined"
                         margin="normal"
                         fullWidth
                         label="Fahrtstrecke - optional"
+                        name="traveldistance"
+                        onChange={this.handleInputChange}
                         disabled={this.state.disablefields}
-                        defaultValue={this.state.orderdata.order_traveldistance}
+                        value={this.state.traveldistance}
                     />
                     <TextField
-                        inputRef={(inputRef) => {this.order_hourlyrate = inputRef}}
                         variant="outlined"
                         margin="normal"
                         fullWidth
+                        name="hourlyrate"
                         label="Stundensatz - nur wenn auftragsspezifisch"
+                        onChange={this.handleInputChange}
                         disabled={this.state.disablefields}
-                        defaultValue={this.state.orderdata.order_hourlyrate}
+                        value={this.state.hourlyrate}
                     />
                     <MuiPickersUtilsProvider utils={DateFnsUtils}>
                         <DateTimePicker
@@ -379,17 +337,13 @@ class Orderdetail extends Component {
                             value={this.state.startTime}
                             onChange={this.handleStartTime}
                             disabled={this.state.disablefields}
-                            KeyboardButtonProps={{
-                                'aria-label': 'change time',
-                            }}
                         />
                     </MuiPickersUtilsProvider>
                     <Grid container spacing={2} alignItems="center">
                         <Grid item xs={7}>
                             <Slider
                                 margin="normal"
-                                defaultValue={this.state.duration}
-                                AriaValueText={this.valuetext}
+                                value={this.state.duration}
                                 aria-labelledby="discrete-slider-small-steps"
                                 step={15}
                                 min={15}
@@ -404,7 +358,7 @@ class Orderdetail extends Component {
                         <Grid item xs={5}>
                             <TextField
                                 value={this.state.duration/60 + "h - " + moment(this.state.startTime).add(this.state.duration, "m").format("HH:mm")}
-                                disabled="true"
+                                disabled={true}
                                 variant="outlined"
                                 margin="normal"
                                 label="Dauer - Ende"

@@ -11,7 +11,8 @@ router.get('/', async (request, response) => {
         const allorders = await orders.getAll();
         response.status(201).send(allorders);
     } catch (err){
-        responseawait.status(503).send(err);
+        let data = Object.assign({"request": "failed"}, err)
+        responseawait.status(503).send(data);
     }
 });
   
@@ -19,13 +20,11 @@ router.get('/', async (request, response) => {
 router.get('/:id', async (request, response) => {
     try{
         const order = await orders.findById(request.params.id);
-        if (order == null) {
-            response.status(404).send({error: `Order ${request.params.id} not found`});
-            return;
-        }
-        response.status(201).send(order);
+        let data = Object.assign({"request": "successful"}, order)
+        response.status(201).send(data);
     } catch(err){
-        response.status(503).send(err);
+        let data = Object.assign({"request": "failed"}, err)
+        response.status(503).send(data);
     }  
 });
 
@@ -74,13 +73,10 @@ router.post('/get/invoice', async (request, response) => {
 router.get('/customer/:id', async (request, response) => {
     try {
         const relatedorders = await orders.findByCustomer(request.params.id);
-        if (relatedorders.toString().length == 0) {
-            response.status(404).send({error: `Customer ${request.params.id} not found / Customer has no associated orders`});
-            return;
-        }
         response.status(201).send(relatedorders);
     } catch (err){
-        response.status(503).send(err);
+        let data = Object.assign({"request": "failed"}, err)
+        response.status(503).send(data);
     }
     
 });
@@ -89,9 +85,11 @@ router.get('/customer/:id', async (request, response) => {
 router.post('/', async (request, response) => {
     try{
         const order = await orders.create(request.body);
-        response.status(201).send(order);
+        let data = Object.assign({"request": "successful"}, order)
+        response.status(201).send(data);
     } catch(err){
-        response.status(503).send(err);
+        let data = Object.assign({"request": "failed"}, err)
+        response.status(503).send(data);
     }  
 });
 
@@ -99,9 +97,12 @@ router.post('/', async (request, response) => {
 router.put('/:id', async (request, response) => {
     try{
         const order = await orders.update(request.params.id, request.body);
-        response.status(201).send(order);
+        let data = Object.assign({"request": "successful"}, order)
+        response.status(201).send(data);
     } catch (err){
-        response.status(503).send(err);
+        console.log(err)
+        let data = Object.assign({"request": "failed"}, err)
+        response.status(503).send(data);
     }
     
 });
@@ -116,7 +117,8 @@ router.delete('/', async (request, response) => {
         }
         response.status(202).send({"request": "successful"});
     } catch (err){
-        response.status(503).send({"request": "failed", "error": err});
+        let data = Object.assign({"request": "failed"}, err)
+        response.status(503).send(data);
     }
     
 });

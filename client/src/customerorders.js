@@ -19,76 +19,32 @@ import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import DeleteIcon from '@material-ui/icons/Delete';
 import AccountBalanceIcon from '@material-ui/icons/AccountBalance';
-
-const useStyles = theme => ({
-  paper: {
-    marginTop: theme.spacing(15),
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  avatar: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
-  },
-  form: {
-    width: '100%', // Fix IE 11 issue.
-    marginTop: theme.spacing(1),
-  },
-  submit: {
-    margin: theme.spacing(3, 0, 2),
-  },
-  error: {
-      backgroundColor: theme.palette.error.dark,
-  },
-  message: {
-      display: 'flex',
-  },
-  root: {
-    width: '100%',
-    marginTop: theme.spacing(1)
-  },
-});
+import useStyles from "./components/useStyles";
+import getInvoice from './api/getInvoice';
+import getCustomerOrders from './api/getCustomerOrders';
+import getCustomer from "./api/getCustomer";
+import deleteOrder from "./api/deleteOrder";
+import SnackbarMessage from './components/snackbarmessage'
 
 class CustomerOrders extends React.Component {
 
   constructor(props) {
     super(props);
     this.state = {
+      open: false,
+      message: "",
+      snackcolor: "error",
+
       orders: [],
       checkedforinvoice: [],
       buttondisabled: true,
       customer: [],
       isLoading: false,
       error: null,
-      year: 2020,
-      diagram: {
-        labels: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"],
-        datasets: [
-          {
-            label: 'Aufträge',
-            backgroundColor: 'rgba(75,192,192,0.4)',
-            data: [null, null, null, null, null, null, null, null, null, null, null, null]
-          }
-        ],
-      },
-      options: {
-        scales: {
-          yAxes: [{
-            display: true,
-            ticks: {
-              suggestedMin: 0,
-              suggestedMax: 30,
-              precision: 0
-            }
-          }]
-        }
     }
-    };
     this.handleCheck = this.handleCheck.bind(this);
     this.requestInvoice = this.requestInvoice.bind(this);
     this.fetchCustomer = this.fetchCustomer.bind(this);
-    this.fetchStatistics = this.fetchStatistics.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
   }
 
@@ -106,29 +62,14 @@ class CustomerOrders extends React.Component {
   }
 
   handleDelete(id){
-    var that = this;
-
-    fetch('http://localhost:3001/api/orders/', {
-        method: 'DELETE',
-        headers: {
-            'Content-Type':'application/json',
-            'Authorization': 'Bearer ' + sessionStorage.getItem("authToken")
-        },
-        body: JSON.stringify({
-            "id": id,
-        })
+    deleteOrder(id).then(data => {
+      this.setState({ isLoading: false })
+      if(data.request === "failed" || data.length<1){
+        this.setState({ message: data.error, open: true, snackcolor: "error" });
+      } else {
+        this.fetchOrders()
+      }
     })
-    .then(response => response.json())
-    .then(data => {
-        if(data.request === "failed"){
-            that.setState({ isLoading: false });
-        }else{
-            that.setState({ isLoading: false})
-            this.fetchOrders();
-
-        }
-    })
-    .catch(error => this.setState({ error, isLoading: false, open: true, message: error.message, snackcolor: "error" }));
   }
 
   requestInvoice(id) {
@@ -138,111 +79,54 @@ class CustomerOrders extends React.Component {
     }else {
       invoicelist.push(id);
     }
-    fetch("http://localhost:3001/api/orders/get/invoice", {
-      method: 'POST',
-      headers: {
-        'Content-Type':'application/json',
-        'Authorization': 'Bearer ' + sessionStorage.getItem("authToken")
-     },body: JSON.stringify({
-        "idlist": invoicelist,
-    })})
-      .then(res => res.blob())
-      .then(response => {
+    getInvoice(invoicelist).then(response => {
+      if(response.request === "failed"){
+        this.setState({ message: response.error, open: true, snackcolor: "error"});
+      }else{
         const file = new Blob(
           [response], 
           {type: 'application/pdf'});
         const fileURL = URL.createObjectURL(file);
         window.open(fileURL);
-      })
-      .catch(error => this.setState({ error, isLoading: false }));
+      }
+    })
   }
 
   fetchOrders() {
     const id = this.props.match.params.id;
     this.setState({ isLoading: true });
-    fetch("http://localhost:3001/api/orders/customer/" + id, {
-      method: 'GET',
-      headers: {
-          'Accept': 'application/json',
-          'Authorization': 'Bearer ' + sessionStorage.getItem("authToken")
-      }})
-      .then(response => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          throw new Error('Something went wrong ...');
-        }
-      })
-      .then(data => this.setState({ orders: data, isLoading: false }))
-      .catch(error => this.setState({ error, isLoading: false }));
+    getCustomerOrders(id).then(data => {
+      this.setState({ isLoading: false })
+      if(data.request === "failed" || data.length<1){
+        this.setState({ message: data.error, open: true, snackcolor: "error"});
+      } else {
+        this.setState({ orders: data })
+      }
+    })
   }
 
   fetchCustomer() {
     const id = this.props.match.params.id;
     this.setState({ isLoading: true });
-    fetch("http://localhost:3001/api/customers/" + id, {
-      method: 'GET',
-      headers: {
-          'Accept': 'application/json',
-          'Authorization': 'Bearer ' + sessionStorage.getItem("authToken")
-      }})
-      .then(response => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          throw new Error('Something went wrong ...');
-        }
-      })
-      .then(data => this.setState({ customer: data, isLoading: false }))
-      .catch(error => this.setState({ error, isLoading: false }));
-  }
-
-  fetchStatistics(year){
-    this.setState({ year: year });
-    var that = this;
-    if(year==null){
-      return;
-    }
-    year = year.toString();
-    fetch("http://localhost:3001/api/customers/statistics", {
-      method: 'POST',
-      headers: {
-        'Content-Type':'application/json',
-        'Authorization': 'Bearer ' + sessionStorage.getItem("authToken")
-     },body: JSON.stringify({
-        "id": this.props.match.params.id,
-        "year": year
-    })})
-      .then(response => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          throw new Error('Something went wrong ...');
-        }
-      })
-      .then((data => {
-        var datasetsCopy = that.state.diagram.datasets.slice(0);
-        var dataCopy = [null, null, null, null, null, null, null, null, null, null, null, null];
-        data.map((stats) => {
-          var monthint = parseInt(stats.month)-1;
-          dataCopy[monthint] = stats.anzahl;
-        });
-        datasetsCopy[0].data = dataCopy;
-        that.setState({diagram: Object.assign({}, that.state.diagram, {datasets: datasetsCopy})});
-      }))
-      .catch(error => this.setState({ error}));
+    getCustomer(id).then(data => {
+      this.setState({ isLoading: false })
+      if(data.request === "failed" || data.length<1){
+        this.setState({ message: data.error, open: true, snackcolor: "error"});
+      } else {
+        this.setState({ customer: data })
+      }
+    })
   }
 
   componentDidMount() {
     if (sessionStorage.getItem("authToken") != null){
       this.fetchOrders();
-      this.fetchStatistics(this.state.year);
       this.fetchCustomer();
     }
   }
 
   render() {
-    const { orders, isLoading, customername } = this.state;
+    const { orders, isLoading, customer } = this.state;
     const { classes } = this.props;
 
     if (sessionStorage.getItem("authToken") == null){
@@ -253,15 +137,22 @@ class CustomerOrders extends React.Component {
       return (<div className={classes.paper}><CircularProgress/></div>);
     }
     var emptyText = "";
-    if(orders.length==0){
+    if(orders.length===0){
       emptyText = <h4>---Für diesen Kunden sind keine Aufträge hinterlegt---</h4>
     }
     return (
-      <Container component="main" maxWidth="xs">
+      <Container component="main" maxWidth="sm">
           <CssBaseline />
           <div  className={classes.paper}>
           <h1>Übersicht Kunde - Aufträge</h1><br />
-          <List className={classes.root}>
+          <SnackbarMessage
+            open={this.state.open}
+            onClose={this.handleSnackbarClose}
+            message={this.state.message}
+            color={this.state.snackcolor}>
+          </SnackbarMessage>
+          <h2>{customer.customer_name}</h2>
+          <List className={classes.mainlist}>
             {emptyText}
             {orders.map((order, i) => (
             <div>

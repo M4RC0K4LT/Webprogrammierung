@@ -12,16 +12,20 @@ const orderapi = require("./routes/ordersapi");
 const customerapi = require("./routes/customersapi");
 const auth = require("./database/auth");
 
+
 app.use(bodyParser.json());
+app.use(cors());
+
+app.options('*', cors())
 
 // User Funktionen
-app.use("/api/user", cors(), userapi);
+app.use("/api/user", userapi);
 
 // Order Funktionen
-app.use("/api/orders", cors(), auth, orderapi);
+app.use("/api/orders", auth, orderapi);
 
 // Customer Funktionens
-app.use("/api/customers", cors(), auth, customerapi);
+app.use("/api/customers", auth, customerapi);
 
 // listen for requests
 app.listen(process.env.PORT, function () {

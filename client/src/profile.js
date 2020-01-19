@@ -7,33 +7,12 @@ import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { withStyles } from '@material-ui/core/styles';
-import { Snackbar, SnackbarContent } from '@material-ui/core';
 import AccountCircleOutlinedIcon from '@material-ui/icons/AccountCircleOutlined';
 import { Redirect } from 'react-router-dom'
 import SnackbarMessage from './components/snackbarmessage'
-
-const useStyles = theme => ({
-    paper: {
-      marginTop: theme.spacing(15),
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-    },
-    avatar: {
-      margin: theme.spacing(1),
-      backgroundColor: theme.palette.secondary.main,
-    },
-    form: {
-      width: '100%', // Fix IE 11 issue.
-      marginTop: theme.spacing(1),
-    },
-    submit: {
-      margin: theme.spacing(3, 0, 2),
-    },
-    message: {
-        display: 'flex',
-      },
-});
+import useStyles from "./components/useStyles";
+import getUser from './api/getUser';
+import putUser from "./api/putUser";
 
 class Profile extends Component {
 
@@ -46,9 +25,23 @@ class Profile extends Component {
             message: "",
             open: false,
             snackcolor: "error",
+
+            userid: "",
+            username: "",
+            mail: "",
+            password: "",
+            confirmpassword: ""
         };
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.handleSnackbarClose = this.handleSnackbarClose.bind(this)        
+        this.handleSnackbarClose = this.handleSnackbarClose.bind(this);
+        this.handleInputChange = this.handleInputChange.bind(this);
+    }
+
+    handleInputChange(event) {
+        const target = event.target;
+        const value = target.value;
+        const name = target.name;    
+        this.setState({ [name]: value });
     }
     
     handleSnackbarClose(){
@@ -56,59 +49,37 @@ class Profile extends Component {
     }
     
     handleSubmit(event){ 
-        var that = this;
         event.preventDefault();
-        this.setState({ isLoading: true });
+        const { username, mail, password, confirmpassword} = this.state;
 
-        if(that.user_password.value !== that.passwordconfirm.value){
-            that.setState({ message: "Passwörter stimmen nicht überein!", open: true, isLoading: false, snackcolor: "error" })
+        if(password !== confirmpassword){
+            this.setState({ message: "Passwörter stimmen nicht überein", open: true, isLoading: false, snackcolor: "error" })
             return;
         }
-        fetch('http://localhost:3001/api/user/change', {
-            method: 'PUT',
-            headers: {
-                'Content-Type':'application/json',
-                'Authorization': 'Bearer ' + sessionStorage.getItem("authToken")
-            },
-            body: JSON.stringify({
-                "mail": this.usermail.value,
-                "name": this.username.value,
-                "password": this.user_password.value
-            })
-        })
-        .then(response => response.json())
-        .then(data => this.setState({ userdata: data, isLoading: false, message: "Änderungen erfolgreich übernommen!", snackcolor: "success", open: true}))
-        .then(function(){
-            if(that.state.message === "failed"){
-                that.setState({ message: "Failed", open: true, snackcolor: "error" })
+        this.setState({ disablefields: true });
+        putUser(username, mail, password).then(data => {
+            if(data.length<1 || data.request === "failed"){
+                this.setState({ open: true, snackcolor: "error", message: data.error, disablefields: false, password: "", confirmpassword: "" })
+            } else {
+                this.setState({ name: data.user_name, mail: data.user_mail, snackcolor: "success", open: true, message: "User erfolgreich akutalisiert", disablefields: false});
             }
         })
-        .catch(error => this.setState({ error, isLoading: false, open: true, message: error.message, snackcolor: "error" }));
     }
 
     fetchUser() {
-        var that = this;
         this.setState({ isLoading: true });
-        fetch("http://localhost:3001/api/user/", {
-          method: 'GET',
-          headers: {
-              'Accept': 'application/json',
-              'Authorization': 'Bearer ' + sessionStorage.getItem("authToken")
-          }})
-          .then(response => {
-            if (response.ok) {
-              return response.json();
-            } else {
-              throw new Error('Something went wrong ...');
-            }
-          })
-          .then(data => this.setState({ userdata: data, isLoading: false, message: data.request }))
-          .then(function(){
-            if(that.state.message === "failed"){
-                that.setState({ open: true, message: that.state.userdata.message.message })
+        getUser().then(data => {
+            this.setState({ isLoading: false });
+            if(data.length<1 || data.request === "failed"){
+                this.setState({ open: true, snackcolor: "error", message: data.error })
+            }else {
+                this.setState({ 
+                    userid: data.user_id,
+                    username: data.user_name,
+                    mail: data.user_mail,
+                 })
             }
         })
-          .catch(error => this.setState({ error, isLoading: false, message: error.message, open: true, snackcolor: "error" }));
     }
 
     componentDidMount() {
@@ -122,7 +93,7 @@ class Profile extends Component {
     render() {
         
         const { classes } = this.props;
-        const { isLoading, open, message } = this.state;
+        const { isLoading, userid, username, mail, password, confirmpassword, disablefields } = this.state;
 
         if (isLoading) {
             return (<div className={classes.paper}><CircularProgress/></div>);
@@ -152,29 +123,26 @@ class Profile extends Component {
                     </SnackbarMessage>
                     <form className={classes.form} onSubmit={this.handleSubmit}>
                     <TextField
-                        inputRef={(inputRef) => {this.user_id = inputRef}}
                         variant="outlined"
                         margin="normal"
                         fullWidth
-                        id="userid"
-                        disabled="true"
+                        disabled={true}
                         label="UserID"
                         name="userid"
-                        value={this.state.userdata.user_id}
+                        value={userid}
                     />
                     <TextField
-                        inputRef={(inputRef) => {this.username = inputRef}}
                         variant="outlined"
                         margin="normal"
                         required
                         fullWidth
-                        id="username"
                         label="Benutzername"
                         name="username"
-                        defaultValue={this.state.userdata.user_name}
+                        onChange={this.handleInputChange}
+                        value={username}
+                        disabled={disablefields}
                     />
                     <TextField
-                        inputRef={(inputRef) => {this.usermail = inputRef}}
                         variant="outlined"
                         margin="normal"
                         fullWidth
@@ -182,11 +150,11 @@ class Profile extends Component {
                         name="mail"
                         label="E-Mail"
                         type="mail"
-                        id="mail"
-                        defaultValue={this.state.userdata.user_mail}
+                        value={mail}
+                        onChange={this.handleInputChange}
+                        disabled={disablefields}
                     />
                     <TextField
-                        inputRef={(inputRef) => {this.user_password = inputRef}}
                         variant="outlined"
                         margin="normal"
                         required
@@ -194,20 +162,21 @@ class Profile extends Component {
                         name="password"
                         label="Passwort"
                         type="password"
-                        id="password"
-                        autoComplete="12"
+                        value={password}
+                        onChange={this.handleInputChange}
+                        disabled={disablefields}
                     />
                     <TextField
-                        inputRef={(inputRef) => {this.passwordconfirm = inputRef}}
                         variant="outlined"
                         margin="normal"
                         required
                         fullWidth
-                        name="passwordconfirm"
+                        name="confirmpassword"
                         label="Passwort bestätigen "
                         type="password"
-                        id="passwordconfirm"
-                        autoComplete="current-password"
+                        value={confirmpassword}
+                        onChange={this.handleInputChange}
+                        disabled={disablefields}
                     />
                     <Button
                         type="submit"

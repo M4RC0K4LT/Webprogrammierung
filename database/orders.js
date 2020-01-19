@@ -20,6 +20,9 @@ module.exports = {
         if (err) {
           reject(err);
         } else {
+          if(result == null){
+            reject({"error": "Auftrag nicht gefunden"})
+          }
           resolve(result);
         }
       });
@@ -29,9 +32,12 @@ module.exports = {
   findByCustomer: id => {
     return new Promise((resolve, reject) => {
       db.all(`SELECT * FROM orders WHERE order_customer = $id`, {$id: id}, (err, result) => {
-        if (err) {
+        if (err) {         
           reject(err);
         } else {
+          if(result.length<1){
+            reject({"error": "Zum ausgewählten Kunden sind keine Aufträge vorhanden"})
+          }
           resolve(result);
         }
       });
@@ -41,36 +47,85 @@ module.exports = {
   create: async jsonObject => {
     
     //Überprüfung des Datumformats
+    var datevalid = null;
     if(!(date.isValid(jsonObject.starting.toString(), "YYYY-MM-DD HH:mm"))){
-        return({error: `Use correct date and time format!`});
+        datevalid = false;
     }
 
+    //Überprüfung Kilometer
+    var travelvalid = null;
     var traveldistance = jsonObject.traveldistance;
-    if(traveldistance.length==0){
+    if(traveldistance == null || traveldistance.length==0){
       traveldistance = null;
-    }
-
-    //Überprüfung ob Standardstundensatz abgeändert
-    var hourlyrate = jsonObject.hourlyrate;
-    console.log(hourlyrate)
-    if(hourlyrate.length==0){
-      console.log("hier1")
-      await new Promise((resolve, reject) => {
-        db.get(`SELECT customer_hourlyrate FROM customers WHERE customer_id = $id`, { $id: jsonObject.customer }, (err, result) => {
-          if (err) {
-            reject(err);
-          }
-          else {
-            console.log("hier2")
-            hourlyrate = result.customer_hourlyrate;
-            resolve(result);
-          }
-        });
-      })
+    }else {
+      if(typeof traveldistance == "string"){
+        traveldistance = parseFloat(jsonObject.traveldistance.replace(",", "."));
+        if(Number.isNaN(traveldistance)){
+          travelvalid = false;
+        }else {
+          traveldistance = traveldistance.toFixed(2)
+        }
+      }else {
+        traveldistance = traveldistance.toFixed(2)
+      }
       
     }
 
+    //Überprüfung der Dauer
+    var durationvalid = null;
+    var duration = jsonObject.duration;
+    if(typeof duration == "string"){
+      duration = parseFloat(jsonObject.duration.replace(",", "."));
+      if(Number.isNaN(duration)){
+        durationvalid = false;
+      }else {
+        duration = duration.toFixed(2)
+      }
+    }else {
+      duration = duration.toFixed(2);
+    }
+    
+    //Überprüfung ob Standardstundensatz abgeändert
+    var hourlyrate = jsonObject.hourlyrate;
+    await new Promise((resolve, reject) => {
+      db.get(`SELECT customer_hourlyrate FROM customers WHERE customer_id = $id`, { $id: jsonObject.customer }, (err, result) => {
+        if (err) {
+          reject(err);
+        }
+        else {
+          if(result == null){
+            reject({"error": "Kunde nicht vorhanden"})
+          }else {
+            if(hourlyrate == null || hourlyrate.length<1){
+              hourlyrate = result.customer_hourlyrate
+            } else {
+              if(typeof hourlyrate == "string"){
+                hourlyrate = parseFloat(jsonObject.hourlyrate.replace(",", "."));
+                if(Number.isNaN(hourlyrate)){
+                  reject({"error": "Kein gültiger Stundensatz"});
+                }
+              }
+              hourlyrate = hourlyrate.toFixed(2)
+            }
+          }
+          resolve(result);
+        }
+      });
+    })
+      
+
     return new Promise((resolve, reject) => {
+
+      if(datevalid == false){
+        reject({"error": "Verwende ein gültiges Zeitformat"});
+      }
+      if(travelvalid == false){
+        reject({"error": "Keine gültige Fahrtstrecke"});
+      }
+      if(durationvalid == false){
+        reject({"error": "Keine gültige Auftragsdauer"});
+      }
+
       db.run(
 
         `INSERT INTO orders (order_title, order_customer, order_description, order_starting, order_duration, order_hourlyrate, order_traveldistance) VALUES ($title, $customer, $description, $starting, $duration, $hourlyrate, $traveldistance)`, 
@@ -104,28 +159,83 @@ module.exports = {
   update: async (id, jsonObject) => {  
 
     //Überprüfung des Datumformats
+    var datevalid = null;
     if(!(date.isValid(jsonObject.starting.toString(), "YYYY-MM-DD HH:mm"))){
-        console.log("fdsg")
-        return({"request": "failed", "error": `Use correct date and time format!`});
+        datevalid = false;
     }
 
-    //Überprüfung ob Standardstundensatz abgeändert
-    hourlyrate = jsonObject.hourlyrate;
-    if(hourlyrate == null){
-      const gethour = await new Promise((resolve, reject) => {
-        db.get(`SELECT customer_hourlyrate FROM customers WHERE customer_id = $id`, { $id: jsonObject.customer }, (err, result) => {
-          if (err) {
-            reject(err);
-          }
-          else {
-            resolve(hourlyrate = result.customer_hourlyrate);
-          }
-        });
-      })
+    //Überprüfung Kilometer
+    var travelvalid = null;
+    var traveldistance = jsonObject.traveldistance;
+    if(traveldistance == null || traveldistance.length==0){
+      traveldistance = null;
+    }else {
+      if(typeof traveldistance == "string"){
+        traveldistance = parseFloat(jsonObject.traveldistance.replace(",", "."));
+        if(Number.isNaN(traveldistance)){
+          travelvalid = false;
+        }else {
+          traveldistance = traveldistance.toFixed(2)
+        }
+      }else {
+        traveldistance = traveldistance.toFixed(2)
+      }
+      
     }
+
+    //Überprüfung der Dauer
+    var durationvalid = null;
+    var duration = jsonObject.duration;
+    if(typeof duration == "string"){
+      duration = parseFloat(jsonObject.duration.replace(",", "."));
+      if(Number.isNaN(duration)){
+        durationvalid = false;
+      }else {
+        duration = duration.toFixed(2)
+      }
+    }else {
+      duration = duration.toFixed(2);
+    }
+    
+    //Überprüfung ob Standardstundensatz abgeändert
+    var hourlyrate = jsonObject.hourlyrate;
+    await new Promise((resolve, reject) => {
+      db.get(`SELECT customer_hourlyrate FROM customers WHERE customer_id = $id`, { $id: jsonObject.customer }, (err, result) => {
+        if (err) {
+          reject(err);
+        }
+        else {
+          if(result == null){
+            reject({"error": "Kunde nicht vorhanden"})
+          }else {
+            if(hourlyrate.length<1){
+              hourlyrate = result.customer_hourlyrate
+            } else {
+              if(typeof hourlyrate == "string"){
+                hourlyrate = parseFloat(jsonObject.hourlyrate.replace(",", "."));
+                if(Number.isNaN(hourlyrate)){
+                  reject({"error": "Kein gültiger Stundensatz"});
+                }
+              }
+              hourlyrate = hourlyrate.toFixed(2)
+            }
+          }
+          resolve(result);
+        }
+      });
+    })
 
     return new Promise((resolve, reject) => {
         id = parseInt(id);
+        if(datevalid == false){
+          reject({"error": "Verwende ein gültiges Zeitformat"});
+        }
+        if(travelvalid == false){
+          reject({"error": "Keine gültige Fahrtsrecke"});
+        }
+        if(durationvalid == false){
+          reject({"error": "Keine gültige Auftragsdauer"});
+        }
         
         db.run(
             
@@ -137,7 +247,7 @@ module.exports = {
             $starting: jsonObject.starting,
             $duration: jsonObject.duration,
             $hourlyrate: hourlyrate,
-            $traveldistance: jsonObject.traveldistance,
+            $traveldistance: traveldistance,
             $id: id
           },
           function (err) {
@@ -148,6 +258,9 @@ module.exports = {
               if (err) {
                 reject(err);
               } else {
+                if(result == null){
+                  reject({"error": "Auftrag konnte nicht gefunden werden"})
+                }
                 resolve(result);
               }
             });
@@ -173,7 +286,7 @@ module.exports = {
                       }
                 });
               } else{
-                  resolve(result);
+                  reject({"error": "Auftrag nicht vorhanden"});
               }
             }
           });

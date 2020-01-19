@@ -7,10 +7,8 @@ import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { withStyles } from '@material-ui/core/styles';
-import { Snackbar, SnackbarContent } from '@material-ui/core';
 import { Redirect } from 'react-router-dom'
 import GavelOutlinedIcon from '@material-ui/icons/GavelOutlined';
-import { green } from '@material-ui/core/colors';
 import 'date-fns';
 import DateFnsUtils from '@date-io/date-fns';
 import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers';
@@ -19,39 +17,9 @@ import Grid from '@material-ui/core/Grid';
 import moment from "moment";
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import SnackbarMessage from './components/snackbarmessage'
-
-
-const useStyles = theme => ({
-    paper: {
-      marginTop: theme.spacing(15),
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-    },
-    avatar: {
-      margin: theme.spacing(1),
-      backgroundColor: theme.palette.secondary.main,
-    },
-    form: {
-      width: '100%', // Fix IE 11 issue.
-      marginTop: theme.spacing(1),
-    },
-    submit: {
-      margin: theme.spacing(3, 0, 2),
-    },
-    error: {
-        backgroundColor: theme.palette.error.dark,
-    },
-    success: {
-        backgroundColor: green[500],
-    },
-    message: {
-        display: 'flex',
-    },
-    margin: {
-        marginTop: "30px"
-    }
-});
+import getCustomers from './api/getCustomers'
+import postOrder from './api/postOrder'
+import useStyles from "./components/useStyles";
 
 class AddOrder extends Component {
 
@@ -61,24 +29,32 @@ class AddOrder extends Component {
         var today = new Date().toISOString().slice(0,10).toString() + " 06:00";
 
         this.state = {
-            orderdata: [],
             customers: [],
-            customer: null,
             isLoading: false,
             error: null,
             message: "",
             open: false,
             snackcolor: "error",
             data: null,
+            disablefields: false,
+
+            order_id: "",
+            title: "",
+            description: "",
+            customer: null,
+            traveldistance: "",
+            hourlyrate: "",
             startTime: today,
             duration: 0,
-            disablefields: false
+
+
         };
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleStartTime = this.handleStartTime.bind(this); 
         this.valuetext = this.valuetext.bind(this);
         this.fetchCustomers = this.fetchCustomers.bind(this);
         this.handleSnackbarClose = this.handleSnackbarClose.bind(this)
+        this.handleInputChange = this.handleInputChange.bind(this)
     } 
 
     handleSnackbarClose(){
@@ -91,24 +67,15 @@ class AddOrder extends Component {
         })
     }
 
-    fetchCustomers() {    
+    fetchCustomers() {   
         this.setState({ isLoading: true });
-        fetch("http://localhost:3001/api/customers/", {
-          method: 'GET',
-          headers: {
-              'Accept': 'application/json',
-              'Authorization': 'Bearer ' + sessionStorage.getItem("authToken")
-          }})
-          .then(response => {
-            if (response.ok) {
-              return response.json();
-            } else {
-              throw new Error('Something went wrong ...');
+        getCustomers().then(data => {
+            this.setState({isLoading: false, customers: data})
+            if(data.length<1 || data.request === "failed"){
+                this.setState({ open: true, message: data.error})
             }
-          })
-          .then(data => this.setState({ customers: data, isLoading: false }))
-          .catch(error => this.setState({ error, isLoading: false }));
-        }
+        })
+    }
 
     valuetext(value){
         var hours = value/60;
@@ -121,55 +88,61 @@ class AddOrder extends Component {
             this.setState({ open: true, message: "Bitte wähle einen gültigen Kunden"})
             return;
         }
-        if(this.state.duration == 0){
+        if(this.state.duration === 0){
             this.setState({ open: true, message: "Bitte wähle eine gültige Dauer"})
             return;
         }
-        var that = this;
-        this.setState({ isLoading: true });
 
-        fetch('http://localhost:3001/api/orders/', {
-            method: 'POST',
-            headers: {
-                'Content-Type':'application/json',
-                'Authorization': 'Bearer ' + sessionStorage.getItem("authToken")
-            },
-            body: JSON.stringify({
-                "title": this.order_title.value,
-                "description": this.order_description.value,
-                "starting": moment(this.state.startTime).format("YYYY-MM-DD HH:mm"),
-                "duration": this.state.duration/60,
-                "hourlyrate": this.order_hourlyrate.value,
-                "traveldistance": this.order_traveldistance.value,
-                "customer": this.state.customer.customer_id
-            })
-        })
-        .then(response => response.json())
-        .then(data => this.setState({ orderdata: data, isLoading: false}))
-        .then(function(){
-            if(that.state.orderdata.request === "failed"){
-                that.setState({ message: "Fehler bei der Bearbeitung", open: true, snackcolor: "error" });
+        this.setState({ isLoading: true, disablefields: true });
+        const { title, description, startTime, duration, hourlyrate, traveldistance, customer } = this.state;
+        postOrder([title, description, startTime, duration, hourlyrate, traveldistance, customer.customer_id]).then(data => {
+            this.setState({ isLoading: false })
+            if(data.length<1 || data.request === "failed"){
+                this.setState({ message: data.error, open: true, snackcolor: "error", disablefields: false });
             }else{
-                that.setState({ message: "Auftrag erfolgreich hinzugefügt", snackcolor: "success", open: true, disablefields: true })
+                this.setState({ 
+                    message: "Auftrag erfolgreich hinzugefügt", 
+                    snackcolor: "success", 
+                    open: true, 
+                    order_id: data.order_id,
+                    title: data.order_title,
+                    description: data.order_description,
+                    customer: data.order_customer,
+                    startTime: data.order_starting,
+                    duration: data.order_duration*60,
+                    hourlyrate: data.order_hourlyrate,
+                    traveldistance: data.order_traveldistance,
+                    disablefields: true })
             }
         })
-        .catch(error => this.setState({ error, isLoading: false, open: true, message: error.message, snackcolor: "error" }));
+    }
+
+    handleInputChange(event) {
+        const target = event.target;
+        const value = target.value
+        const name = target.name;
+    
+        this.setState({
+          [name]: value
+        });
     }
 
     componentDidMount() {
         if (sessionStorage.getItem("authToken") != null){
           this.fetchCustomers();
-          if(!(this.state.orderdata.length==0)){
-              this.setState({ startTime: this.state.orderdata.order_starting, duration: this.state.orderdata.order_duration })
-          }
-        }   
+        }
     }
 
     render() {
         const { classes } = this.props;
-        const { isLoading, open, message } = this.state;
+        const { isLoading, disablefields } = this.state;
 
-        if (isLoading) {
+        var loading = null;
+        if (isLoading && disablefields) {
+            loading = <CircularProgress style={{position: "absolute", top: "45%"}} size={100}/>;
+        }
+
+        if (isLoading && disablefields === false) {
             return (<div className={classes.paper}><CircularProgress/></div>);
         }
 
@@ -185,7 +158,7 @@ class AddOrder extends Component {
               margin="normal" 
             >
               <Grid item>
-                <Button className={classes.submit} variant="outlined" color="primary" href={"/order/" + this.state.orderdata.order_id}>
+                <Button className={classes.submit} variant="outlined" color="primary" href={"/order/" + this.state.order_id}>
                 Bearbeiten
               </Button>
               </Grid>
@@ -224,6 +197,7 @@ class AddOrder extends Component {
                     Auftrag hinzufügen
                     </Typography>
                     <br/>
+                    {loading}
                     <SnackbarMessage
                         open={this.state.open}
                         onClose={this.handleSnackbarClose}
@@ -232,23 +206,26 @@ class AddOrder extends Component {
                     </SnackbarMessage>
                     <form className={classes.form} onSubmit={this.handleSubmit}>
                     <TextField
-                        inputRef={(inputRef) => {this.order_title = inputRef}}
                         variant="outlined"
-                        defaultValue={this.state.orderdata.order_title}
+                        value={this.state.title}
                         margin="normal"
                         required
                         fullWidth
                         label="Titel"
+                        name="title"
+                        onChange={this.handleInputChange}
                         disabled={this.state.disablefields}
                     />
                     <TextField
-                        inputRef={(inputRef) => {this.order_description = inputRef}}
                         variant="outlined"
                         margin="normal"
                         required
                         fullWidth
                         label="Beschreibung"
-                        defaultValue={this.state.orderdata.order_description}
+                        multiline={true}
+                        name="description"
+                        value={this.state.description}
+                        onChange={this.handleInputChange}
                         disabled={this.state.disablefields}
                     />
                     <Autocomplete
@@ -258,30 +235,32 @@ class AddOrder extends Component {
                         autoHighlight={true}
                         autoComplete={true}
                         clearOnEscape={true}
-                        fullWidth
                         disabled={this.state.disablefields}
-                        inputValue={this.state.orderdata.order_customer}
+                        name="customer"
+                        inputValue={this.state.customer}
                         onChange={(event, value) => this.setState({ customer: value})}
                         renderInput={params => (
                             <TextField {...params} margin="normal" fullWidth label="Zugehöriger Kunde" variant="outlined" required />
                         )}
                     />                    
                     <TextField
-                        inputRef={(inputRef) => {this.order_traveldistance = inputRef}}
                         variant="outlined"
                         margin="normal"
                         fullWidth
                         label="Fahrtstrecke - optional"
-                        defaultValue={this.state.orderdata.order_traveldistance}
+                        name="traveldistance"
+                        value={this.state.traveldistance}
+                        onChange={this.handleInputChange}
                         disabled={this.state.disablefields}
                     />
                     <TextField
-                        inputRef={(inputRef) => {this.order_hourlyrate = inputRef}}
+                        name="hourlyrate"
                         variant="outlined"
                         margin="normal"
                         fullWidth
-                        defaultValue={this.state.orderdata.order_hourlyrate}
                         label="Stundensatz - nur wenn auftragsspezifisch"
+                        onChange={this.handleInputChange}
+                        value={this.state.hourlyrate}
                         disabled={this.state.disablefields}
                     />
                     <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -291,14 +270,10 @@ class AddOrder extends Component {
                             fullWidth
                             ampm={false}
                             margin="normal"
-                            id="time-picker"
                             label="Auftragsbeginn"
                             format="yyyy-MM-dd HH:mm"
                             value={this.state.startTime}
                             onChange={this.handleStartTime}
-                            KeyboardButtonProps={{
-                                'aria-label': 'change time',
-                            }}
                             disabled={this.state.disablefields}
                         />
                     </MuiPickersUtilsProvider>
@@ -306,13 +281,13 @@ class AddOrder extends Component {
                         <Grid item xs={7}>
                             <Slider
                                 margin="normal"
-                                defaultValue={15}
-                                AriaValueText={this.valuetext}
+                                value={this.state.duration}
                                 aria-labelledby="discrete-slider-small-steps"
                                 step={15}
                                 min={0}
                                 max={600}
                                 valueLabelDisplay="off"
+                                name="duration"
                                 onChange={ (e, value) => this.setState({ duration: value }) }
                                 valueLabelFormat={this.valuetext}
                                 disabled={this.state.disablefields}
@@ -322,7 +297,7 @@ class AddOrder extends Component {
                         <Grid item xs={5}>
                             <TextField
                                 value={this.state.duration/60 + "h - " + moment(this.state.startTime).add(this.state.duration, "m").format("HH:mm")}
-                                disabled="true"
+                                disabled={true}
                                 variant="outlined"
                                 margin="normal"
                                 label="Dauer - Ende"

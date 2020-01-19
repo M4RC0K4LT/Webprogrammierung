@@ -15,10 +15,8 @@ module.exports = {
     return new Promise((resolve, reject) => {
       db.all(`SELECT * FROM customers`, (err, result) => {
         if (err) {
-          result["request"] = "failed";
           reject(err);
         } else {
-          result["request"] = "successful";
           resolve(result);
         }
       });
@@ -30,10 +28,11 @@ module.exports = {
     return new Promise((resolve, reject) => {
       db.get(`SELECT * FROM customers WHERE customer_id = $id`, { $id: id }, (err, result) => {
         if (err) {
-          err["request"] = "failed";
           reject(err);
         } else {
-          result["request"] = "successful";
+          if(result == null){
+            reject({"error": "Kunde nicht gefunden"})
+          }
           resolve(result);
         }
       });
@@ -45,11 +44,25 @@ module.exports = {
     const adressstring = jsonObject.street_number.toString() + ", " + jsonObject.zipcode.toString() + jsonObject.town.toString;
     let addressfound = await geocoder.geocode(adressstring, function (err, data) { });
 
-    if (addressfound < 1) {
-      return ({ "request": "failed", "error": "Use a correct adress!" })
+    var notfound = null;
+    if (addressfound < 1 || addressfound[0].streetNumber == null) {
+      notfound = true;
     }
-
+    
     return new Promise((resolve, reject) => {
+
+      if(notfound){
+        reject({"error": "Keine gültige Adressangabe"});
+      }
+
+      var hourlyrate = jsonObject.hourlyrate
+      if(typeof hourlyrate == "string"){
+        hourlyrate = parseFloat(jsonObject.hourlyrate.replace(",", "."));
+        if(Number.isNaN(hourlyrate)){
+          reject({"error": "Kein gültiger Stundensatz"});
+        }
+      }
+
       db.run(
 
         `INSERT INTO customers (customer_name, customer_company, customer_mail, customer_country, customer_zipcode, customer_town, customer_street_number, customer_hourlyrate) VALUES($name, $company, $mail, $country, $zipcode, $town, $street_number, $hourlyrate)`,
@@ -57,15 +70,14 @@ module.exports = {
           $name: jsonObject.name,
           $company: jsonObject.company,
           $mail: jsonObject.mail,
-          $country: jsonObject.country,
-          $zipcode: jsonObject.zipcode,
-          $town: jsonObject.town,
-          $street_number: jsonObject.street_number,
-          $hourlyrate: jsonObject.hourlyrate
+          $country: addressfound[0].country,
+          $zipcode: addressfound[0].zipcode,
+          $town: addressfound[0].city,
+          $street_number: addressfound[0].streetName + " " + addressfound[0].streetNumber,
+          $hourlyrate: hourlyrate.toFixed(2)
         },
         function (err) {
           if (err) {
-            err["request"] = "failed";
             reject(err);
           }
           db.get(`SELECT * FROM customers WHERE customer_id = $id`, { $id: this.lastID }, (err, result) => {
@@ -86,11 +98,25 @@ module.exports = {
     const adressstring = jsonObject.street_number.toString() + ", " + jsonObject.zipcode.toString() + jsonObject.town.toString();
     let addressfound = await geocoder.geocode(adressstring, function (err, data) { });
 
-    if (addressfound < 1) {
-      return ({ "request": "failed", "error": "Use a correct adress!" });
+    var notfound = null;
+    if (addressfound < 1 || addressfound[0].streetNumber == null) {
+      notfound = true;
     }
 
     return new Promise((resolve, reject) => {
+      
+      if(notfound){
+        reject({"error": "Keine gültige Adressangabe"});
+      }
+
+      var hourlyrate = jsonObject.hourlyrate
+      if(typeof hourlyrate == "string"){
+        hourlyrate = parseFloat(jsonObject.hourlyrate.replace(",", "."));
+        if(Number.isNaN(hourlyrate)){
+          reject({"error": " Kein gültiger Stundensatz "});
+        }
+      }
+
       id = parseInt(id);
       db.run(
 
@@ -99,24 +125,24 @@ module.exports = {
           $name: jsonObject.name,
           $company: jsonObject.company,
           $mail: jsonObject.mail,
-          $country: jsonObject.country,
-          $zipcode: jsonObject.zipcode,
-          $town: jsonObject.town,
-          $street_number: jsonObject.street_number,
-          $hourlyrate: jsonObject.hourlyrate,
+          $country: addressfound[0].country,
+          $zipcode: addressfound[0].zipcode,
+          $town: addressfound[0].city,
+          $street_number: addressfound[0].streetName + " " + addressfound[0].streetNumber,
+          $hourlyrate: hourlyrate.toFixed(2),
           $id: id
         },
         function (err) {
           if (err) {
-            err["request"] = "failed";
             reject(err);
           }
           db.get(`SELECT * FROM customers WHERE customer_id = $id`, { $id: id }, (err, result) => {
             if (err) {
-              err["request"] = "failed";
               reject(err);
             } else {
-              result["request"] = "successful";
+              if(result == null){
+                reject({"error": "Kunde nicht gefunden"})
+              }
               resolve(result);
             }
           });
@@ -136,13 +162,14 @@ module.exports = {
             db.run(
               `DELETE FROM customers WHERE customer_id = $id`, { $id: id }, (err, result) => {
                 if (err) {
-                  reject(false);
+                  reject(err
+                    );
                 } else {
-                  resolve(true);
+                  resolve();
                 }
               });
           } else {
-            resolve(result);
+            reject({"error": "Kunde nicht gefunden"});
           }
         }
       });

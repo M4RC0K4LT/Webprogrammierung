@@ -10,7 +10,8 @@ router.get('/', async (request, response) => {
         const allcustomers = await customers.getAll();
         response.status(201).send(allcustomers);
     } catch(err){
-        response.status(503).send(err);
+        let data = Object.assign({"request": "failed"}, err)
+        response.status(503).send(data);
     }
     
 });
@@ -19,18 +20,15 @@ router.get('/', async (request, response) => {
 router.get('/:id', async (request, response) => {
     try {
         const customer = await customers.findById(request.params.id);
-        if (customer == null) {
-            response.status(404).send({error: `Customer ${request.params.id} not found`});
-            return;
-        }
         const avgtraveldistance = await customers.getAvgTraveldistance(request.params.id);
         const avghourlyrate = await customers.getAvgHourlyrate(request.params.id);
         const avgduration = await customers.getAvgDuration(request.params.id);
         const avgordercost = await customers.getAvgOrderCost(request.params.id);
-        let data = Object.assign(customer, avghourlyrate, avgtraveldistance, avgduration, avgordercost);
+        let data = Object.assign({"request": "succesful"}, customer, avghourlyrate, avgtraveldistance, avgduration, avgordercost);
         response.status(201).send(data);
     } catch (err){
-        response.status(503).send(err);
+        let data = Object.assign({"request": "failed"}, err)
+        response.status(503).send(data);
     }
     
 });
@@ -45,9 +43,11 @@ router.post('/statistics/', async (request, response) => {
 router.post('/', async (request, response) => {
     try {
         const customer = await customers.create(request.body);
-        response.status(201).send(customer);
+        let data = Object.assign({"request": "successful"}, customer)
+        response.status(201).send(data);
     } catch (err) {
-        response.status(503).send(err);
+        let data = Object.assign({"request": "failed"}, err)
+        response.status(503).send(data);
     }
     
 });
@@ -56,9 +56,11 @@ router.post('/', async (request, response) => {
 router.put('/:id', async (request, response) => {
     try {
         const customer = await customers.update(request.params.id, request.body);
-        response.status(201).send(customer);
+        let data = Object.assign({"request": "successful"}, customer)
+        response.status(201).send(data);
     } catch (err){
-        response.status(503).send(err)
+        let data = Object.assign({"request": "failed"}, err)
+        response.status(503).send(data)
     }
     
 });
@@ -66,14 +68,12 @@ router.put('/:id', async (request, response) => {
 //Customer löschen
 router.delete('/', async (request, response) => {
     try {
-        const isDeleted = await customers.remove(request.body.id);
-        if (isDeleted == null) {
-            response.status(404).send({"request": "failed", "error": `Customer ${request.params.id} not found`});
-            return;
-        }
+        await customers.remove(request.body.id);
         response.status(202).send({"request": "succesful"});
     } catch (err){
-        response.status(503).send({"request": "failed", "error": err});
+        console.log(err)
+        let data = Object.assign({"request": "failed"}, err)
+        response.status(503).send(data);
     }
     
 });

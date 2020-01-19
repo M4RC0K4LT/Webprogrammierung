@@ -9,7 +9,6 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
-import GavelOutlinedIcon from '@material-ui/icons/GavelOutlined';
 import EditIcon from '@material-ui/icons/Edit';
 import IconButton from '@material-ui/core/IconButton';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
@@ -18,44 +17,11 @@ import Fab from '@material-ui/core/Fab';
 import { withStyles } from '@material-ui/core/styles';
 import DeleteIcon from '@material-ui/icons/Delete';
 import AccountBalanceIcon from '@material-ui/icons/AccountBalance';
-
-const useStyles = theme => ({
-  paper: {
-    marginTop: theme.spacing(15),
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  avatar: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
-  },
-  form: {
-    width: '100%', // Fix IE 11 issue.
-    marginTop: theme.spacing(1),
-  },
-  submit: {
-    margin: theme.spacing(3, 0, 2),
-  },
-  error: {
-      backgroundColor: theme.palette.error.dark,
-  },
-  message: {
-      display: 'flex',
-  },
-  root: {
-    width: '100%',
-    marginTop: theme.spacing(1)
-  },
-  addbutton: {
-    margin: 20,
-    top: 'auto',
-    right: 20,
-    bottom: 20,
-    left: 'auto',
-    position: 'fixed'
-  }
-});
+import useStyles from "./components/useStyles";
+import deleteOrder from './api/deleteOrder';
+import getOrders from './api/getOrders';
+import getInvoice from './api/getInvoice';
+import SnackbarMessage from './components/snackbarmessage'
 
 class Orders extends React.Component {
 
@@ -66,6 +32,9 @@ class Orders extends React.Component {
       isLoading: false,
       error: null,
       filtered: [],
+      message: "",
+      open: false,
+      snackcolor: "error",
     };
     this.requestInvoice = this.requestInvoice.bind(this);
     this.fetchOrders = this.fetchOrders.bind(this);
@@ -75,68 +44,41 @@ class Orders extends React.Component {
   requestInvoice(id) {
     var invoicelist = [];
     invoicelist.push(id);
-    fetch("http://localhost:3001/api/orders/get/invoice", {
-      method: 'POST',
-      headers: {
-        'Content-Type':'application/json',
-        'Authorization': 'Bearer ' + sessionStorage.getItem("authToken")
-     },body: JSON.stringify({
-        "idlist": invoicelist,
-    })})
-      .then(res => res.blob())
-      .then(response => {
+    getInvoice(invoicelist).then(response => {
+      if(response.request === "failed"){
+        this.setState({ open: true, message: response.error, snackcolor: "error"});
+      }else{
         const file = new Blob(
           [response], 
           {type: 'application/pdf'});
         const fileURL = URL.createObjectURL(file);
         window.open(fileURL);
-      })
-      .catch(error => this.setState({ error, isLoading: false }));
+      }
+    })
   }
 
   handleDelete(id){
-    var that = this;
-
-    fetch('http://localhost:3001/api/orders/', {
-        method: 'DELETE',
-        headers: {
-            'Content-Type':'application/json',
-            'Authorization': 'Bearer ' + sessionStorage.getItem("authToken")
-        },
-        body: JSON.stringify({
-            "id": id,
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if(data.request === "failed"){
-            that.setState({ isLoading: false });
+    this.setState({ isLoading: true });
+      deleteOrder(id).then(data => {
+        this.setState({ isLoading: false });
+        if(data.length<1 || data.request === "failed"){
+          this.setState({ open: true, message: data.error, snackcolor: "error"});
         }else{
-            that.setState({ isLoading: false})
-            this.fetchOrders();
-
+          this.fetchOrders() 
         }
-    })
-    .catch(error => this.setState({ error, isLoading: false, open: true, message: error.message, snackcolor: "error" }));
+      })
   }
 
   fetchOrders() {
     this.setState({ isLoading: true });
-    fetch("http://localhost:3001/api/orders/", {
-      method: 'GET',
-      headers: {
-          'Accept': 'application/json',
-          'Authorization': 'Bearer ' + sessionStorage.getItem("authToken")
-      }})
-      .then(response => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          throw new Error('Something went wrong ...');
-        }
-      })
-      .then(data => this.setState({ orders: data, filtered: data, isLoading: false }))
-      .catch(error => this.setState({ error, isLoading: false }));
+    getOrders().then(data => {
+      this.setState({ isLoading: false });
+      if(data.length<1 || data.request === "failed"){
+          this.setState({ open: true, message: data.error, snackcolor: "error"});
+      }else{
+          this.setState({ orders: data, filtered: data })
+      }
+    })
   }
 
 
@@ -162,10 +104,16 @@ class Orders extends React.Component {
           <CssBaseline />
           <div  className={classes.paper}>
           <h1>Auftragsübersicht</h1>
+          <SnackbarMessage
+            open={this.state.open}
+            onClose={this.handleSnackbarClose}
+            message={this.state.message}
+            color={this.state.snackcolor}>
+          </SnackbarMessage>
           <Fab className={classes.addbutton} size="large" color="primary" aria-label="add" href="/addorder">
             <AddIcon/>
           </Fab>
-          <List className={classes.root}>
+          <List className={classes.mainlist}>
             {filtered.map((order, i) => (
             <div>
             <ListItem key={order.order_title}>

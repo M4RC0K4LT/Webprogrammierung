@@ -17,45 +17,9 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import AddIcon from '@material-ui/icons/Add';
 import ListIcon from '@material-ui/icons/List';
 import Fab from '@material-ui/core/Fab';
-
-const useStyles = theme => ({
-  paper: {
-    marginTop: theme.spacing(15),
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  avatar: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
-  },
-  form: {
-    width: '100%', // Fix IE 11 issue.
-    marginTop: theme.spacing(1),
-  },
-  submit: {
-    margin: theme.spacing(3, 0, 2),
-  },
-  error: {
-      backgroundColor: theme.palette.error.dark,
-  },
-  message: {
-      display: 'flex',
-  },
-  root: {
-    width: '100%',
-    marginTop: theme.spacing(1)
-  },
-  addbutton: {
-    margin: 20,
-    top: 'auto',
-    right: 20,
-    bottom: 20,
-    left: 'auto',
-    position: 'fixed'
-  }
-});
-
+import useStyles from "./components/useStyles";
+import getCustomers from "./api/getCustomers"
+import SnackbarMessage from './components/snackbarmessage'
 
 class Customers extends React.Component {
 
@@ -65,26 +29,29 @@ class Customers extends React.Component {
       customers: [],
       isLoading: false,
       error: null,
+
+      open: false,
+      message: "",
+      snackcolor: "error",
     };
+    this.handleSnackbarClose = this.handleSnackbarClose.bind(this);
+    this.fetchCustomers = this.fetchCustomers.bind(this);
+  }
+
+  handleSnackbarClose(){
+    this.setState({ open: false });
   }
 
   fetchCustomers() {    
     this.setState({ isLoading: true });
-    fetch("http://localhost:3001/api/customers/", {
-      method: 'GET',
-      headers: {
-          'Accept': 'application/json',
-          'Authorization': 'Bearer ' + sessionStorage.getItem("authToken")
-      }})
-      .then(response => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          throw new Error('Something went wrong ...');
-        }
-      })
-      .then(data => this.setState({ customers: data, isLoading: false }))
-      .catch(error => this.setState({ error, isLoading: false }));
+    getCustomers().then(data => {
+      this.setState({ isLoading: false })
+      if(data.length<1 || data.request === "failed"){
+        this.setState({ message: data.error, open: true, snackcolor: "error" });
+      }else{
+        this.setState({ customers: data })
+      }
+    })
   }
 
   componentDidMount() {
@@ -110,10 +77,16 @@ class Customers extends React.Component {
         <CssBaseline />
         <div  className={classes.paper}>
         <h1>Kundenübersicht</h1>
+        <SnackbarMessage
+          open={this.state.open}
+          onClose={this.handleSnackbarClose}
+          message={this.state.message}
+          color={this.state.snackcolor}>
+        </SnackbarMessage>
         <Fab className={classes.addbutton} size="large" color="primary" aria-label="add" href="addcustomer">
           <AddIcon />
         </Fab>
-        <List className={classes.root}>
+        <List className={classes.mainlist}>
           {customers.map((customer, i) => (
           <div>
           <ListItem>

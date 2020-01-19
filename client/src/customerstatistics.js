@@ -16,43 +16,20 @@ import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableRow from '@material-ui/core/TableRow';
 import Grid from '@material-ui/core/Grid';
-
-
-const useStyles = theme => ({
-  paper: {
-    marginTop: theme.spacing(15),
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  avatar: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
-  },
-  form: {
-    width: '100%', // Fix IE 11 issue.
-    marginTop: theme.spacing(1),
-  },
-  submit: {
-    margin: theme.spacing(3, 0, 2),
-  },
-  error: {
-      backgroundColor: theme.palette.error.dark,
-  },
-  message: {
-      display: 'flex',
-  },
-  root: {
-    width: '100%',
-    marginTop: theme.spacing(1)
-  },
-});
+import useStyles from "./components/useStyles";
+import getCustomer from "./api/getCustomer";
+import postCustomerStatistics from './api/postCustomerStatistics';
+import SnackbarMessage from './components/snackbarmessage'
 
 class CustomerStatistics extends React.Component {
 
   constructor(props) {
     super(props);
     this.state = {
+      open: false,
+      message: "",
+      snackcolor: "error",
+
       orders: [],
       checkedforinvoice: [],
       buttondisabled: true,
@@ -85,61 +62,46 @@ class CustomerStatistics extends React.Component {
     };
     this.fetchCustomer = this.fetchCustomer.bind(this);
     this.fetchStatistics = this.fetchStatistics.bind(this);
+    this.handleSnackbarClose = this.handleSnackbarClose.bind(this);
   }
+
+  handleSnackbarClose(){
+    this.setState({ open: false });
+  }
+  
   fetchCustomer() {
     const id = this.props.match.params.id;
     this.setState({ isLoading: true });
-    fetch("http://localhost:3001/api/customers/" + id, {
-      method: 'GET',
-      headers: {
-          'Accept': 'application/json',
-          'Authorization': 'Bearer ' + sessionStorage.getItem("authToken")
-      }})
-      .then(response => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          throw new Error('Something went wrong ...');
-        }
-      })
-      .then(data => this.setState({ customer: data, isLoading: false }))
-      .catch(error => this.setState({ error, isLoading: false }));
+    getCustomer(id).then(data => {
+      this.setState({ isLoading: false });
+      if(data.length<1 || data.request === "failed"){
+          this.setState({ message: data.error, snackcolor: "error", open: true })
+      }else{
+          this.setState({ customer: data })
+      }
+    })
   }
 
   fetchStatistics(year){
     this.setState({ year: year });
-    var that = this;
     if(year==null){
       return;
     }
     year = year.toString();
-    fetch("http://localhost:3001/api/customers/statistics", {
-      method: 'POST',
-      headers: {
-        'Content-Type':'application/json',
-        'Authorization': 'Bearer ' + sessionStorage.getItem("authToken")
-     },body: JSON.stringify({
-        "id": this.props.match.params.id,
-        "year": year
-    })})
-      .then(response => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          throw new Error('Something went wrong ...');
-        }
-      })
-      .then((data => {
-        var datasetsCopy = that.state.diagram.datasets.slice(0);
+    postCustomerStatistics(this.props.match.params.id, year).then(data => {
+      if(data.request === "failed"){
+        this.setState({ message: data.error, snackcolor: "error", open: true })
+      }else{
+        var datasetsCopy = this.state.diagram.datasets.slice(0);
         var dataCopy = [null, null, null, null, null, null, null, null, null, null, null, null];
         data.map((stats) => {
           var monthint = parseInt(stats.month)-1;
-          dataCopy[monthint] = stats.anzahl;
+          return (dataCopy[monthint] = stats.anzahl);
         });
         datasetsCopy[0].data = dataCopy;
-        that.setState({diagram: Object.assign({}, that.state.diagram, {datasets: datasetsCopy})});
-      }))
-      .catch(error => this.setState({ error}));
+        this.setState({diagram: Object.assign({}, this.state.diagram, {datasets: datasetsCopy})});
+      }
+    })
   }
 
   componentDidMount() {
@@ -150,7 +112,7 @@ class CustomerStatistics extends React.Component {
   }
 
   render() {
-    const { orders, isLoading } = this.state;
+    const { isLoading } = this.state;
     const { classes } = this.props;
 
     if (sessionStorage.getItem("authToken") == null){
@@ -165,6 +127,12 @@ class CustomerStatistics extends React.Component {
           <CssBaseline />
           <div  className={classes.paper}>
           <h1>Übersicht Kunde - Statistik</h1><br />
+          <SnackbarMessage
+            open={this.state.open}
+            onClose={this.handleSnackbarClose}
+            message={this.state.message}
+            color={this.state.snackcolor}>
+          </SnackbarMessage>
           <Bar data={this.state.diagram} options={this.state.options}/><br />
           <ButtonGroup variant="outlined" size="small" margin="normal" color="primary" aria-label="contained primary button group">
             <Button onClick={() => this.fetchStatistics(this.state.year-1)}><ArrowBackIcon /></Button>
@@ -184,23 +152,23 @@ class CustomerStatistics extends React.Component {
                   </TableRow>
                   <TableRow>
                     <TableCell component="th" scope="row">Stundensatz:</TableCell>
-                    <TableCell align="right">{this.state.customer.customer_hourlyrate}</TableCell>
+                    <TableCell align="right">{this.state.customer.customer_hourlyrate + " €/h"}</TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell component="th" scope="row">Durchsch. Stundensatz:</TableCell>
-                    <TableCell align="right">{parseInt(this.state.customer.avg_hourlyrate)}</TableCell>
+                    <TableCell align="right">{parseFloat(this.state.customer.avg_hourlyrate).toFixed(2) + " €/h"}</TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell component="th" scope="row">Durchschn. Fahrtstrecke:</TableCell>
-                    <TableCell align="right">{parseInt(this.state.customer.avg_traveldistance)}</TableCell>
+                    <TableCell align="right">{parseFloat(this.state.customer.avg_traveldistance).toFixed(2) + " km"}</TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell component="th" scope="row">Durchschn. Auftragsdauer:</TableCell>
-                    <TableCell align="right">{parseInt(this.state.customer.avg_duration)}</TableCell>
+                    <TableCell align="right">{parseFloat(this.state.customer.avg_duration).toFixed(2) + " h"}</TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell component="th" scope="row">Durchschn. Auftragskosten:</TableCell>
-                    <TableCell align="right">{parseInt(this.state.customer.avg_ordercost)}</TableCell>
+                    <TableCell align="right">{parseFloat(this.state.customer.avg_ordercost).toFixed(2) + " €"}</TableCell>
                   </TableRow>
               </TableBody>
             </Table><br /><br />

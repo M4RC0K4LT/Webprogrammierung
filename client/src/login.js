@@ -7,75 +7,57 @@ import TextField from '@material-ui/core/TextField';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
-import CircularProgress from '@material-ui/core/CircularProgress';
 import { withStyles } from '@material-ui/core/styles';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import SnackbarMessage from './components/snackbarmessage'
-
-const useStyles = theme => ({
-    paper: {
-      marginTop: theme.spacing(15),
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-    },
-    avatar: {
-      margin: theme.spacing(1),
-      backgroundColor: theme.palette.secondary.main,
-    },
-    form: {
-      width: '100%', // Fix IE 11 issue.
-      marginTop: theme.spacing(1),
-    },
-    submit: {
-      margin: theme.spacing(3, 0, 2),
-    },
-    message: {
-        display: 'flex',
-      },
-});
+import useStyles from "./components/useStyles";
+import postUser from "./api/postUser";
 
 class Login extends Component {
 
     constructor(props){
         super(props);
         this.state = {
+            disablefields: false,
             response: [],
             isLoading: false,
             error: null,
             message: "",
             open: false,
-            snackcolor: "error"
+            snackcolor: "error",
+            success: false,
+            mail: "",
+            password: "",
         };
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.handleSnackbarClose = this.handleSnackbarClose.bind(this)
+        this.handleSnackbarClose = this.handleSnackbarClose.bind(this);
+        this.handleInputChange = this.handleInputChange.bind(this);
         
     }   
+    
+    handleInputChange(event) {
+        const target = event.target;
+        const value = target.value;
+        const name = target.name;
+        this.setState({ [name]: value });
+    }
     
     handleSnackbarClose(){
         this.setState({ open: false })
     }
     
     handleSubmit(event){ 
-        var that = this;
         event.preventDefault();
-        this.setState({ isLoading: true });
-        fetch('http://localhost:3001/api/user/login', {
-            method: 'POST',
-            headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({
-                "mail": this.mail.value,
-                "password": this.password.value
-            })
-        })
-        .then(response => response.json())
-        .then(data => this.setState({ response: data, isLoading: false, message: data.login}))
-        .then(function(){
-            if(that.state.message === "failed"){
-                that.setState({ open: true, message: "Wrong credentials! Try again." })
+        this.setState({ disablefields: true });
+        const { mail, password, } = this.state;
+        postUser(mail, password).then(data => {
+            if(data.length<1 || data.request === "failed"){
+                this.setState({ open: true, snackcolor: "error", message: data.error, disablefields: false })
+            }else {
+                sessionStorage.setItem('authToken', data.token);
+                this.setState({ success: true })
             }
         })
-        .catch(error => this.setState({ error, isLoading: false, open: true, message: error.message }));
     };
 
     handleClick(){
@@ -86,15 +68,9 @@ class Login extends Component {
     render() {
         
         const { classes } = this.props;
-        const { response, isLoading, open, message } = this.state;
-
-        if (isLoading) {
-
-            return (<div className={classes.paper}><CircularProgress/></div>);
-        }
+        const { success, disablefields } = this.state;
         
-        if(response.login === "successful"){
-            sessionStorage.setItem('authToken', response.token);
+        if(success){
             return window.location.replace("/profile");
         }
 
@@ -112,7 +88,6 @@ class Login extends Component {
                     <Typography component="h1" variant="h5">
                     Anmelden
                     </Typography>
-
                     <SnackbarMessage
                         open={this.state.open}
                         onClose={this.handleSnackbarClose}
@@ -128,18 +103,23 @@ class Login extends Component {
                         required
                         fullWidth
                         label="E-Mail"
-                        autoComplete="email"
+                        name="mail"
+                        value={this.state.mail}
+                        onChange={this.handleInputChange}
+                        disabled={disablefields}
                         autoFocus
                     />
                     <TextField
-                        inputRef={(inputRef) => {this.password = inputRef}}
                         variant="outlined"
                         margin="normal"
                         required
                         fullWidth
                         label="Passwort"
                         type="password"
-                        autoComplete="current-password"
+                        name="password"
+                        value={this.state.password}
+                        disabled={disablefields}
+                        onChange={this.handleInputChange}
                     />
                     <Button
                         type="submit"

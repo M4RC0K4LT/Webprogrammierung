@@ -5,39 +5,17 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
-import CircularProgress from '@material-ui/core/CircularProgress';
 import { withStyles } from '@material-ui/core/styles';
 import PermContactCalendarOutlinedIcon from '@material-ui/icons/PermContactCalendarOutlined';
 import { Redirect } from 'react-router-dom'
 import DeleteOutlineOutlinedIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import SnackbarMessage from './components/snackbarmessage'
-
-const useStyles = theme => ({
-    paper: {
-      marginTop: theme.spacing(15),
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-    },
-    avatar: {
-      margin: theme.spacing(1),
-      backgroundColor: theme.palette.secondary.main,
-    },
-    form: {
-      width: '100%', // Fix IE 11 issue.
-      marginTop: theme.spacing(1),
-    },
-    submit: {
-      margin: theme.spacing(3, 0, 2),
-    },
-    delete: {
-      color: theme.palette.error.dark,
-      margin: theme.spacing(0, 0, 3),
-    },
-    message: {
-        display: 'flex',
-      },
-});
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Grid from '@material-ui/core/Grid';
+import useStyles from "./components/useStyles";
+import getCustomer from "./api/getCustomer";
+import deleteCustomer from "./api/deleteCustomer";
+import putCustomer from './api/putCustomer'
 
 class Customerdetail extends Component {
 
@@ -46,17 +24,40 @@ class Customerdetail extends Component {
         
         this.state = {
             customerdata: [],
+            updatedvalue: null, 
             isLoading: false,
             error: null,
             message: "",
             open: false,
             snackcolor: "error",
+            disablefields: false,
+
+            customerid: "",
+            customername: "",
+            company: "",
+            mail: "",
+            country: "",
+            zip: "",
+            town: "",
+            street_number: "",
+            hourlyrate: ""
         };
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleDelete = this.handleDelete.bind(this);
         this.handleSnackbarClose = this.handleSnackbarClose.bind(this)
-        
-    } 
+        this.fetchCustomer = this.fetchCustomer.bind(this);
+        this.handleInputChange = this.handleInputChange.bind(this);        
+    }  
+    
+    handleInputChange(event) {
+        const target = event.target;
+        const value = target.value
+        const name = target.name;
+    
+        this.setState({
+          [name]: value
+        });
+    }
     
     handleSnackbarClose(){
         this.setState({ open: false })
@@ -64,96 +65,73 @@ class Customerdetail extends Component {
     
     handleSubmit(event){ 
         event.preventDefault();
-        var that = this;
-        var updatedCustomer = [];
         const id = this.props.match.params.id;
-        this.setState({ isLoading: true });
-
-        fetch('http://localhost:3001/api/customers/' + id, {
-            method: 'PUT',
-            headers: {
-                'Content-Type':'application/json',
-                'Authorization': 'Bearer ' + sessionStorage.getItem("authToken")
-            },
-            body: JSON.stringify({
-                "mail": this.customer_mail.value,
-                "name": this.customer_name.value,
-                "company": this.customer_company.value,
-                "country": this.customer_country.value,
-                "zipcode": this.customer_zipcode.value,
-                "town": this.customer_town.value,
-                "street_number": this.customer_street_number.value,
-                "hourlyrate": this.customer_hourlyrate.value
-            })
-        })
-        .then(response => response.json())
-        .then(data => updatedCustomer=data)
-        .then(function(){
-            if(updatedCustomer.request === "failed"){
-                that.setState({ isLoading: false, message: "Something went wrong", open: true, snackcolor: "error" });
+        this.setState({ isLoading: true, disablefields: true });
+        const { customername, company, mail, country, zip, town, street_number, hourlyrate } = this.state;
+        putCustomer(id, [customername, company, mail, country, zip, town, street_number, hourlyrate]).then(data => {
+            this.setState({ isLoading: false })
+            if(data.length<1 || data.request === "failed"){
+                this.setState({ message: data.error, open: true, snackcolor: "error", disablefields: false });
             }else{
-                that.setState({ isLoading: false, customerdata: updatedCustomer, message: "Changes saved successfully!", snackcolor: "success", open: true })
+                this.setState({ 
+                    message: "Kunde erfolgreich aktualisiert", 
+                    snackcolor: "success", 
+                    open: true, 
+                    customerid: data.customer_id,
+                    customername: data.customer_name,
+                    company: data.customer_company,
+                    mail: data.customer_mail,
+                    country: data.customer_country,
+                    zip: data.customer_zipcode,
+                    town: data.customer_town,
+                    street_number: data.customer_street_number,
+                    hourlyrate: data.customer_hourlyrate,
+                    disablefields: true })
             }
         })
-        .catch(error => this.setState({ error, isLoading: false, open: true, message: error.message, snackcolor: "error" }));
     }
 
     handleDelete(){
-        var that = this;
         const id = this.props.match.params.id;
-        this.setState({ isLoading: true });
-
-        fetch('http://localhost:3001/api/customers/', {
-            method: 'DELETE',
-            headers: {
-                'Content-Type':'application/json',
-                'Authorization': 'Bearer ' + sessionStorage.getItem("authToken")
-            },
-            body: JSON.stringify({
-                "id": id,
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if(data.request === "failed"){
-                that.setState({ message: "Something went wrong", open: true, snackcolor: "error", isLoading: false });
+        this.setState({ isLoading: true, disablefields: true });
+        deleteCustomer(id).then(data => {
+            this.setState({ isLoading: false })
+            if(data.request === "failed" || data.length<1){
+                if(data.code === "SQLITE_CONSTRAINT"){
+                    this.setState({ message: "Fehler: Kunde hat noch zugehörige Aufträge", open: true, snackcolor: "error", disablefields: false });
+                }else {
+                    this.setState({ message: data.error, open: true, snackcolor: "error", disablefields: false });
+                }
             }else{
-                that.setState({ message: "Customer deleted successfully! You get redirected", snackcolor: "success", open: true, isLoading: false, customerdata: [] })
+                this.setState({ message: "Kunde erfolgreich gelöscht. Weiterleitung...", snackcolor: "success", open: true, isLoading: false })
                 setTimeout(() => {
                     window.location.replace("/customers")
                 }, 2000);
-
             }
         })
-        .catch(error => this.setState({ error, isLoading: false, open: true, message: error.message, snackcolor: "error" }));
     }
 
     fetchCustomer() {
-        var that = this;
         const id = this.props.match.params.id;
         this.setState({ isLoading: true });
-        fetch("http://localhost:3001/api/customers/" + id, {
-          method: 'GET',
-          headers: {
-              'Accept': 'application/json',
-              'Authorization': 'Bearer ' + sessionStorage.getItem("authToken")
-          }})
-          .then(response => {
-            if (response.ok) {
-              return response.json();
-            } else {
-              throw new Error('Something went wrong ...');
+        getCustomer(id).then(data => {
+            this.setState({ isLoading: false });
+            if(data.length<1 || data.request === "failed"){
+                this.setState({ message: data.error, snackcolor: "error", open: true })
+            }else{
+                this.setState({ 
+                    customerid: data.customer_id,
+                    customername: data.customer_name,
+                    company: data.customer_company,
+                    mail: data.customer_mail,
+                    country: data.customer_country,
+                    zip: data.customer_zipcode,
+                    town: data.customer_town,
+                    street_number: data.customer_street_number,
+                    hourlyrate: data.customer_hourlyrate,
+                 })
             }
           })
-          .then(data => this.setState({ customerdata: data, isLoading: false, message: data.request }))
-          .then(function(){
-            if(that.state.message === "failed"){
-                that.setState({ open: true, message: that.state.customerdata.error.message, snackcolor: "error"})
-            }else{
-                that.setState({ open: false })
-            }
-        })
-          .catch(error => this.setState({ error, isLoading: false, message: error.message, open: true, snackcolor: "error" }));
     }
 
     componentDidMount() {
@@ -165,12 +143,62 @@ class Customerdetail extends Component {
     render() {
         
         const { classes } = this.props;
-        const { isLoading } = this.state;
+        const { isLoading, disablefields } = this.state;
 
-        if (isLoading) {
+        var loading = null;
+        if (isLoading && disablefields) {
+            loading = <CircularProgress style={{position: "absolute", top: "45%"}} size={100}/>;
+        }
+
+        if (isLoading && disablefields === false) {
             return (<div className={classes.paper}><CircularProgress/></div>);
         }
 
+        var buttons = ""
+        if(isLoading === false && disablefields){
+            buttons = (
+                <Grid
+                  justify="space-between"
+                  container
+                  margin="normal" 
+                >
+                  <Grid item>
+                    <Button className={classes.submit} variant="outlined" color="primary" onClick={() => this.setState({ disablefields: false, updatedcountry: null, updatedtown: null, updatedzipcode: null, updatedstreet_number: null, updatedhourlyrate: null })}>
+                    Bearbeiten
+                  </Button>
+                  </Grid>
+                  <Grid item>
+                    <Button className={classes.submit} variant="outlined" color="primary" href={"/customer/statistics/" + this.props.match.params.id}>
+                    Kundenstatistik
+                  </Button>
+                  </Grid>
+                </Grid>
+                );
+        } else {
+            buttons = (
+                <div>
+                    <Button
+                            type="submit"
+                            fullWidth
+                            variant="contained"
+                            color="primary"
+                            className={classes.submit}
+                        >
+                            Aktualisieren
+                        </Button>
+                        <Button
+                            fullWidth
+                            variant="outlined"
+                            color="secondary"
+                            size="large"
+                            className={classes.delete}
+                            onClick={() => {this.handleDelete()}}
+                        >
+                                <DeleteOutlineOutlinedIcon edge="end" />
+                    </Button>
+                </div>
+            )  
+        }
         if (sessionStorage.getItem("authToken") == null){
             return <Redirect to='/login' />
         }
@@ -188,135 +216,115 @@ class Customerdetail extends Component {
                     Kunde bearbeiten
                     </Typography>
                     <br/>
-
                     <SnackbarMessage
                         open={this.state.open}
                         onClose={this.handleSnackbarClose}
                         message={this.state.message}
                         color={this.state.snackcolor}>
                     </SnackbarMessage>
-
+                    {loading}
                     <form className={classes.form} onSubmit={this.handleSubmit}>
                     <TextField
-                        inputRef={(inputRef) => {this.customer_id = inputRef}}
                         variant="outlined"
                         margin="normal"
                         fullWidth
-                        id="customerid"
-                        disabled="true"
-                        label="CustomerID"
+                        label="KundenID"
                         name="customerid"
-                        value={this.state.customerdata.customer_id}
+                        value={this.state.customerid}
+                        disabled={true}
                     />
                     <TextField
-                        inputRef={(inputRef) => {this.customer_name = inputRef}}
                         variant="outlined"
                         margin="normal"
                         required
                         fullWidth
-                        id="customername"
-                        label="Name"
                         name="customername"
-                        defaultValue={this.state.customerdata.customer_name}
+                        label="Kundenname"
+                        onChange={this.handleInputChange}
+                        value={this.state.customername}
+                        disabled={disablefields}
                     />
                     <TextField
-                        inputRef={(inputRef) => {this.customer_company = inputRef}}
                         variant="outlined"
                         margin="normal"
                         required
                         fullWidth
-                        name="customercompany"
-                        label="Company Name"
-                        id="customercompany"
-                        defaultValue={this.state.customerdata.customer_company}
+                        name="company"
+                        label="Firma"
+                        onChange={this.handleInputChange}
+                        value={this.state.company}
+                        disabled={disablefields}
                     />
                     <TextField
-                        inputRef={(inputRef) => {this.customer_mail = inputRef}}
                         variant="outlined"
                         margin="normal"
                         fullWidth
                         required
                         name="mail"
-                        label="Mail"
+                        label="E-Mail"
                         type="mail"
-                        id="mail"
-                        defaultValue={this.state.customerdata.customer_mail}
+                        onChange={this.handleInputChange}
+                        value={this.state.mail}
+                        disabled={disablefields}
                     />
                     <TextField
-                        inputRef={(inputRef) => {this.customer_country = inputRef}}
                         variant="outlined"
                         margin="normal"
                         required
                         fullWidth
-                        name="customercountry"
+                        name="Land"
                         label="Country"
-                        id="customercountry"
-                        defaultValue={this.state.customerdata.customer_country}
+                        onChange={this.handleInputChange}
+                        value={this.state.country}
+                        disabled={disablefields}
                     />
                     <TextField
-                        inputRef={(inputRef) => {this.customer_zipcode = inputRef}}
                         variant="outlined"
                         margin="normal"
                         required
                         fullWidth
-                        name="customerzipcode"
-                        label="Zipcode"
-                        id="customerzipcode"
-                        defaultValue={this.state.customerdata.customer_zipcode}
+                        name="zip"
+                        label="Postleitzahl"
+                        onChange={this.handleInputChange}
+                        value={this.state.zip}
+                        disabled={disablefields}
                     />
                     <TextField
-                        inputRef={(inputRef) => {this.customer_town = inputRef}}
                         variant="outlined"
                         margin="normal"
                         required
                         fullWidth
-                        name="customertown"
-                        label="Town"
-                        id="customertown"
-                        defaultValue={this.state.customerdata.customer_town}
+                        name="town"
+                        label="Ort"
+                        onChange={this.handleInputChange}
+                        value={this.state.town}
+                        disabled={disablefields}
                     />
                     <TextField
-                        inputRef={(inputRef) => {this.customer_street_number = inputRef}}
                         variant="outlined"
                         margin="normal"
                         required
                         fullWidth
-                        name="customerstreetnumber"
-                        label="Street + Number"
-                        id="customerstreetnumber"
-                        defaultValue={this.state.customerdata.customer_street_number}
+                        name="street_number"
+                        label="Straße und Hausnummer"
+                        onChange={this.handleInputChange}
+                        value={this.state.street_number}
+                        disabled={disablefields}
                     />
                     <TextField
-                        inputRef={(inputRef) => {this.customer_hourlyrate = inputRef}}
                         variant="outlined"
                         margin="normal"
                         required
                         fullWidth
-                        name="customerhourlyrate"
-                        label="Hourlyrate"
-                        id="customerhourlyrate"
-                        defaultValue={this.state.customerdata.customer_hourlyrate}
+                        name="hourlyrate"
+                        label="Stundensatz standardmäßig"
+                        onChange={this.handleInputChange}
+                        value={this.state.hourlyrate}
+                        disabled={disablefields}
                     />
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        color="primary"
-                        className={classes.submit}
-                    >
-                        Change Values
-                    </Button>
+                    {buttons}
                     </form>
-                    <Button
-                        fullWidth
-                        variant="outlined"
-                        color="secondary"
-                        size="large"
-                        className={classes.delete}
-                        onClick={() => {this.handleDelete()}}
-                    >
-                            <DeleteOutlineOutlinedIcon edge="end" />
-                    </Button>
+                    
                     
                 </div>
             </Container>

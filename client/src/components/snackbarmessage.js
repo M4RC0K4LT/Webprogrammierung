@@ -1,16 +1,13 @@
 import React, { Component } from 'react';
-import { green } from '@material-ui/core/colors';
 import { withStyles } from '@material-ui/core/styles';
 import { Snackbar, SnackbarContent } from '@material-ui/core';
+import Slide from '@material-ui/core/Slide';
+import useStyles from "./useStyles";
 
-const useStyles = theme => ({
-    error: {
-        backgroundColor: theme.palette.error.dark,
-    },
-    success: {
-        backgroundColor: green[500],
-    },
-});
+
+function SlideTransition(props) {
+  return <Slide {...props} direction="up" />;
+}
 
 class SnackbarMessage extends Component {
     constructor(props){
@@ -34,11 +31,13 @@ class SnackbarMessage extends Component {
         return (
             <Snackbar
                 open={open}
-                autoHideDuration={2000}
-                onClose={() => this.handleClose()}>
+                autoHideDuration={4000}
+                onClose={() => this.handleClose()}
+                TransitionComponent={SlideTransition}>
                 <SnackbarContent 
                     className={color}
-                    message={message}>
+                    message={<center>{message}</center>}
+                    >
                 </SnackbarContent>
             </Snackbar>
         )

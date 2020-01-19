@@ -55,11 +55,11 @@ module.exports = {
   findByToken: token => {
     return jwt.verify(token, JWT_KEY, async (err, userid) => {
       if(err){
-          return ({"request": "failed", "message": err});
+        return ({"request": "failed", "error": err.message});
       }
       user = await module.exports.findById(parseInt(userid));
-      if(user.user_tokens != token){
-          return ({"request": "failed"})
+      if(user == null || user.user_tokens != token){
+        return ({"request": "failed", "error": "Kein gültiger UserToken"})
       }  
       return ({"request": "successful", "user_id": user.user_id, "user_name": user.user_name, "user_mail": user.user_mail, "user_password": user.user_password}); 
     });
@@ -74,7 +74,7 @@ module.exports = {
           reject(err);
         } else {
           if(result == null){
-              resolve({"login": "failed"});
+              reject({"error": "Ungültige Eingaben"});
           }else{
             var correct = bcrypt.compareSync(password, result.user_password);
             if (correct == true) {
@@ -91,12 +91,12 @@ module.exports = {
                   if (err) {
                     return reject(err);
                   }
-                  resolve({"login": "successful", "token": token, "userid": userid});
+                  resolve({"token": token, "userid": userid});
                 }
               );
 
             } else {
-              resolve({"login": "failed"});
+              reject({"error": "Ungültige Eingaben"});
             }
           }    
         }
@@ -105,18 +105,26 @@ module.exports = {
   },
 
   logout: token => {
+    var tokenverify = true;
+    var tokenvalid = true;
     jwt.verify(token, JWT_KEY, async (err, userid) => {
       if(err){
-          return (err);
+          tokenverify = false;
       }
 
       const user = await module.exports.findById(parseInt(userid));
       if(user.user_tokens != token){
-          return response.send("Falscher Token für deinen Benutzer!")
+          tokenvalid = false;
       }
       
     });
-    return new Promise((resolve, reject) => {          
+    return new Promise((resolve, reject) => {  
+      if(tokenverify == false){
+        reject({"error": "Fehler bei der Tokenverifizierung"})
+      }      
+      if(tokenvalid == false){
+        reject({"error": "Falscher Token für Benutzer oder nicht angemeldet!"})
+      }  
       db.run(         
         `UPDATE users SET user_tokens = null WHERE user_id = $id`, 
         {
@@ -124,10 +132,10 @@ module.exports = {
         },
         function (err) {
           if (err) {
-            return reject(err);
+            reject(err);
 
           }
-          return resolve("Erfolgreich ausgelogt!");
+          resolve();
         }
       )
     });
@@ -147,13 +155,16 @@ module.exports = {
         },
         function (err) {
           if (err) {
-            return reject(err);            
+            reject(err);            
           }        
           db.get(`SELECT * FROM users WHERE user_id = $id`, {$id: this.lastID}, (err, result) => {
             if (err) {
               reject(err);
             } else {
-              resolve({"request": "successful", "user_name": result.user_name, "user_mail": result.user_mail});
+              if(result == null){
+                reject({"error": "Fehler bei der Erstellung"})
+              }
+              resolve({"user_name": result.user_name, "user_mail": result.user_mail});
             }
           });         
         }
@@ -178,11 +189,11 @@ module.exports = {
           },
           function (err) {
             if (err) {
-              return reject({"request": "failed", "message": err.message});
+              reject({"error": err.message});
             }
             db.get(`SELECT * FROM users WHERE user_id = $id`, {$id: id}, (err, result) => {
               if (err) {
-                reject({"request": "failed", "message": err.message});
+                reject({"error": err.message});
               } else {
                 resolve(result);
               }
@@ -197,7 +208,7 @@ module.exports = {
         id = parseInt(id);
         db.get(`SELECT * FROM users WHERE user_id = $id`, {$id: id}, (err, result) => {
             if (err) {
-              reject({"request": "failed", "message": err.message});
+              reject({"error": err.message});
             } else {
               if (result != null){
                 db.run(          
@@ -209,7 +220,7 @@ module.exports = {
                       }
                 });
               } else{
-                  resolve(result);
+                  reject({"error": "Kein gültiger User"});
               }
             }
           });      
