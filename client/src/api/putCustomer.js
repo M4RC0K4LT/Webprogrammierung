@@ -1,7 +1,7 @@
 export default function putCustomer(id, contentlist){
 
     return (
-        fetch('http://localhost:3001/api/customers/' + id, {
+        fetch('https://kaltenstadler.net/api/customers/' + id, {
             method: 'PUT',
             headers: {
                 'Content-Type':'application/json',

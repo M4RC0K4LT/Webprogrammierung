@@ -1,7 +1,7 @@
 export default function getUser(){
 
     return (
-        fetch("http://192.168.2.117:3001/api/user/", {
+        fetch("https://kaltenstadler.net/api/user/", {
           method: 'GET',
           headers: {
               'Accept': 'application/json',

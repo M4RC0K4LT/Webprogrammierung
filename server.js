@@ -6,6 +6,8 @@ const cors = require('cors')
 
 require("dotenv").config()
 
+const port = process.env.PORT || 3001
+
 // Router
 const userapi = require("./routes/usersapi");
 const orderapi = require("./routes/ordersapi");

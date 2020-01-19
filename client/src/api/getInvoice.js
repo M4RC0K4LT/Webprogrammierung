@@ -1,7 +1,7 @@
 export default function getInvoice(idlist){
 
     return (
-        fetch("http://localhost:3001/api/orders/get/invoice", {
+        fetch("https://kaltenstadler.net/api/orders/get/invoice", {
             method: 'POST',
             headers: {
                 'Content-Type':'application/json',

@@ -1,7 +1,7 @@
 export default function getOrders(){
 
     return (
-        fetch("http://localhost:3001/api/orders/", {
+        fetch("https://kaltenstadler.net/api/orders/", {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',

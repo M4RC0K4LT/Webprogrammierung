@@ -46,8 +46,13 @@ class CustomerOrders extends React.Component {
     this.requestInvoice = this.requestInvoice.bind(this);
     this.fetchCustomer = this.fetchCustomer.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
+    this.handleSnackbarClose = this.handleSnackbarClose.bind(this);
   }
 
+  handleSnackbarClose(){
+    this.setState({ open: false })
+  }
+  
   handleCheck(orderid){
     this.setState({ buttondisabled: false })
     const id = parseInt(orderid)

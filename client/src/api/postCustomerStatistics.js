@@ -1,7 +1,7 @@
 export default function postCustomerStatistics(id, year){
 
     return (
-        fetch("http://localhost:3001/api/customers/statistics", {
+        fetch("https://kaltenstadler.net/api/customers/statistics", {
             method: 'POST',
             headers: {
                 'Content-Type':'application/json',

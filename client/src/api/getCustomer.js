@@ -1,7 +1,7 @@
 export default function getCustomer(id){
 
     return (
-        fetch("http://localhost:3001/api/customers/" + id, {
+        fetch("https://kaltenstadler.net/api/customers/" + id, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',

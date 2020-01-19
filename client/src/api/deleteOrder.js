@@ -1,7 +1,7 @@
 export default function deleteOrder(id){
 
     return (
-        fetch('http://localhost:3001/api/orders/', {
+        fetch('https://kaltenstadler.net/api/orders/', {
             method: 'DELETE',
             headers: {
                 'Content-Type':'application/json',

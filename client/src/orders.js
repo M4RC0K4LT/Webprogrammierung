@@ -39,6 +39,11 @@ class Orders extends React.Component {
     this.requestInvoice = this.requestInvoice.bind(this);
     this.fetchOrders = this.fetchOrders.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
+    this.handleSnackbarClose = this.handleSnackbarClose.bind(this);
+  }
+
+  handleSnackbarClose(){
+    this.setState({ open: false })
   }
 
   requestInvoice(id) {
