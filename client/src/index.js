@@ -1,24 +1,21 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import AppBar from '@material-ui/core/AppBar'
-import Tabs from '@material-ui/core/Tabs'
-import Tab from '@material-ui/core/Tab'
-import './index.css';
-import Orders from "./orders";
-import Customers from "./customers";
+import { Route, Link, BrowserRouter as Router, Switch, Redirect } from 'react-router-dom'
+import { AppBar, Tabs, Tab, ButtonGroup, Button} from '@material-ui/core';
+import ReactDOM from 'react-dom'
+import Orders from "./orders/orders";
+import Customers from "./customers/customers";
 import Notfound from "./notfound";
-import Login from "./login";
-import Profile from "./profile";
-import Register from "./register";
-import AddCustomer from "./addcustomer"
-import Customerdetail from "./customerdetail";
-import Orderdetail from "./orderdetail";
-import AddOrder from "./addorder";
-import CustomerOrders from "./customerorders";
-import CustomerStatistics from "./customerstatistics";
-import Button from '@material-ui/core/Button';
-import ButtonGroup from '@material-ui/core/ButtonGroup';
-import { Route, Link, BrowserRouter as Router, Switch } from 'react-router-dom'
+import Login from "./users/login";
+import Profile from "./users/profile";
+import Register from "./users/register";
+import AddCustomer from "./customers/addcustomer"
+import Customerdetail from "./customers/customerdetail";
+import Orderdetail from "./orders/orderdetail";
+import AddOrder from "./orders/addorder";
+import CustomerOrders from "./customers/customerorders";
+import CustomerStatistics from "./customers/customerstatistics";
+
+window.$apiroute = "http://localhost:3001/";
 
 class Routing extends React.Component{
 
@@ -46,8 +43,8 @@ class Routing extends React.Component{
   render(){
 
     const isLoggedIn = this.state.isLoggedIn;
+    
     let userbuttons;
-
     if (isLoggedIn) {
       userbuttons = (
         <ButtonGroup size="small" aria-label="small outlined button group" style={{margin: "15px"}}>
@@ -55,13 +52,11 @@ class Routing extends React.Component{
         </ButtonGroup>
       );
     } else {
-      userbuttons = (
-        <ButtonGroup size="small" aria-label="small outlined button group" style={{margin: "15px"}}>
-                <Button href="/register">Registrieren</Button>
-                <Button href="/login">Login</Button>
-        </ButtonGroup>
-      );
+      //userbuttons = (
+        //<Redirect to="/login"></Redirect>
+      //);
     }
+
     return (
     <Router>
       <div>

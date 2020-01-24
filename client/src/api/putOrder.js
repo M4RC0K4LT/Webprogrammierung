@@ -3,7 +3,7 @@ import moment from "moment";
 export default function putOrder(id, contentlist){
 
     return (
-        fetch('https://kaltenstadler.net/api/orders/' + id, {
+        fetch(window.$apiroute + 'api/orders/' + id, {
             method: 'PUT',
             headers: {
                 'Content-Type':'application/json',

@@ -1,7 +1,7 @@
 export default function getUser(){
 
     return (
-        fetch("https://kaltenstadler.net/api/user/", {
+        fetch(window.$apiroute + "api/user/", {
           method: 'GET',
           headers: {
               'Accept': 'application/json',

@@ -1,7 +1,7 @@
 export default function postCustomer(contentlist){
 
     return (
-        fetch('https://kaltenstadler.net/api/customers/', {
+        fetch(window.$apiroute + 'api/customers/', {
             method: 'POST',
             headers: {
                 'Content-Type':'application/json',

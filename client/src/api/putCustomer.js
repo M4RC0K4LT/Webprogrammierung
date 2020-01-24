@@ -1,7 +1,7 @@
 export default function putCustomer(id, contentlist){
 
     return (
-        fetch('https://kaltenstadler.net/api/customers/' + id, {
+        fetch(window.$apiroute + 'api/customers/' + id, {
             method: 'PUT',
             headers: {
                 'Content-Type':'application/json',

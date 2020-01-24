@@ -1,6 +1,0 @@
-1. Kundenstatistik anzeigen lassen                                                  -> erledigt
-2. Evtl. Statistik von Aufträgen trennen                                            -> erledigt
-3. Dropdown/Autocomplete bei Auswählen von Kunde (Auftragserstellung)               -> erledigt
-4. Errorhandling überprüfen -> SnakeBar 
-5. Aufräumen                    
-6. Kommentieren

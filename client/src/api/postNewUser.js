@@ -1,7 +1,7 @@
 export default function postNewUser(username, mail, password){
 
     return (
-        fetch('https://kaltenstadler.net/api/user/register', {
+        fetch(window.$apiroute + 'api/user/register', {
             method: 'POST',
             headers: {'Content-Type':'application/json'},
             body: JSON.stringify({

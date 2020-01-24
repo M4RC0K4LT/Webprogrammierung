@@ -1,7 +1,7 @@
 export default function postCustomerStatistics(id, year){
 
     return (
-        fetch("https://kaltenstadler.net/api/customers/statistics", {
+        fetch(window.$apiroute + "api/customers/statistics", {
             method: 'POST',
             headers: {
                 'Content-Type':'application/json',

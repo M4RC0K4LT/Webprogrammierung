@@ -1,7 +1,7 @@
 export default function getCustomerOrders(id){
 
     return (
-        fetch("https://kaltenstadler.net/api/orders/customer/" + id, {
+        fetch(window.$apiroute + "api/orders/customer/" + id, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',

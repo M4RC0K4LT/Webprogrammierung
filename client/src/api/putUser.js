@@ -1,7 +1,7 @@
 export default function putUser(name, mail, password){
 
     return (
-        fetch('https://kaltenstadler.net/api/user/change', {
+        fetch(window.$apiroute + 'api/user/change', {
             method: 'PUT',
             headers: {
                 'Content-Type':'application/json',
