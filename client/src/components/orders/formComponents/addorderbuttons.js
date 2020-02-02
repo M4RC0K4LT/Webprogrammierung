@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
 import { withStyles, Grid, Button } from '@material-ui/core';
-import useStyles from "./useStyles";
+import useStyles from "../../others/useStyles";
 
-class AddCustomerButtons extends Component {
+class AddOrderButtons extends Component {
     constructor(props){
         super(props);       
     }
 
     render(){
-        const { customerid, disablefields, isLoading, classes } = this.props;
-        var buttons = "";
-        if(disablefields && isLoading === false){
+        const { order_id, disablefields, isLoading, classes } = this.props;
+        var buttons = ""
+        if(disablefields && isLoading == false){
             buttons = (
             <Grid
               justify="space-between"
@@ -18,28 +18,28 @@ class AddCustomerButtons extends Component {
               margin="normal" 
             >
               <Grid item>
-                <Button className={classes.submit} variant="outlined" color="primary" href={"/customer/" +  customerid}>
+                <Button className={classes.submit} variant="outlined" color="primary" href={"/order/" + order_id}>
                 Bearbeiten
               </Button>
               </Grid>
               <Grid item>
-                <Button className={classes.submit} variant="outlined" color="primary" href={"/customers"}>
-                Zur Kundenübersicht
+                <Button className={classes.submit} variant="outlined" color="primary" href={"/orders"}>
+                Zur Übersicht
               </Button>
               </Grid>
             </Grid>
             );
-        }
-        else {
+        }else{
             buttons = (
                 <Button
                         type="submit"
                         fullWidth
                         variant="contained"
                         color="primary"
+                        disabled={disablefields}
                         className={classes.submit}
                     >
-                        Kunde hinzufügen
+                        Auftrag hinzufügen
                     </Button>
             )  
         }
@@ -48,4 +48,4 @@ class AddCustomerButtons extends Component {
     }
 }
 
-export default withStyles(useStyles) (AddCustomerButtons);
+export default withStyles(useStyles) (AddOrderButtons);

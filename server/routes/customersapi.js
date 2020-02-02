@@ -71,7 +71,6 @@ router.delete('/', async (request, response) => {
         await customers.remove(request.body.id);
         response.status(202).send({"request": "succesful"});
     } catch (err){
-        console.log(err)
         let data = Object.assign({"request": "failed"}, err)
         response.status(503).send(data);
     }

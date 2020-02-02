@@ -20,6 +20,21 @@ router.get('/', auth, async function(request, response) {
     }
 });
 
+//Token Validierung
+router.get('/validate', async function(request, response) {
+    try {
+        const authHeader = request.headers["authorization"];
+        const token = authHeader && authHeader.split(" ")[1];
+        const valid = await users.findByToken(token);
+        if(valid){
+            return response.status(201).send({"request": "successful"});
+        }else {
+            return response.status(503).send({"request": "failed"});
+        }       
+    } catch(err){
+        response.status(503).send(err);
+    }
+});
 
 //User Login
 router.post('/login', async function(request, response) {

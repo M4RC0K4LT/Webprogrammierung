@@ -8,6 +8,6 @@ export default function getUser(){
               'Authorization': 'Bearer ' + sessionStorage.getItem("authToken")
         }})
         .then(response => response.json())
-        .catch(error => JSON.parse('{"request": "failed", "error":' + JSON.stringify( "Aufträge: " + error.message) + '}'))
+        .catch(error => JSON.parse('{"request": "failed", "error":' + JSON.stringify( "Kunde: " + error.message) + '}'))
     )
 }

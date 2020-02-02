@@ -7,11 +7,11 @@ function auth(request, response, next) {
     const authHeader = request.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
     if(token == null){
-        return response.status(401).send("Bitte einloggen");
+        return response.status(401).send({"request": "failed", "error": "Bitte einloggen"});
     }
     jwt.verify(token, JWT_KEY, async (err, userid) => {
         if(err){
-            return response.status(503).send(err);
+            return response.status(503).send({"request": "failed", "error": ("UserToken: " + err.message)});
         }
 
         const user = await users.findById(parseInt(userid));
@@ -20,7 +20,7 @@ function auth(request, response, next) {
             request.userid = userid;
             next();
         } else {
-            return response.status(401).send("Falscher Token für deinen Benutzer! Token verwendet, User aber nicht angemeldet!")
+            return response.status(401).send({"request": "failed", "error": "UserToken: Ungültig"})
         }
         
     });

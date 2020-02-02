@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { withStyles, TextField } from '@material-ui/core';
-import useStyles from "./useStyles";
+import useStyles from "../../others/useStyles";
 
 class CustomerFields extends Component {
     constructor(props){

@@ -104,6 +104,24 @@ module.exports = {
     });
   },
 
+  checkSessionToken: token => {
+    var tokenverify = true;
+    var tokenvalid = true;
+    jwt.verify(token, JWT_KEY, async (err, userid) => {
+      if(err){
+          return false;
+      }
+
+      const user = await module.exports.findById(parseInt(userid));
+      if(user.user_tokens != token){
+          return false;
+      }
+      else {
+        return true;
+      }
+    });
+  },
+
   logout: token => {
     var tokenverify = true;
     var tokenvalid = true;

@@ -33,5 +33,5 @@ export {
     postOrder,
     putCustomer,
     putOrder,
-    putUser
+    putUser,
 }

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { withStyles, TextField, Grid, Slider } from '@material-ui/core';
-import useStyles from "./useStyles";
+import useStyles from "../../others/useStyles";
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers';
 import 'date-fns';
@@ -54,7 +54,7 @@ class OrderFields extends Component {
                     clearOnEscape={true}
                     disabled={disablefields}
                     name="customer"
-                    inputValue={customer}
+                    value={customer}
                     onChange={(e, value) => this.handleChange(null, "customer", value)}
                     renderInput={params => (
                         <TextField {...params} margin="normal" fullWidth label="Zugehöriger Kunde" variant="outlined" required />
@@ -107,7 +107,6 @@ class OrderFields extends Component {
                             valueLabelDisplay="off"
                             name="duration"
                             onChange={(e, value) => this.handleChange(null, "duration", value)}
-                            valueLabelFormat={this.valuetext}
                             disabled={disablefields}
 
                         />
