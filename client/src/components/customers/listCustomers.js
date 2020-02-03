@@ -1,5 +1,5 @@
 import React from 'react'
-import { Container, CssBaseline, CircularProgress, withStyles, List, ListItem, ListItemText, ListItemAvatar, Avatar, IconButton, ListItemSecondaryAction, Fab } from '@material-ui/core';
+import { CircularProgress, withStyles, List, ListItem, ListItemText, ListItemAvatar, Avatar, IconButton, ListItemSecondaryAction } from '@material-ui/core';
 import { Edit as EditIcon, Delete as DeleteIcon, List as ListIcon, PermIdentityOutlined as PermIdentityOutlinedIcon } from '@material-ui/icons';
 import { useStyles, SnackbarMessage, DeleteDialog } from "../exports";
 import { getCustomers, deleteCustomer} from "../../api/exports"
@@ -80,10 +80,10 @@ class ListOrders extends React.Component {
             <DeleteDialog
               open={this.state.openDeleteDialog}
               onClose={() => this.setState({openDeleteDialog: false})}
-              onAgree={() => (
-                  this.handleDelete(this.state.selectedCustomer),
-                  this.setState({ openDeleteDialog: false })
-              )}
+              onAgree={() => {
+                  this.handleDelete(this.state.selectedCustomer);
+                  this.setState({ openDeleteDialog: false });
+              }}
               delMessage={"Kunde '" + this.state.selectedCustomer + " - " + this.state.selectedCustomer_name + "'"}>
             </DeleteDialog>
             <List className={classes.mainlist}>
@@ -96,7 +96,7 @@ class ListOrders extends React.Component {
                     </ListItemAvatar>
                     <ListItemText primary={customer.customer_name} secondary={customer.customer_id + " - " + customer.customer_company + " - " + customer.customer_town} />
                     <ListItemSecondaryAction>
-                    <IconButton href={"/customer/" + customer.customer_id} edge="end">
+                    <IconButton href={"/customers/" + customer.customer_id} edge="end">
                         <EditIcon />
                     </IconButton>
                     <IconButton title="Löschen" onClick={() => this.setState({selectedCustomer: customer.customer_id, selectedCustomer_name: customer.customer_name, openDeleteDialog: true})}edge="end">

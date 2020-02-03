@@ -4,11 +4,6 @@ import { LockOutlined as LockOutlinedIcon} from '@material-ui/icons';
 import { useStyles, LoginUserForm} from '../components/exports'
 
 class Login extends Component {
-
-    constructor(props){
-        super(props);
-    }
-
     render() {    
         const { classes } = this.props;
 

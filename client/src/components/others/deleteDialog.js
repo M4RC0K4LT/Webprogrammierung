@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import { withStyles } from '@material-ui/core/styles';
-import { Snackbar, SnackbarContent } from '@material-ui/core';
+import { withStyles } from '@material-ui/core/styles';  
 import useStyles from "./useStyles";
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';

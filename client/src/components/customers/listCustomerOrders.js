@@ -134,10 +134,10 @@ class ListCustomerOrders extends React.Component {
             <DeleteDialog
               open={this.state.openDeleteDialog}
               onClose={() => this.setState({openDeleteDialog: false})}
-              onAgree={() => (
-                  this.handleDelete(this.state.selectedOrder),
-                  this.setState({ openDeleteDialog: false })
-              )}
+              onAgree={() => {
+                  this.handleDelete(this.state.selectedOrder);
+                  this.setState({ openDeleteDialog: false });
+              }}
               delMessage={"Auftrag '" + this.state.selectedOrder + " - " + this.state.selectedOrder_title + "'"}>
             </DeleteDialog>
             <h2>{customer.customer_name}</h2>

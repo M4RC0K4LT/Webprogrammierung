@@ -13,9 +13,8 @@ export default function postCustomer(contentlist){
                 "mail": contentlist[2],
                 "country": contentlist[3],
                 "zipcode": contentlist[4],
-                "town": contentlist[5],
-                "street_number": contentlist[6],
-                "hourlyrate": contentlist[7]
+                "street_number": contentlist[5],
+                "hourlyrate": contentlist[6]
             })
         })
         .then(response => response.json())

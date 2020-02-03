@@ -6,7 +6,7 @@ import useStyles from "./useStyles";
 
 
 function SlideTransition(props) {
-  return <Slide {...props} direction="up" />;
+  return <Slide {...props} direction="left" />;
 }
 
 class SnackbarMessage extends Component {
@@ -30,6 +30,10 @@ class SnackbarMessage extends Component {
 
         return (
             <Snackbar
+                anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'right',
+                }}
                 open={open}
                 autoHideDuration={4000}
                 onClose={() => this.handleClose()}

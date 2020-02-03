@@ -24,7 +24,6 @@ class AddCustomerForm extends Component {
             mail: "",
             country: "",
             zip: "",
-            town: "",
             street_number: "",
             hourlyrate: ""
         };
@@ -50,8 +49,8 @@ class AddCustomerForm extends Component {
     handleSubmit(event){ 
         event.preventDefault();
         this.setState({ isLoading: true, disablefields: true });
-        const { customername, company, mail, country, zip, town, street_number, hourlyrate } = this.state;
-        postCustomer([customername, company, mail, country, zip, town, street_number, hourlyrate]).then(data => {
+        const { customername, company, mail, country, zip, street_number, hourlyrate } = this.state;
+        postCustomer([customername, company, mail, country, zip, street_number, hourlyrate]).then(data => {
             this.setState({ isLoading: false })
             if(data.length<1 || data.request === "failed"){
                 this.setState({ message: data.error, open: true, snackcolor: "error", disablefields: false });
@@ -65,8 +64,7 @@ class AddCustomerForm extends Component {
                     company: data.customer_company,
                     mail: data.customer_mail,
                     country: data.customer_country,
-                    zip: data.customer_zipcode,
-                    town: data.customer_town,
+                    zip: data.customer_zipcode + " " + data.customer_town,
                     street_number: data.customer_street_number,
                     hourlyrate: data.customer_hourlyrate,
                     disablefields: true })
@@ -77,11 +75,11 @@ class AddCustomerForm extends Component {
     render() {
 
         const { classes } = this.props;
-        const { isLoading, disablefields, customerid, customername, company, mail, country, zip, town, street_number, hourlyrate } = this.state;
+        const { isLoading, disablefields, customerid, customername, company, mail, country, zip, street_number, hourlyrate } = this.state;
 
         var loading = null;
         if (isLoading) {
-            loading = <CircularProgress style={{position: "absolute", top: "45%", left: "47%"}} size={100}/>;
+            loading = <CircularProgress className={classes.loading} size={100}/>;
         }
 
         return (
@@ -102,7 +100,6 @@ class AddCustomerForm extends Component {
                         mail={mail}
                         country={country}
                         zip={zip}
-                        town={town}
                         street_number={street_number}
                         hourlyrate={hourlyrate}>
                     </CustomerFields>

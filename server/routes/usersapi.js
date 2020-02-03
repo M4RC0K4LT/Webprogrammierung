@@ -1,10 +1,16 @@
+/**
+ * A router module that receives api requests regarding user interaction
+ * @module routes/userapi
+ */
+
+
 const express = require("express");
 const router = express.Router();
 
 const auth = require("../database/auth");
 const users = require("../database/users");
 
-//User Übersicht
+/** GET: All Users */
 router.get('/', auth, async function(request, response) {
     try {
         const authHeader = request.headers["authorization"];
@@ -20,7 +26,7 @@ router.get('/', auth, async function(request, response) {
     }
 });
 
-//Token Validierung
+/** GET: Validate Session Token */
 router.get('/validate', async function(request, response) {
     try {
         const authHeader = request.headers["authorization"];
@@ -36,7 +42,7 @@ router.get('/validate', async function(request, response) {
     }
 });
 
-//User Login
+/** POST: Login User -> Send Session Token */
 router.post('/login', async function(request, response) {
     try {
         const login = await users.login(request.body.mail, request.body.password);
@@ -48,7 +54,7 @@ router.post('/login', async function(request, response) {
     }
 });
 
-//User Registrierung
+/** POST: Register new User */
 router.post('/register', async function(request, response) {
     try {
         const existsname = await users.findByName(request.body.name)
@@ -70,7 +76,7 @@ router.post('/register', async function(request, response) {
     }
 });
 
-//User Logout
+/** DELETE: Logout -> Delete Session Token */
 router.delete('/logout', auth, async function(request, response){
     try {
         const user = await users.logout(request.token);
@@ -82,7 +88,7 @@ router.delete('/logout', auth, async function(request, response){
     }
 });
 
-//Userdaten abändern
+/** PUT: Update UserData */
 router.put('/change', auth, async function(request, response) {
     try {
         const authHeader = request.headers["authorization"];

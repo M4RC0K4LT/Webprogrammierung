@@ -1,14 +1,9 @@
 import React, { Component } from 'react';
-import { Avatar, CssBaseline, Typography, Container, withStyles, CircularProgress } from '@material-ui/core';
+import { Avatar, CssBaseline, Typography, Container, withStyles } from '@material-ui/core';
 import { AccountCircleOutlined as AccountCircleOutlinedIcon } from '@material-ui/icons';
 import { useStyles, EditUserForm} from '../components/exports'
 
 class Profile extends Component {
-
-    constructor(props){
-        super(props);
-    }
-
     render() {        
         const { classes } = this.props;
 

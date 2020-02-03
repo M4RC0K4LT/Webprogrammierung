@@ -1,18 +1,9 @@
 import React from 'react'
-import { Redirect } from 'react-router-dom'
-import { Bar } from 'react-chartjs-2';
-import { Container, CssBaseline, CircularProgress, withStyles, Button, ButtonGroup, Table, TableBody, TableCell, TableRow, TableContainer, Grid } from '@material-ui/core';
-import { ArrowBack as ArrowBackIcon, ArrowForward as ArrowForwardIcon } from '@material-ui/icons';
-import { useStyles, SnackbarMessage, ShowCustomerStatistics } from "../components/exports";
-import { getCustomer, postCustomerStatistics} from "../api/exports"
+import { Container, CssBaseline, withStyles} from '@material-ui/core';
+import { useStyles, ShowCustomerStatistics } from "../components/exports";
 
 
 class CustomerStatistics extends React.Component {
-
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { classes } = this.props;
 

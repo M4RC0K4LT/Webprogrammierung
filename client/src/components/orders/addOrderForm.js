@@ -117,7 +117,7 @@ class AddOrderForm extends Component {
 
         var loading = null;
         if (isLoading) {
-            loading = <CircularProgress style={{position: "absolute", top: "45%", left:"47%"}} size={100}/>;
+            loading = <CircularProgress className={classes.loading} size={100}/>;
         }
 
         return (

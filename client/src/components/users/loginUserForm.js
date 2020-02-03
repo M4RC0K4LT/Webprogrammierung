@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Button, withStyles} from '@material-ui/core';
-import { CheckCircle as CheckCircleIcon } from '@material-ui/icons';
 import { SnackbarMessage, useStyles, LoginFields} from '../exports'
 import { postUser } from "../../api/exports";
 

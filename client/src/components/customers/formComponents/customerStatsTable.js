@@ -3,12 +3,7 @@ import { withStyles, Table, TableBody, TableCell, TableRow, TableContainer } fro
 import { useStyles } from "../../exports";
 
 
-class CustomerStatsTable extends React.Component {
-
-    constructor(props) {
-        super(props);
-    }
-    
+class CustomerStatsTable extends React.Component {   
     render() {
         const { customer } = this.props;
 

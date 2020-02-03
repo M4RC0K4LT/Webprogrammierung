@@ -1,5 +1,5 @@
 import React from 'react'
-import { Container, CssBaseline, CircularProgress, withStyles, Button, Grid } from '@material-ui/core';
+import { CircularProgress, withStyles, Button, Grid } from '@material-ui/core';
 import { useStyles, SnackbarMessage } from "../exports";
 import { getCustomer } from "../../api/exports"
 import CustomerStatsTable from './formComponents/customerStatsTable';
@@ -47,7 +47,7 @@ class ShowCustomerStatistics extends React.Component {
     }
 
     render() {
-        const { isLoading, customer, open, message, snackcolor, diagram, options } = this.state;
+        const { isLoading, customer, open, message, snackcolor } = this.state;
         const { classes } = this.props;
 
         if (isLoading) {
@@ -71,7 +71,7 @@ class ShowCustomerStatistics extends React.Component {
                     margin="normal" 
                 >
                     <Grid item>
-                        <Button variant="contained" color="primary" href={"/customer/" + this.props.id}>
+                        <Button variant="contained" color="primary" href={"/customers/" + this.props.id}>
                         Bearbeiten
                     </Button>
                     </Grid>

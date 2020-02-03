@@ -4,11 +4,6 @@ import { GavelOutlined as GavelOutlinedIcon } from '@material-ui/icons';
 import { useStyles, AddOrderForm } from "../components/exports";
 
 class AddOrder extends Component {
-
-    constructor(props){
-        super(props);
-    }
-
     render() {
         const { classes } = this.props;
 
@@ -19,12 +14,10 @@ class AddOrder extends Component {
                     <Avatar className={classes.avatar}>
                         <GavelOutlinedIcon fontSize="large"/>
                     </Avatar>
-                    <br/>
                     <Typography component="h1" variant="h5">
                         Auftrag hinzufügen
                     </Typography>
                     <AddOrderForm></AddOrderForm>
-                    <br/>
                 </div>
             </Container>
         );

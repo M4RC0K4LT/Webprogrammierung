@@ -4,11 +4,6 @@ import { PersonOutlined as PersonAddOutlinedIcon } from '@material-ui/icons';
 import { useStyles, RegisterUserForm } from '../components/exports'
 
 class Register extends Component {
-
-    constructor(props){
-        super(props);
-    }
-
     render() {       
         const { classes } = this.props;
 

@@ -41,7 +41,7 @@ module.exports = {
 
   create: async jsonObject => {
 
-    const adressstring = jsonObject.street_number.toString() + ", " + jsonObject.zipcode.toString() + jsonObject.town.toString;
+    const adressstring = jsonObject.street_number.toString() + ", " + jsonObject.zipcode.toString();
     let addressfound = await geocoder.geocode(adressstring, function (err, data) { });
 
     var notfound = null;
@@ -95,7 +95,7 @@ module.exports = {
 
   update: async (id, jsonObject) => {
 
-    const adressstring = jsonObject.street_number.toString() + ", " + jsonObject.zipcode.toString() + jsonObject.town.toString();
+    const adressstring = jsonObject.street_number.toString() + ", " + jsonObject.zipcode.toString();
     let addressfound = await geocoder.geocode(adressstring, function (err, data) { });
 
     var notfound = null;

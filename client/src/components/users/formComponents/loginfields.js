@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { withStyles, TextField, Grid, Slider } from '@material-ui/core';
+import { withStyles, TextField } from '@material-ui/core';
 import useStyles from "../../others/useStyles";
 import 'date-fns';
 

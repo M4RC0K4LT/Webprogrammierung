@@ -46,8 +46,9 @@ class EditUserForm extends Component {
             this.setState({ message: "Passwörter stimmen nicht überein", open: true, isLoading: false, snackcolor: "error" })
             return;
         }
-        this.setState({ disablefields: true });
+        this.setState({ isLoading: true, disablefields: true });
         putUser(username, mail, password).then(data => {
+            this.setState({ isLoading: false });
             if(data.length<1 || data.request === "failed"){
                 this.setState({ open: true, snackcolor: "error", message: data.error, disablefields: false, password: "", confirmpassword: "" })
             } else {
@@ -81,7 +82,12 @@ class EditUserForm extends Component {
         const { classes } = this.props;
         const { isLoading, userid, username, mail, password, confirmpassword, disablefields } = this.state;
 
-        if (isLoading) {
+        let loading = null;
+        if(isLoading && disablefields){
+            loading = <CircularProgress className={classes.loading} size={100}></CircularProgress>
+        }
+
+        if (isLoading && disablefields === false) {
             return (<div className={classes.paper}><CircularProgress/></div>);
         }
 
@@ -93,6 +99,7 @@ class EditUserForm extends Component {
                     message={this.state.message}
                     color={this.state.snackcolor}>
                 </SnackbarMessage>
+                {loading}
                 <form className={classes.form} onSubmit={this.handleSubmit}>
                 <UserFields
                     disablefields={disablefields}

@@ -10,6 +10,6 @@ export default function postUser(mail, password){
             })
         })
         .then(response => response.json())
-        .catch(error => JSON.parse('{"request": "failed", "error":' + JSON.stringify( "Auftrag: " + error.message) + '}'))
+        .catch(error => JSON.parse('{"request": "failed", "error":' + JSON.stringify( "Logindata: " + error.message) + '}'))
     )
 }

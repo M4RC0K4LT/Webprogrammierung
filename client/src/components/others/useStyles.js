@@ -1,19 +1,19 @@
 import { green } from '@material-ui/core/colors';
-import { CenterFocusStrong, PlayCircleFilledWhite } from '@material-ui/icons';
 
 const drawerWidth = 240;
 
 const useStyles = theme => ({
     
     paper: {
-      marginTop: theme.spacing(5),
-      display: 'block',
+      display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      overflow: "hidden"
+      overflow: "hidden",
+      padding: "10px",
+      marginTop: theme.spacing(1),
     },
     avatar: {
-      margin: theme.spacing(1),
+      marginBottom: theme.spacing(2),
       backgroundColor: theme.palette.secondary.main,
     },
     form: {
@@ -36,7 +36,7 @@ const useStyles = theme => ({
     },
     delete: {
         color: theme.palette.error.dark,
-        margin: theme.spacing(0, 0, 3),
+        margin: theme.spacing(0, 0, 1),
     },
     mainlist: {
         width: '100%',
@@ -48,7 +48,8 @@ const useStyles = theme => ({
         right: 20,
         bottom: 20,
         left: 'auto',
-        position: 'fixed'
+        position: 'fixed',
+        overflow: "hidden"
     },
     ListItems: {
         width: '100%',
@@ -57,35 +58,44 @@ const useStyles = theme => ({
     deleteDialog: {
       color: "black",
     },
+    loading: {
+      position: 'absolute',
+      left: "calc(50% - 50px)",
+      top: "calc(50% - 50px)",
+    },
 
 
     root: {
-      display: 'flex',
+      display: "flex"
     },
     drawer: {
-      [theme.breakpoints.up('sm')]: {
+      [theme.breakpoints.up('md')]: {
         width: drawerWidth,
         flexShrink: 0,
       },
     },
     appBar: {
-      [theme.breakpoints.up('sm')]: {
+      [theme.breakpoints.up('md')]: {
         width: `calc(100% - ${drawerWidth}px)`,
         marginLeft: drawerWidth,
       },
+      backgroundColor: "#424242",
     },
     menuButton: {
-      [theme.breakpoints.up('sm')]: {
+      [theme.breakpoints.up('md')]: {
         display: 'none',
       },
       color: "white"
     },
+    toolbar: theme.mixins.toolbar,
     drawerPaper: {
       width: drawerWidth,
+      backgroundColor: "#424242",
+      color: "#fff"
     },
     content: {
       flexGrow: 1,
-      padding: theme.spacing(3),
+      padding: theme.spacing(1),
     },
     logo: {
       display: "block",
@@ -103,13 +113,16 @@ const useStyles = theme => ({
     },
     companylogo: {
       ...theme.typography.button,
-      backgroundColor: theme.palette.background.paper,
       padding: theme.spacing(1),
       marginTop: "5px",
       marginBottom: "30px",
       marginLeft: "auto",
       textAlign: "center"    
     },
+    title: {
+      flexGrow: 1,
+      textAlign: "center"
+    }
     
 });
 

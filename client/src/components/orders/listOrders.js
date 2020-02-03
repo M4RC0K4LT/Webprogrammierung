@@ -47,9 +47,7 @@ class ListOrders extends React.Component {
   }
 
   handleDelete(id){
-    this.setState({ isLoading: true });
       deleteOrder(id).then(data => {
-        this.setState({ isLoading: false });
         if(data.length<1 || data.request === "failed"){
           this.setState({ open: true, message: data.error, snackcolor: "error"});
         }else{
@@ -95,10 +93,10 @@ class ListOrders extends React.Component {
             <DeleteDialog
               open={this.state.openDeleteDialog}
               onClose={() => this.setState({openDeleteDialog: false})}
-              onAgree={() => (
-                  this.handleDelete(this.state.selectedOrder),
-                  this.setState({ openDeleteDialog: false })
-              )}
+              onAgree={() => {
+                  this.handleDelete(this.state.selectedOrder);
+                  this.setState({ openDeleteDialog: false });
+              }}
               delMessage={"Auftrag '" + this.state.selectedOrder + " - " + this.state.selectedOrder_title + "'"}>
             </DeleteDialog>
             <List className={classes.mainlist}>
@@ -111,7 +109,7 @@ class ListOrders extends React.Component {
                 </ListItemAvatar>
                 <ListItemText primary={order.order_title} secondary={order.order_starting + ":  " + order.order_description.slice(0, 15)} />
                 <ListItemSecondaryAction>
-                    <IconButton title="Bearbeiten" href={"/order/" + order.order_id} edge="end">
+                    <IconButton title="Bearbeiten" href={"/orders/" + order.order_id} edge="end">
                       <EditIcon />
                     </IconButton>
                     <IconButton title="Löschen" onClick={() => this.setState({selectedOrder: order.order_id, selectedOrder_title: order.order_title, openDeleteDialog: true})}edge="end">

@@ -30,6 +30,6 @@ app.use("/api/orders", auth, orderapi);
 app.use("/api/customers", auth, customerapi);
 
 // listen for requests
-app.listen(process.env.PORT, function () {
-  console.log("Your app is listening on port " + process.env.PORT);
+app.listen(port, function () {
+  console.log("Your app is listening on port " + port);
 });

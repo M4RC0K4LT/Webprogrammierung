@@ -69,10 +69,10 @@ class EditCustomerButtons extends Component {
                     <DeleteDialog
                         open={this.state.openDeleteDialog}
                         onClose={() => this.setState({openDeleteDialog: false})}
-                        onAgree={() => (
-                            this.onDeleteClick(),
-                            this.setState({ openDeleteDialog: false })
-                        )}
+                        onAgree={() => {
+                            this.onDeleteClick();
+                            this.setState({ openDeleteDialog: false });
+                        }}
                         delMessage={this.props.objectDescription}>
                     </DeleteDialog>
                 </div>

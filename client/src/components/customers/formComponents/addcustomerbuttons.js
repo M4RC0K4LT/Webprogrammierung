@@ -3,10 +3,6 @@ import { withStyles, Grid, Button } from '@material-ui/core';
 import useStyles from "../../others/useStyles";
 
 class AddCustomerButtons extends Component {
-    constructor(props){
-        super(props);       
-    }
-
     render(){
         const { customerid, disablefields, isLoading, classes } = this.props;
         var buttons = "";
@@ -18,7 +14,7 @@ class AddCustomerButtons extends Component {
               margin="normal" 
             >
               <Grid item>
-                <Button className={classes.submit} variant="outlined" color="primary" href={"/customer/" +  customerid}>
+                <Button className={classes.submit} variant="outlined" color="primary" href={"/customers/" +  customerid}>
                 Bearbeiten
               </Button>
               </Grid>

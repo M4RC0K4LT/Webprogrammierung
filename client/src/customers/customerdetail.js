@@ -5,11 +5,6 @@ import { useStyles, EditCustomerForm } from '../components/exports'
 
 
 class Customerdetail extends Component {
-
-    constructor(props){
-        super(props);
-    }
-
     render() {
         
         const { classes } = this.props;
@@ -21,7 +16,6 @@ class Customerdetail extends Component {
                     <Avatar className={classes.avatar}>
                     <PermContactCalendarOutlinedIcon fontSize="large"/>
                     </Avatar>
-                    <br/>
                     <Typography component="h1" variant="h5">
                     Kunde bearbeiten
                     </Typography>

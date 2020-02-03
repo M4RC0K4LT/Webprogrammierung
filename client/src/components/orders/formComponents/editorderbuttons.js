@@ -25,7 +25,7 @@ class EditOrderButton extends Component {
     render(){
         const { disablefields, isLoading, classes } = this.props;
         var buttons = ""
-        if(disablefields && isLoading == false){
+        if(disablefields && isLoading === false){
             buttons = (
                 <Grid
                   justify="space-between"
@@ -69,10 +69,10 @@ class EditOrderButton extends Component {
                     <DeleteDialog
                         open={this.state.openDeleteDialog}
                         onClose={() => this.setState({openDeleteDialog: false})}
-                        onAgree={() => (
-                            this.onDeleteClick(),
-                            this.setState({ openDeleteDialog: false })
-                        )}
+                        onAgree={() => {
+                            this.onDeleteClick();
+                            this.setState({ openDeleteDialog: false });
+                        }}
                         delMessage={this.props.objectDescription}>
                     </DeleteDialog>
                 </div>

@@ -13,7 +13,7 @@ class CustomerFields extends Component {
     }
 
     render(){
-        const { disablefields, customername, company, mail, country, zip, town, street_number, hourlyrate } = this.props;
+        const { disablefields, customername, company, mail, country, zip, street_number, hourlyrate } = this.props;
 
         return (
             <div>
@@ -65,23 +65,11 @@ class CustomerFields extends Component {
                 <TextField
                     variant="outlined"
                     margin="normal"
-                    required
                     fullWidth
                     name="zip"
-                    label="Postleitzahl"
+                    label="Postleitzahl/Ort"
                     onChange={this.handleChange}
                     value={zip}
-                    disabled={disablefields}
-                />
-                <TextField
-                    variant="outlined"
-                    margin="normal"
-                    required
-                    fullWidth
-                    name="town"
-                    label="Ort"
-                    onChange={this.handleChange}
-                    value={town}
                     disabled={disablefields}
                 />
                 <TextField

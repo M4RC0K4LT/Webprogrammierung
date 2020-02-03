@@ -3,11 +3,6 @@ import { Container, CssBaseline, withStyles } from '@material-ui/core';
 import { useStyles, ListCustomerOrders } from "../components/exports";
 
 class CustomerOrders extends React.Component {
-
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { classes } = this.props;
 
