@@ -1,35 +1,28 @@
-// NPM-Module
+/** Import and initialize basic modules used for Express Server */
 const express = require("express");
 const app = express();
 const bodyParser = require('body-parser');
 const cors = require('cors')
+app.use(bodyParser.json());
+app.use(cors());
+app.options('*', cors())
 
+/** Using environment variables */
 require("dotenv").config()
-
 const port = process.env.PORT || 3001
 
-// Router
+/** Express routes */
 const userapi = require("./routes/usersapi");
 const orderapi = require("./routes/ordersapi");
 const customerapi = require("./routes/customersapi");
 const auth = require("./database/auth");
 
-
-app.use(bodyParser.json());
-app.use(cors());
-
-app.options('*', cors())
-
-// User Funktionen
+/** Available routes */
 app.use("/api/user", userapi);
-
-// Order Funktionen
 app.use("/api/orders", auth, orderapi);
-
-// Customer Funktionens
 app.use("/api/customers", auth, customerapi);
 
-// listen for requests
+/** Start webserver */
 app.listen(port, function () {
   console.log("Your app is listening on port " + port);
 });

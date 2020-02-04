@@ -4,8 +4,10 @@ import { Edit as EditIcon, GavelOutlined as GavelOutlinedIcon, Delete as DeleteI
 import { useStyles, SnackbarMessage, DeleteDialog } from "../exports";
 import { getCustomer, getInvoice, getCustomerOrders, deleteOrder} from "../../api/exports"
 
+/** ListCustomerOrders Component to display orders related to one customer */
 class ListCustomerOrders extends React.Component {
 
+  //Initializes AlertDialogs and error handling
   constructor(props) {
     super(props);
     this.state = {
@@ -31,10 +33,12 @@ class ListCustomerOrders extends React.Component {
     this.handleSnackbarClose = this.handleSnackbarClose.bind(this);
   }
 
+  //Close Error/Success Message
   handleSnackbarClose(){
     this.setState({ open: false })
   }
   
+  //Handle checked orders for invoice creation
   handleCheck(orderid){
     this.setState({ buttondisabled: false })
     const id = parseInt(orderid)
@@ -48,6 +52,7 @@ class ListCustomerOrders extends React.Component {
     }
   }
 
+  //Handle Order delete
   handleDelete(id){
     deleteOrder(id).then(data => {
       this.setState({ isLoading: false })
@@ -59,6 +64,7 @@ class ListCustomerOrders extends React.Component {
     })
   }
 
+  //Request invoice for checked orders
   requestInvoice(id) {
     var invoicelist = [];
     if(id == null){
@@ -79,6 +85,7 @@ class ListCustomerOrders extends React.Component {
     })
   }
 
+  //Get customer related orders
   fetchOrders() {
     const id = this.props.id;
     this.setState({ isLoading: true });
@@ -92,6 +99,7 @@ class ListCustomerOrders extends React.Component {
     })
   }
 
+  //Get customer data/information
   fetchCustomer() {
     const id = this.props.id;
     this.setState({ isLoading: true });
@@ -114,10 +122,12 @@ class ListCustomerOrders extends React.Component {
     const { orders, isLoading, customer } = this.state;
     const { classes } = this.props;
 
+    //LoadingIcon
     if (isLoading) {
       return (<div className={classes.paper}><CircularProgress/></div>);
     }
 
+    //No orders available
     var emptyText = "";
     if(orders.length===0){
       emptyText = <h4>---Für diesen Kunden sind keine Aufträge hinterlegt---</h4>
@@ -189,4 +199,10 @@ class ListCustomerOrders extends React.Component {
   }
 }
 
+/**
+ * Defines the ListCustomerOrders Component.
+ * Displays orders belonging to one customer
+ * @param {props} props - Given properties of mother component (styling,...).
+ * @return {Component} - ListCustomerOrders Component
+ */
 export default withStyles(useStyles) (ListCustomerOrders);

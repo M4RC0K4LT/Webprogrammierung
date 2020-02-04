@@ -1,3 +1,10 @@
+/**
+ * A module for SQLite database initialisation/creation.
+ * @module database/database_new_init
+ */
+
+
+/** Import NPM-Modules to create/interact with SQLite Database */
 const sqlite = require('sqlite3').verbose();
 const fs = require('fs');
 const dbExist = fs.existsSync('./.data/customer_kugellager_database.db');
@@ -5,10 +12,10 @@ const db = new sqlite.Database('./.data/customer_kugellager_database.db');
 
 if (!dbExist) {
 
-  // Aktiviere ForeignKeys
+  //Activate ForeignKeya
   db.run(`PRAGMA foreign_keys = ON`);
 
-  // Kundentabelle
+  //Create table "customers"
   db.run(`
     CREATE TABLE 'customers' (
       customer_id INTEGER PRIMARY KEY AUTOINCREMENT, 
@@ -23,7 +30,7 @@ if (!dbExist) {
     )
   `);
 
-  // Auftragstabelle
+  //Create table "orders"
   db.run(`
     CREATE TABLE 'orders' (
       order_id INTEGER PRIMARY KEY AUTOINCREMENT, 
@@ -38,7 +45,7 @@ if (!dbExist) {
     )
   `);
 
-  // Usertabelle
+  //Create table "users"
   db.run(`
     CREATE TABLE 'users' (
       user_id INTEGER PRIMARY KEY AUTOINCREMENT, 
@@ -50,6 +57,10 @@ if (!dbExist) {
   `);
 }
 
-// Aktiviere ForeignKeys
+//Activate ForeignKeys on existing database
 db.run(`PRAGMA foreign_keys = ON`);
+
+/**
+ * SQLite Database interaction.
+ */
 module.exports = db;

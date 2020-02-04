@@ -1,7 +1,22 @@
+/**
+ * A module that interacts with SQLite Database on transactions regarding orderdata.
+ * @module database/orders
+ */
+
+
+/** Import Database */
 const db = require('./database_new_init.js');
+
+/** Import NPM Modules to work correctly with date and time formats */
 const date = require('date-and-time');
 
 module.exports = {
+
+
+  /**
+   * Return all orders.
+   * @return {Array} Full of single "OrderJSONs".
+   */
   getAll: () => {
     return new Promise((resolve, reject) => {
       db.all(`SELECT * FROM orders`, (err, result) => {
@@ -14,6 +29,12 @@ module.exports = {
     });
   },
 
+
+  /**
+   * Return order by ID.
+   * @param {string} id - Searched OrderID.
+   * @return {JSON} Orderdata.
+   */
   findById: id => {
     return new Promise((resolve, reject) => {
       db.get(`SELECT * FROM orders WHERE order_id = $id`, {$id: id}, (err, result) => {
@@ -29,6 +50,12 @@ module.exports = {
     });
   },
 
+
+  /**
+   * Return all orders related to CustomerID.
+   * @param {string} id - Selected Customer.
+   * @return {Array} Full of single OrderJSONs.
+   */
   findByCustomer: id => {
     return new Promise((resolve, reject) => {
       db.all(`SELECT * FROM orders WHERE order_customer = $id`, {$id: id}, (err, result) => {
@@ -44,15 +71,20 @@ module.exports = {
     });
   },
 
-  create: async jsonObject => {
-    
-    //Überprüfung des Datumformats
+
+  /**
+   * Create new order.
+   * @return {JSON} Order information.
+   */
+  create: async jsonObject => {  
+
+    //Check date format
     var datevalid = null;
     if(!(date.isValid(jsonObject.starting.toString(), "YYYY-MM-DD HH:mm"))){
         datevalid = false;
     }
 
-    //Überprüfung Kilometer
+    //check distance format
     var travelvalid = null;
     var traveldistance = jsonObject.traveldistance;
     if(traveldistance == null || traveldistance.length==0){
@@ -71,7 +103,7 @@ module.exports = {
       
     }
 
-    //Überprüfung der Dauer
+    //Check duration
     var durationvalid = null;
     var duration = jsonObject.duration;
     if(typeof duration == "string"){
@@ -85,7 +117,7 @@ module.exports = {
       duration = duration.toFixed(2);
     }
     
-    //Überprüfung ob Standardstundensatz abgeändert
+    //Check if order-specific hourlyrate was given
     var hourlyrate = jsonObject.hourlyrate;
     await new Promise((resolve, reject) => {
       db.get(`SELECT customer_hourlyrate FROM customers WHERE customer_id = $id`, { $id: jsonObject.customer }, (err, result) => {
@@ -112,10 +144,8 @@ module.exports = {
         }
       });
     })
-      
 
     return new Promise((resolve, reject) => {
-
       if(datevalid == false){
         reject({"error": "Verwende ein gültiges Zeitformat"});
       }
@@ -156,15 +186,21 @@ module.exports = {
 
   },
 
+  /**
+   * Update existing order.
+   * @param {string} id - Selected order.
+   * @param {JSON} jsonObject - Updated order data.
+   * @return {JSON} Updated order values.
+   */
   update: async (id, jsonObject) => {  
 
-    //Überprüfung des Datumformats
+    //Check date format
     var datevalid = null;
     if(!(date.isValid(jsonObject.starting.toString(), "YYYY-MM-DD HH:mm"))){
         datevalid = false;
     }
 
-    //Überprüfung Kilometer
+    //Check distance format
     var travelvalid = null;
     var traveldistance = jsonObject.traveldistance;
     if(traveldistance == null || traveldistance.length==0){
@@ -183,7 +219,7 @@ module.exports = {
       
     }
 
-    //Überprüfung der Dauer
+    //Check duration
     var durationvalid = null;
     var duration = jsonObject.duration;
     if(typeof duration == "string"){
@@ -197,7 +233,7 @@ module.exports = {
       duration = duration.toFixed(2);
     }
     
-    //Überprüfung ob Standardstundensatz abgeändert
+    //Check if order-specific hourlyrate was given
     var hourlyrate = jsonObject.hourlyrate;
     await new Promise((resolve, reject) => {
       db.get(`SELECT customer_hourlyrate FROM customers WHERE customer_id = $id`, { $id: jsonObject.customer }, (err, result) => {
@@ -269,6 +305,12 @@ module.exports = {
     });
   },
 
+
+  /**
+   * Remove order by OrderID.
+   * @param {string} id - Selected Order.
+   * @return {Boolean} successful - yes or no.
+   */
   remove: id => {
     return new Promise((resolve, reject) => {
         id = parseInt(id);

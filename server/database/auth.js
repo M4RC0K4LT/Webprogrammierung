@@ -1,8 +1,20 @@
-const jwt = require('jsonwebtoken');
+/**
+ * A module that checks authorization header on API request.
+ * Used as express middleware.
+ * Rejects if token does not belong to a user or if none is given.
+ * @module database/auth
+ */
+
+/** Import Database */
 const users = require("./users");
 
+/** Import NPM-Module to decode and check authorization header */
+const jwt = require('jsonwebtoken');
 var JWT_KEY = process.env.TOKEN;
 
+
+
+/** Authenticate a API request */
 function auth(request, response, next) {
     const authHeader = request.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
@@ -26,4 +38,11 @@ function auth(request, response, next) {
     });
 }
 
+/**
+ * API request authorization.
+ * @param {request} request - API request.
+ * @param {response} response - API response.
+ * @param {next} next - Middleware parameter
+ * @return {next} If request is authorized. Otherwise returns Response.
+ */
 module.exports = auth

@@ -1,16 +1,28 @@
-const db = require('./database_new_init.js');
-const NodeGeocoder = require('node-geocoder');
+/**
+ * A module that interacts with SQLite Database on transactions regarding customerdata.
+ * @module database/customers
+ */
 
+
+ /** Import Database */
+const db = require('./database_new_init.js');
+
+/** Import and configure NodeGeocoder-NPMModule to work with adressinformation and validate them */
+const NodeGeocoder = require('node-geocoder');
 var options = {
   provider: 'google',
   apiKey: 'AIzaSyBSxN4qq-CR-HeNyxVlvQ06oTxscljozCI'
 };
-
 var geocoder = NodeGeocoder(options);
 
 
 module.exports = {
 
+
+  /**
+   * Return all customers.
+   * @return {Array} Full of single "CustomerJSONS".
+   */
   getAll: () => {
     return new Promise((resolve, reject) => {
       db.all(`SELECT * FROM customers`, (err, result) => {
@@ -23,6 +35,12 @@ module.exports = {
     });
   },
 
+
+  /**
+   * Return customer by ID.
+   * @param {string} cusid - Searched CustomerID.
+   * @return {JSON} Customerdata.
+   */
   findById: cusid => {
     const id = parseInt(cusid)
     return new Promise((resolve, reject) => {
@@ -39,11 +57,16 @@ module.exports = {
     });
   },
 
+
+  /**
+   * Create new customer.
+   * @return {JSON} Customer information.
+   */
   create: async jsonObject => {
 
+    //Check address input with GoogleMapsAPI
     const adressstring = jsonObject.street_number.toString() + ", " + jsonObject.zipcode.toString();
     let addressfound = await geocoder.geocode(adressstring, function (err, data) { });
-
     var notfound = null;
     if (addressfound < 1 || addressfound[0].streetNumber == null) {
       notfound = true;
@@ -55,6 +78,7 @@ module.exports = {
         reject({"error": "Keine gültige Adressangabe"});
       }
 
+      //Check hourlyrate format
       var hourlyrate = jsonObject.hourlyrate
       if(typeof hourlyrate == "string"){
         hourlyrate = parseFloat(jsonObject.hourlyrate.replace(",", "."));
@@ -64,7 +88,6 @@ module.exports = {
       }
 
       db.run(
-
         `INSERT INTO customers (customer_name, customer_company, customer_mail, customer_country, customer_zipcode, customer_town, customer_street_number, customer_hourlyrate) VALUES($name, $company, $mail, $country, $zipcode, $town, $street_number, $hourlyrate)`,
         {
           $name: jsonObject.name,
@@ -93,11 +116,18 @@ module.exports = {
 
   },
 
+
+  /**
+   * Update existing customer.
+   * @param {string} id - Selected customer.
+   * @param {JSON} jsonObject - Updated customer data.
+   * @return {JSON} Updated customer values.
+   */
   update: async (id, jsonObject) => {
 
+    //Check address input with GoogleMapsAPI
     const adressstring = jsonObject.street_number.toString() + ", " + jsonObject.zipcode.toString();
     let addressfound = await geocoder.geocode(adressstring, function (err, data) { });
-
     var notfound = null;
     if (addressfound < 1 || addressfound[0].streetNumber == null) {
       notfound = true;
@@ -109,6 +139,7 @@ module.exports = {
         reject({"error": "Keine gültige Adressangabe"});
       }
 
+      //Check hourlyrate format
       var hourlyrate = jsonObject.hourlyrate
       if(typeof hourlyrate == "string"){
         hourlyrate = parseFloat(jsonObject.hourlyrate.replace(",", "."));
@@ -151,6 +182,12 @@ module.exports = {
     });
   },
 
+
+  /**
+   * Remove Customer by CustomerID.
+   * @param {string} id - Selected Customer.
+   * @return {Boolean} successful - yes or no.
+   */
   remove: id => {
     return new Promise((resolve, reject) => {
       id = parseInt(id);
@@ -177,6 +214,12 @@ module.exports = {
     });
   },
 
+
+  /**
+   * Get customer`s average traveldistance.
+   * @param {string} id - Selected CustomerID.
+   * @return {JSON} Average Traveldistance.
+   */
   getAvgTraveldistance: id => {
     return  new Promise((resolve, reject) => {
       id = parseInt(id);
@@ -190,6 +233,12 @@ module.exports = {
     });
   },
 
+
+  /**
+   * Get customer`s average hourlyrate because order specific hourlyrates could be different.
+   * @param {string} id - Selected CustomerID.
+   * @return {JSON} Average Hourlyrate.
+   */
   getAvgHourlyrate: id => {
     return  new Promise((resolve, reject) => {
       id = parseInt(id);
@@ -203,6 +252,12 @@ module.exports = {
     });
   },
 
+
+  /**
+   * Get customer`s average order duration.
+   * @param {string} id - Selected CustomerID.
+   * @return {JSON} Average Duration.
+   */
   getAvgDuration: id => {
     return  new Promise((resolve, reject) => {
       id = parseInt(id);
@@ -216,6 +271,12 @@ module.exports = {
     });
   },
 
+
+  /**
+   * Get customer`s average OrderCosts based on hourlyrate * duration.
+   * @param {string} id - Selected CustomerID.
+   * @return {JSON} Average OrderCosts.
+   */
   getAvgOrderCost: id => {
     return  new Promise((resolve, reject) => {
       id = parseInt(id);
@@ -229,6 +290,12 @@ module.exports = {
     });
   },
 
+
+  /**
+   * Get customer`s monthly amount of orders.
+   * @param {JSON} jsonObject - CustomerID and selected Year.
+   * @return {JSON} Monthly Order Amount for selected year.
+   */
   getOrderAmountMonth: (jsonObject) => {
     return  new Promise((resolve, reject) => {
       id = parseInt(jsonObject.id);

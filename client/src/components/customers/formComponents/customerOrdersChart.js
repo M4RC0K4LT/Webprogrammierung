@@ -5,9 +5,10 @@ import { ArrowBack as ArrowBackIcon, ArrowForward as ArrowForwardIcon } from '@m
 import { useStyles, SnackbarMessage } from "../../exports";
 import { postCustomerStatistics} from "../../../api/exports"
 
-
+/** CustomerOrdersChart Component to show amount of monthly orders */
 class CustomerOrdersChart extends React.Component {
 
+    /** Defines Chart labels, datasets, options,... */
     constructor(props) {
         super(props);
         this.state = {
@@ -43,10 +44,12 @@ class CustomerOrdersChart extends React.Component {
         this.handleSnackbarClose = this.handleSnackbarClose.bind(this);
     }
 
+    /** Close Snackbar with error/success messages */
     handleSnackbarClose(){
         this.setState({ open: false });
     }
 
+    /** Get dataset (amount of monthly orders) for chosen year */
     fetchStatistics(year){
         this.setState({ year: year });
         if(year==null){
@@ -70,6 +73,7 @@ class CustomerOrdersChart extends React.Component {
         })
     }
 
+    /** Initially load statistics for current year */
     componentDidMount() {
         this.fetchStatistics(this.state.year);
     }
@@ -102,4 +106,10 @@ class CustomerOrdersChart extends React.Component {
     }
 }
 
+/**
+ * Defines the CustomerOrdersChart Component.
+ * Creates a ChartJS based graphic with amount of monthly orders in chosen year.
+ * @param {props} props - Given properties of mother component (styling,...).
+ * @return {Component} - CustomerOrdersChart
+ */
 export default withStyles(useStyles) (CustomerOrdersChart);

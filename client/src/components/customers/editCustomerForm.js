@@ -5,9 +5,10 @@ import { getCustomer, deleteCustomer, putCustomer } from "../../api/exports";
 import CustomerFields from "./formComponents/customerfields";
 import EditCustomerButtons from "./formComponents/editcustomerbuttons";
 
-
+/** EditCustomerFrom Component to provide a form for editing customer data */
 class EditCustomerForm extends Component {
 
+    //Initializes TextField values and error handling
     constructor(props){
         super(props);
         
@@ -39,7 +40,8 @@ class EditCustomerForm extends Component {
         this.fetchCustomer = this.fetchCustomer.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);        
     }  
-    
+   
+    //EventHandler: changing Value of controlled TextField
     handleInputChange(event) {
         const target = event.target;
         const value = target.value
@@ -50,10 +52,12 @@ class EditCustomerForm extends Component {
         });
     }
     
+    //Close Error/Success Message
     handleSnackbarClose(){
         this.setState({ open: false })
     }
     
+    //Submit FormData
     handleSubmit(event){ 
         event.preventDefault();
         const id = this.props.id;
@@ -81,6 +85,7 @@ class EditCustomerForm extends Component {
         })
     }
 
+    //Handle Customer delete
     handleDelete(){
         const id = this.props.id;
         this.setState({ isLoading: true, disablefields: true });
@@ -98,6 +103,7 @@ class EditCustomerForm extends Component {
         })
     }
 
+    //Get current Customerdata
     fetchCustomer() {
         const id = this.props.id;
         this.setState({ isLoading: true });
@@ -129,6 +135,7 @@ class EditCustomerForm extends Component {
         const { classes } = this.props;
         const { isLoading, disablefields, customerid, customername, company, mail, country, zip, street_number, hourlyrate } = this.state;
         
+        //LoadingIcon
         var loading = null;
         if (isLoading) {
             loading = <CircularProgress className={classes.loading} size={100}/>;
@@ -178,4 +185,10 @@ class EditCustomerForm extends Component {
     }
 }
 
+/**
+ * Defines the EditCustomerForm Component.
+ * Displays form for editing customer information
+ * @param {props} props - Given properties of mother component (styling,...).
+ * @return {Component} - EditCustomerForm Component
+ */
 export default withStyles(useStyles) (EditCustomerForm);

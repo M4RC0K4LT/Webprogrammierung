@@ -3,7 +3,7 @@ import { Avatar, CssBaseline, Typography, Container, withStyles } from '@materia
 import { PermContactCalendarOutlined as PermContactCalendarOutlinedIcon } from '@material-ui/icons';
 import { useStyles, AddCustomerForm} from '../components/exports'
 
-
+/** Add/Create new Customer Component */
 class AddCustomer extends Component {
     render() {
 
@@ -26,4 +26,9 @@ class AddCustomer extends Component {
     }
 }
 
+/**
+ * Defines the Component to create or add a new customer.
+ * @param {props} props - Given properties of mother component (styling,...).
+ * @return {Component} - AddCustomer Component
+ */
 export default withStyles(useStyles) (AddCustomer);

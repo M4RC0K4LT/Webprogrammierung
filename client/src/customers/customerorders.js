@@ -2,6 +2,7 @@ import React from 'react'
 import { Container, CssBaseline, withStyles } from '@material-ui/core';
 import { useStyles, ListCustomerOrders } from "../components/exports";
 
+/** Component to display just customer related orders  */
 class CustomerOrders extends React.Component {
   render() {
     const { classes } = this.props;
@@ -19,4 +20,9 @@ class CustomerOrders extends React.Component {
   }
 }
 
+/**
+ * Defines the Customer-related-orders Component.
+ * @param {props} props - Given properties of mother component (styling,...).
+ * @return {Component} - CustomerOrders Component
+ */
 export default withStyles(useStyles) (CustomerOrders);

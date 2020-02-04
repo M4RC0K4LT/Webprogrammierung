@@ -3,6 +3,7 @@ import { Avatar, CssBaseline, Typography, Container, withStyles } from '@materia
 import { AccountCircleOutlined as AccountCircleOutlinedIcon } from '@material-ui/icons';
 import { useStyles, EditUserForm} from '../components/exports'
 
+/** Profile Component */
 class Profile extends Component {
     render() {        
         const { classes } = this.props;
@@ -25,4 +26,9 @@ class Profile extends Component {
     }
 }
 
+/**
+ * Defines the Profile Component.
+ * @param {props} props - Given properties of mother component (styling,...).
+ * @return {Component} - Profile Component
+ */
 export default withStyles(useStyles) (Profile);

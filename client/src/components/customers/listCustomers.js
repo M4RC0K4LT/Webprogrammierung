@@ -4,8 +4,10 @@ import { Edit as EditIcon, Delete as DeleteIcon, List as ListIcon, PermIdentityO
 import { useStyles, SnackbarMessage, DeleteDialog } from "../exports";
 import { getCustomers, deleteCustomer} from "../../api/exports"
 
-class ListOrders extends React.Component {
+/** ListCustomers Component to display all registered customers */
+class ListCustomers extends React.Component {
 
+  //Initializes alertDialog and error handling
   constructor(props) {
     super(props);
     this.state = {
@@ -26,6 +28,7 @@ class ListOrders extends React.Component {
     this.handleDelete = this.handleDelete.bind(this);
   }
 
+  //Close Error/Success Message
   handleSnackbarClose(){
     this.setState({ open: false });
   }

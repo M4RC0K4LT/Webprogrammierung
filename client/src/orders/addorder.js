@@ -3,6 +3,7 @@ import { Container, CssBaseline, withStyles, Avatar, Typography } from '@materia
 import { GavelOutlined as GavelOutlinedIcon } from '@material-ui/icons';
 import { useStyles, AddOrderForm } from "../components/exports";
 
+/** Component to add/create a new order */
 class AddOrder extends Component {
     render() {
         const { classes } = this.props;
@@ -24,4 +25,9 @@ class AddOrder extends Component {
     }
 }
 
+/**
+ * Defines the Order Creation Component.
+ * @param {props} props - Given properties of mother component (styling,...).
+ * @return {Component} - AddOrder Component
+ */
 export default withStyles(useStyles) (AddOrder);

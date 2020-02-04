@@ -2,10 +2,16 @@ import React, { Component } from 'react';
 import { withStyles, Grid, Button } from '@material-ui/core';
 import useStyles from "../../others/useStyles";
 
+/** 
+ * AddCustomerButtons Component
+ * Displays buttons on customer creation - below input fields
+ */
 class AddCustomerButtons extends Component {
     render(){
         const { customerid, disablefields, isLoading, classes } = this.props;
         var buttons = "";
+
+        //If Creation in Database was successful
         if(disablefields && isLoading === false){
             buttons = (
             <Grid
@@ -26,6 +32,8 @@ class AddCustomerButtons extends Component {
             </Grid>
             );
         }
+
+        //Before new Customerdata was sent
         else {
             buttons = (
                 <Button
@@ -44,4 +52,9 @@ class AddCustomerButtons extends Component {
     }
 }
 
+/**
+ * Defines the AddCustomerButtons Component.
+ * @param {props} props - Given properties of mother component (styling,...).
+ * @return {Component} - Buttons on customer creation
+ */
 export default withStyles(useStyles) (AddCustomerButtons);

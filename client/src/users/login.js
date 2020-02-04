@@ -3,6 +3,7 @@ import { Avatar, CssBaseline, Typography, Container, withStyles} from '@material
 import { LockOutlined as LockOutlinedIcon} from '@material-ui/icons';
 import { useStyles, LoginUserForm} from '../components/exports'
 
+/** Login Component */
 class Login extends Component {
     render() {    
         const { classes } = this.props;
@@ -24,4 +25,9 @@ class Login extends Component {
     }
 }
 
+/**
+ * Defines the Login Component.
+ * @param {props} props - Given properties of mother component (styling,...).
+ * @return {Component} - Login Component
+ */
 export default withStyles(useStyles) (Login);

@@ -3,6 +3,7 @@ import { Avatar, CssBaseline, Typography, Container, withStyles } from '@materia
 import { PersonOutlined as PersonAddOutlinedIcon } from '@material-ui/icons';
 import { useStyles, RegisterUserForm } from '../components/exports'
 
+/** Register Component */
 class Register extends Component {
     render() {       
         const { classes } = this.props;
@@ -24,4 +25,9 @@ class Register extends Component {
     }
 }
 
+/**
+ * Defines the Register Component.
+ * @param {props} props - Given properties of mother component (styling,...).
+ * @return {Component} - Register Component
+ */
 export default withStyles(useStyles) (Register);

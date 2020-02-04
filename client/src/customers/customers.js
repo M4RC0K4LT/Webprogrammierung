@@ -3,6 +3,7 @@ import { Container, CssBaseline, withStyles, Typography, Fab } from '@material-u
 import { Add as AddIcon } from '@material-ui/icons';
 import { useStyles, ListCustomers } from "../components/exports";
 
+/** Customers Component */
 class Customers extends React.Component {
   render() {
     const { classes } = this.props;
@@ -25,4 +26,10 @@ class Customers extends React.Component {
   }
 }
 
+/**
+ * Defines the Customers Component.
+ * Displays all registered customers.
+ * @param {props} props - Given properties of mother component (styling,...).
+ * @return {Component} - Customers Component
+ */
 export default withStyles(useStyles) (Customers);

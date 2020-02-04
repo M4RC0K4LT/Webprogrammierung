@@ -137,7 +137,7 @@ function createInvoice(customerdata, all_order_elements_for_invoice, response){
 
 
 /**
- * Blend two colors together.
+ * Invoice PDF creation.
  * @param {JSON} customerdata - Customerdata for invoice header.
  * @param {Array} all_order_elements_for_invoice - Array (with several subArrays) filled with selected OrderData.
  * @param {Response} response - http Response for returning invoice PDF.

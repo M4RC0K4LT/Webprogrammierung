@@ -2,12 +2,14 @@ import React, { Component } from 'react';
 import { withStyles, TextField } from '@material-ui/core';
 import useStyles from "../../others/useStyles";
 
+/** CustomerFields Component */
 class CustomerFields extends Component {
     constructor(props){
         super(props);   
         this.handleChange = this.handleChange.bind(this)     
     }
 
+    /** Change values (onKeyboardInput) of controlled TextField components */
     handleChange(e) {
         this.props.onChange(e);
     }
@@ -99,4 +101,10 @@ class CustomerFields extends Component {
     }
 }
 
+/**
+ * Defines the CustomerFields Component.
+ * Shows all Fields needed for customer creations, edits, etc..
+ * @param {props} props - Given properties of mother component (styling, TextField props,...)
+ * @return {Component} - CustomerFields Component
+ */
 export default withStyles(useStyles) (CustomerFields);

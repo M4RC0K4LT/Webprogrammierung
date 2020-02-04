@@ -3,6 +3,7 @@ import { Container, CssBaseline, withStyles, Fab, Typography } from '@material-u
 import { Add as AddIcon} from '@material-ui/icons';
 import { useStyles, ListOrders } from "../components/exports";
 
+/** Orders Component */
 class Orders extends React.Component {
   render() {
     const { classes } = this.props
@@ -25,4 +26,10 @@ class Orders extends React.Component {
   }
 }
 
+/**
+ * Defines the Orders Component.
+ * Shows all registered orders.
+ * @param {props} props - Given properties of mother component (styling,...).
+ * @return {Component} - Orders Component
+ */
 export default withStyles(useStyles) (Orders);

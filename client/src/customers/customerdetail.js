@@ -3,7 +3,7 @@ import { Avatar, CssBaseline, Typography, Container, withStyles } from '@materia
 import { PermContactCalendarOutlined as PermContactCalendarOutlinedIcon } from '@material-ui/icons';
 import { useStyles, EditCustomerForm } from '../components/exports'
 
-
+/** Customerdetail Component to edit/show customerdata */
 class Customerdetail extends Component {
     render() {
         
@@ -26,4 +26,9 @@ class Customerdetail extends Component {
     }
 }
 
+/**
+ * Defines the Component to show customer details and to edit them.
+ * @param {props} props - Given properties of mother component (styling,...).
+ * @return {Component} - Customerdetail Component
+ */
 export default withStyles(useStyles) (Customerdetail);

@@ -173,6 +173,11 @@ module.exports = {
     });
   },
 
+  /**
+   * Logout user by token.
+   * @param {string} token - User SessionToken.
+   * @return {JSON} TODO?
+   */
   logout: token => {
     var tokenverify = true;
     var tokenvalid = true;
@@ -210,6 +215,12 @@ module.exports = {
     });
   },
 
+
+  /**
+   * Register new user with username, mail, password (optional sessionToken -> currently not used)
+   * @param {JSON} jsonObject - Includes new user parameters.
+   * @return {JSON} Username, mail.
+   */
   create: jsonObject => {
     var password = bcrypt.hashSync(jsonObject.password, 8);
     return new Promise((resolve, reject) => {
@@ -241,6 +252,13 @@ module.exports = {
     });
   },
 
+
+  /**
+   * Update existing user data by ID.
+   * @param {string} id - UserID to change.
+   * @param {JSON} jsonObject - Updated Values.
+   * @return {JSON} Updated UserData.
+   */
   update: (id, jsonObject) => {  
     var password = bcrypt.hashSync(jsonObject.password, 8);
     return new Promise((resolve, reject) => {
@@ -272,6 +290,12 @@ module.exports = {
     });
   },
 
+
+  /**
+   * Remove user by ID. Currently not in use
+   * @param {string} id - UserID to remove correct oject.
+   * @return {Boolean} Success - yes or no.
+   */
   remove: id => {
     return new Promise((resolve, reject) => {
         id = parseInt(id);

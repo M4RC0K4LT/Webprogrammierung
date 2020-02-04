@@ -2,7 +2,7 @@ import React from 'react'
 import { withStyles, Table, TableBody, TableCell, TableRow, TableContainer } from '@material-ui/core';
 import { useStyles } from "../../exports";
 
-
+/** CustomerStatsTable Component to show some customer related stats */
 class CustomerStatsTable extends React.Component {   
     render() {
         const { customer } = this.props;
@@ -47,4 +47,10 @@ class CustomerStatsTable extends React.Component {
     }
 }
 
+/**
+ * Defines the CustomerStatsTable Component.
+ * Shows some customer stats such as average values,...
+ * @param {props} props - Given properties of mother component (styling,...).
+ * @return {Component} - CustomerStatsTable Component
+ */
 export default withStyles(useStyles) (CustomerStatsTable);

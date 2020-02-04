@@ -5,9 +5,10 @@ import { postCustomer } from "../../api/exports";
 import CustomerFields from "./formComponents/customerfields";
 import AddCustomerButtons from "./formComponents/addcustomerbuttons";
 
-
+/** AddCustomerForm Component to provide a customer creation form */
 class AddCustomerForm extends Component {
 
+    //Initializes TextField values and error handling
     constructor(props){
         super(props);
         
@@ -32,6 +33,7 @@ class AddCustomerForm extends Component {
         this.handleInputChange = this.handleInputChange.bind(this);        
     }  
     
+    //EventHandler: changing Value of controlled TextField
     handleInputChange(event) {
         const target = event.target;
         const value = target.value
@@ -42,10 +44,12 @@ class AddCustomerForm extends Component {
         });
     }
 
+    //Close Error/Success Message
     handleSnackbarClose(){
         this.setState({ open: false })
     }
     
+    //Submit FormData
     handleSubmit(event){ 
         event.preventDefault();
         this.setState({ isLoading: true, disablefields: true });
@@ -77,6 +81,7 @@ class AddCustomerForm extends Component {
         const { classes } = this.props;
         const { isLoading, disablefields, customerid, customername, company, mail, country, zip, street_number, hourlyrate } = this.state;
 
+        //LoadingIcon
         var loading = null;
         if (isLoading) {
             loading = <CircularProgress className={classes.loading} size={100}/>;
@@ -114,4 +119,10 @@ class AddCustomerForm extends Component {
     }
 }
 
+/**
+ * Defines the AddCustomerForm Component.
+ * Displays form for customer creation
+ * @param {props} props - Given properties of mother component (styling,...).
+ * @return {Component} - AddCustomerFrom Component
+ */
 export default withStyles(useStyles) (AddCustomerForm);

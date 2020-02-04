@@ -3,6 +3,10 @@ import { withStyles, Grid, Button } from '@material-ui/core';
 import { DeleteOutlineOutlined as DeleteOutlineOutlinedIcon } from '@material-ui/icons';
 import { useStyles, DeleteDialog } from "../../exports";
 
+/** 
+ * EditCustomerButtons Component
+ * Displays buttons on customer editing - below input fields
+ */
 class EditCustomerButtons extends Component {
     constructor(props){
         super(props); 
@@ -13,18 +17,21 @@ class EditCustomerButtons extends Component {
         this.onDeleteClick = this.onDeleteClick.bind(this);  
     }
     
+    //Handle click on "Edit"-Button
     onEditClick(e){
         this.props.onEditClick();
     }
 
+    //Handle click on "Delete"-Button
     onDeleteClick(e){
         this.props.onDeleteClick();
     }
 
     render(){
-        const { disablefields, isLoading, classes, customerid } = this.props;
-        
-        var buttons = ""
+        const { disablefields, isLoading, classes, customerid } = this.props;     
+        var buttons = "";
+
+        //If edit was successfully sent to database
         if(isLoading === false && disablefields){
             buttons = (
                 <Grid
@@ -44,7 +51,10 @@ class EditCustomerButtons extends Component {
                   </Grid>
                 </Grid>
                 );
-        } else {
+        } 
+        
+        //Before editing is submitted
+        else {
             buttons = (
                 <div>
                     <Button
@@ -83,4 +93,9 @@ class EditCustomerButtons extends Component {
     }
 }
 
+/**
+ * Defines the EditCustomerButtons Component.
+ * @param {props} props - Given properties of mother component (styling,...).
+ * @return {Component} - Buttons on customer editing
+ */
 export default withStyles(useStyles) (EditCustomerButtons);
