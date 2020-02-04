@@ -1,9 +1,24 @@
+/**
+ * A module that interacts with SQLite Database on transactions regarding userdata.
+ * @module database/users
+ */
+
+
+/** Import Database */
 const db = require('./database_new_init.js');
+
+/** Import NPM Modules to hash passwords and create session tokens */
 var bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken')
 var JWT_KEY = process.env.TOKEN;
 
 module.exports = {
+
+
+  /**
+   * Return all users.
+   * @return {Array} Full of single "UserJSONs". Currently not in use.
+   */
   getAll: () => {
     return new Promise((resolve, reject) => {
       db.all(`SELECT * FROM users`, (err, result) => {
@@ -16,6 +31,12 @@ module.exports = {
     });
   },
 
+
+  /**
+   * Return user by mail. Currently just for existing mail check on user creation/update.
+   * @param {string} mail - Searched mailadress.
+   * @return {JSON} Userdata.
+   */
   findByMail: mail => {
     return new Promise((resolve, reject) => {
       db.get(`SELECT * FROM users WHERE user_mail = $mail`, {$mail: mail}, (err, result) => {
@@ -28,6 +49,12 @@ module.exports = {
     });
   },
 
+
+  /**
+   * Return user by username. Currently just for existing username check on user creation/update.
+   * @param {string} username - Searched username.
+   * @return {JSON} Userdata.
+   */
   findByName: username => {
     return new Promise((resolve, reject) => {
       db.get(`SELECT * FROM users WHERE user_name = $username`, {$username: username}, (err, result) => {
@@ -40,6 +67,12 @@ module.exports = {
     });
   },
 
+
+  /**
+   * Return user by ID.
+   * @param {string} id - Searched UserID.
+   * @return {JSON} Userdata.
+   */
   findById: id => {
     return new Promise((resolve, reject) => {
       db.get(`SELECT * FROM users WHERE user_id = $id`, {$id: id}, (err, result) => {
@@ -52,6 +85,12 @@ module.exports = {
     });
   },
 
+
+  /**
+   * Return user by token. Used for returning own userdata in profile,... - based on Bearer Token (has to be splitted before).
+   * @param {string} token - Searched Token.
+   * @return {JSON} Userdata with ! passwordhash !.
+   */
   findByToken: token => {
     return jwt.verify(token, JWT_KEY, async (err, userid) => {
       if(err){
@@ -67,6 +106,13 @@ module.exports = {
      
   },
 
+
+  /**
+   * Login user by mail and password.
+   * @param {string} mail - Login mailadress.
+   * @param {string} password - Unhashed password.
+   * @return {JSON} SessionToken, UserID.
+   */
   login: (mail, password) => {
     return new Promise((resolve, reject) => {
       db.get(`SELECT user_id, user_password FROM users WHERE user_mail = $mail`, {$mail: mail}, (err, result) => {
@@ -104,6 +150,11 @@ module.exports = {
     });
   },
 
+  /**
+   * Check active user session. Currently not in use.
+   * @param {string} token - Used token.
+   * @return {Boolean} Valid yes or no.
+   */
   checkSessionToken: token => {
     var tokenverify = true;
     var tokenvalid = true;

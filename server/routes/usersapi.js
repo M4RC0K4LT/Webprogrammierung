@@ -4,11 +4,14 @@
  */
 
 
+/** Use Express and basic Router module */
 const express = require("express");
 const router = express.Router();
 
+/** Database interaction */
 const auth = require("../database/auth");
 const users = require("../database/users");
+
 
 /** GET: All Users */
 router.get('/', auth, async function(request, response) {
@@ -116,8 +119,5 @@ router.put('/change', auth, async function(request, response) {
         response.status(503).send(data);
     }
 });
-
-
-
 
 module.exports = router;

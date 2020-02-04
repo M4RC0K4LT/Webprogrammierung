@@ -1,25 +1,33 @@
+/**
+ * A module that creates an invoice based on given params
+ * @module routes/invoice
+ */
+
+
+/** Use PDFKit npm module */
 const PDFDocument = require('pdfkit')
 
+/** Invoice PDF creation */
 function createInvoice(customerdata, all_order_elements_for_invoice, response){
 
     const doc = new PDFDocument({
         margin:35
     });
 
-    filename = 'test.pdf';
+    /** Set response headers */
+    filename = 'invoice.pdf';
     response.setHeader('Content-disposition', 'attachment; filename="' + filename + '"');
     response.setHeader('Content-type', 'application/pdf');
 
-    const eur_per_km = 1.2; 
-    const centerwidth = doc.page.width/2;
-    const centerheight = doc.page.width/2
+    /** Pre-defined value */
+    const eur_per_km = 1.2;
 
-    //Logo und Firmenname
+    /** Set company logo, slogan and preferred font */
     doc.image('./.data/bearing.png', 440, 50, {fit: [100, 100], align: 'right', valign: 'center'})
     doc.font("./fonts/OpenSans-BoldItalic.ttf");
     doc.text("Georg Müller Kugellager GmbH", 0, 165, {align: 'right'});
 
-    //Anschrift Kunde
+    /** Set PDF header with customer name, adress, ... */
     doc.font("./fonts/OpenSans-Light.ttf").fontSize(12);
     doc.text(customerdata.customer_name, 60,60);
     if(!(customerdata.customer_company == null)){
@@ -34,7 +42,7 @@ function createInvoice(customerdata, all_order_elements_for_invoice, response){
     doc.text("Rechnung", 30, 200, {align: 'center'});
     doc.moveTo(30, 240).lineTo(580, 240).stroke();
     
-    //Strukturunterteilung
+    /** Set element specific cursor positions */
     var abstand = 290;  
     var x_position = 30;
     var x_anzahl = 100;
@@ -43,6 +51,7 @@ function createInvoice(customerdata, all_order_elements_for_invoice, response){
     var x_beschreibung = 270;
     var x_netto = 480;
 
+    /** Set table header */
     doc.fontSize(9)
     doc.text("Position", x_position,250);
     doc.text("Anzahl", x_anzahl,250);
@@ -52,7 +61,7 @@ function createInvoice(customerdata, all_order_elements_for_invoice, response){
     doc.text("Netto", x_netto,250);
     doc.moveTo(30, 272).lineTo(580, 272).stroke();
 
-    //Aufträge Abrechnung
+    /** Create invoice positions */
     var position = 0;
     var gesamtpreis = 0;
     all_order_elements_for_invoice.forEach(element => {
@@ -64,7 +73,7 @@ function createInvoice(customerdata, all_order_elements_for_invoice, response){
         doc.text(element[3], x_netto, abstand);
         doc.text("€", x_netto+45, abstand);
 
-        //Optionale Fahrtkosten
+        /** Optional travel costs */
         if(!(element[4] == null)){
             position += 1;
             abstand += 20;
@@ -79,6 +88,8 @@ function createInvoice(customerdata, all_order_elements_for_invoice, response){
             doc.text("€", x_netto+45, abstand);
             doc.font("./fonts/OpenSans-Regular.ttf");
         }
+
+        /** Set updated cursor positions */
         gesamtpreis = gesamtpreis + element[6];
         position += 1;
         abstand += 40;
@@ -90,7 +101,7 @@ function createInvoice(customerdata, all_order_elements_for_invoice, response){
         }
     });
 
-    //Gesamtbetrag
+    /** Total amount with taxes */
     doc.moveTo(30, abstand).lineTo(580, abstand).stroke();
     abstand += 10;
     doc.text("Gesamt exkl. MwSt.", x_beschreibung, abstand);
@@ -106,7 +117,7 @@ function createInvoice(customerdata, all_order_elements_for_invoice, response){
     doc.text((gesamtpreis*1.19).toFixed(2), x_netto, abstand);
     doc.text("€", x_netto+45, abstand);
 
-    //Fußzeile
+    /** Footer including bank data */
     doc.moveTo(80, 700).lineTo(530, 700).opacity(0.5).stroke();
     doc.fontSize(5);
     doc.opacity(0.5).text("Georg Müller Kugellager GmbH", 45, 701, {align: 'center'});
@@ -124,4 +135,12 @@ function createInvoice(customerdata, all_order_elements_for_invoice, response){
     return response;
 }
 
+
+/**
+ * Blend two colors together.
+ * @param {JSON} customerdata - Customerdata for invoice header.
+ * @param {Array} all_order_elements_for_invoice - Array (with several subArrays) filled with selected OrderData.
+ * @param {Response} response - http Response for returning invoice PDF.
+ * @return {Response} http PDF-filled response.
+ */
 module.exports = createInvoice

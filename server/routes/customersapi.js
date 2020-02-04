@@ -1,9 +1,17 @@
+/**
+ * A router module that receives api requests regarding customers
+ * @module routes/customersapi
+ */
+
+/** Use Express and basic Router module */
 const express = require("express");
 const router = express.Router();
+
+/** Database interaction */
 const customers = require("../database/customers");
 
 
-//Customer Übersicht
+/** GET: Show all customers */
 router.get('/', async (request, response) => {
     try {
         const allcustomers = await customers.getAll();
@@ -15,7 +23,7 @@ router.get('/', async (request, response) => {
     
 });
 
-//Detail Seite
+/** GET: Specific customer information */
 router.get('/:id', async (request, response) => {
     try {
         const customer = await customers.findById(request.params.id);
@@ -32,13 +40,13 @@ router.get('/:id', async (request, response) => {
     
 });
 
-//Kundenstatistiken - Aufträge pro Monat
+/** POST: Returns amount of monthly orders */
 router.post('/statistics/', async (request, response) => {   
     const month = await customers.getOrderAmountMonth(request.body);
     response.send(month);
 });
 
-//Customer hinzufügen
+/** POST: Create new customer */
 router.post('/', async (request, response) => {
     try {
         const customer = await customers.create(request.body);
@@ -51,7 +59,7 @@ router.post('/', async (request, response) => {
     
 });
 
-//Customer ändern/updaten
+/** PUT: Update existing customer values */
 router.put('/:id', async (request, response) => {
     try {
         const customer = await customers.update(request.params.id, request.body);
@@ -64,7 +72,7 @@ router.put('/:id', async (request, response) => {
     
 });
 
-//Customer löschen
+/** DELETE: Delete existing customer */
 router.delete('/', async (request, response) => {
     try {
         await customers.remove(request.body.id);

@@ -7,7 +7,7 @@ import { AddOrder, Orderdetail, Orders } from './orders/exports';
 import { PrivateRoute, ResponsiveDrawer } from './components/exports';
 import Notfound from "./notfound";
 
-window.$apiroute = "http://192.168.2.122:3001/";
+window.$apiroute = "http://192.168.2.117:3001/";
 
 class Index extends React.Component{
 

@@ -1,11 +1,22 @@
+/**
+ * A router module that receives api requests regarding orders
+ * @module routes/ordersapi
+ */
+
+
+/** Use Express and basic Router module */
 const express = require("express");
 const router = express.Router();
+
+/** Use invoice creation module */
 const invoice = require("./invoice");
+
+/** Database interaction */
 const orders = require("../database/orders");
 const customers = require("../database/customers");
 
 
-//Order Übersicht
+/** GET: Show all orders */
 router.get('/', async (request, response) => {
     try{
         const allorders = await orders.getAll();
@@ -16,7 +27,7 @@ router.get('/', async (request, response) => {
     }
 });
   
-//Detail Seite
+/** GET: Specific order information */
 router.get('/:id', async (request, response) => {
     try{
         const order = await orders.findById(request.params.id);
@@ -28,7 +39,7 @@ router.get('/:id', async (request, response) => {
     }  
 });
 
-//Rechnungserstellung
+/** POST: Create invoice for posted OrderIDs */
 router.post('/get/invoice', async (request, response) => {
 
     let orders_for_invoice = request.body.idlist
@@ -69,7 +80,7 @@ router.post('/get/invoice', async (request, response) => {
   })
 
 
-//Kunden zugehörige Projekte
+/** GET: Return orders belonging to specific customer */
 router.get('/customer/:id', async (request, response) => {
     try {
         const relatedorders = await orders.findByCustomer(request.params.id);
@@ -81,7 +92,7 @@ router.get('/customer/:id', async (request, response) => {
     
 });
 
-//Auftrag hinzufügen
+/** POST: Create new order */
 router.post('/', async (request, response) => {
     try{
         const order = await orders.create(request.body);
@@ -93,7 +104,7 @@ router.post('/', async (request, response) => {
     }  
 });
 
-//Auftrag ändern/updaten
+/** PUT: Update existing order values */
 router.put('/:id', async (request, response) => {
     try{
         const order = await orders.update(request.params.id, request.body);
@@ -107,7 +118,7 @@ router.put('/:id', async (request, response) => {
     
 });
 
-//Auftrag löschen
+/** DELETE: Delete existing order */
 router.delete('/', async (request, response) => {
     try {
         const isDeleted = await orders.remove(request.body.id);
