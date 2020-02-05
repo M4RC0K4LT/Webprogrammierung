@@ -1,5 +1,6 @@
-import React from 'react'
-import { CircularProgress, withStyles, List, ListItem, ListItemText, ListItemIcon, Checkbox, ListItemAvatar, Avatar, IconButton, ListItemSecondaryAction, Button } from '@material-ui/core';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { CircularProgress, withStyles, List, ListItem, ListItemText, ListItemIcon, Checkbox, ListItemAvatar, Avatar, IconButton, ListItemSecondaryAction, Button, Typography } from '@material-ui/core';
 import { Edit as EditIcon, GavelOutlined as GavelOutlinedIcon, Delete as DeleteIcon, AccountBalance as AccountBalanceIcon } from '@material-ui/icons';
 import { useStyles, SnackbarMessage, DeleteDialog } from "../exports";
 import { getCustomer, getInvoice, getCustomerOrders, deleteOrder} from "../../api/exports"
@@ -91,7 +92,7 @@ class ListCustomerOrders extends React.Component {
     this.setState({ isLoading: true });
     getCustomerOrders(id).then(data => {
       this.setState({ isLoading: false })
-      if(data.request === "failed" || data.length<1){
+      if(data.request === "failed"){
         this.setState({ message: data.error, open: true, snackcolor: "error"});
       } else {
         this.setState({ orders: data })
@@ -122,15 +123,15 @@ class ListCustomerOrders extends React.Component {
     const { orders, isLoading, customer } = this.state;
     const { classes } = this.props;
 
+    //No Entries
+    let nulltext = null;
+    if(orders.length<1){
+      nulltext = <Typography component="h1" variant="subtitle2">- Keine Einträge vorhanden -</Typography>
+    }
+
     //LoadingIcon
     if (isLoading) {
       return (<div className={classes.paper}><CircularProgress/></div>);
-    }
-
-    //No orders available
-    var emptyText = "";
-    if(orders.length===0){
-      emptyText = <h4>---Für diesen Kunden sind keine Aufträge hinterlegt---</h4>
     }
 
     return (
@@ -152,7 +153,7 @@ class ListCustomerOrders extends React.Component {
             </DeleteDialog>
             <h2>{customer.customer_name}</h2>
             <List className={classes.mainlist}>
-                {emptyText}
+                {nulltext}
                 {orders.map((order, i) => (
                     <ListItem key={i}>
                         <ListItemIcon >
@@ -170,7 +171,7 @@ class ListCustomerOrders extends React.Component {
                         </ListItemAvatar>
                         <ListItemText primary={order.order_id + ": " + order.order_title} secondary={order.order_starting} />
                         <ListItemSecondaryAction>
-                            <IconButton title="Bearbeiten" href={"/order/" + order.order_id} edge="end">
+                            <IconButton title="Bearbeiten" component={Link} to={"/orders/" + order.order_id} edge="end">
                             <EditIcon />
                             </IconButton>
                             <IconButton title="Löschen" onClick={() => this.setState({selectedOrder: order.order_id, selectedOrder_title: order.order_title, openDeleteDialog: true})}edge="end">

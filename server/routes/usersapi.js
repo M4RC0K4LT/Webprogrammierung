@@ -13,7 +13,7 @@ const auth = require("./auth");
 const users = require("../database/users");
 
 
-/** GET: All Users */
+/** GET: Current User`s data */
 router.get('/', auth, async function(request, response) {
     try {
         const authHeader = request.headers["authorization"];
@@ -26,6 +26,17 @@ router.get('/', auth, async function(request, response) {
         }       
     } catch(err){
         response.status(500).send(err);
+    }
+});
+
+/** GET: Current User`s data */
+router.get('/all', auth, async function(request, response) {
+    try {
+        const usersdata = await users.getAll();
+        return response.status(200).send(usersdata);
+    } catch(err){
+        let data = Object.assign({"request": "failed"}, err)
+        response.status(500).send(data);
     }
 });
 
@@ -79,10 +90,12 @@ router.post('/register', async function(request, response) {
     }
 });
 
-/** DELETE: Logout -> Delete Session Token */
+/** DELETE: Logout -> Delete Session Token <- Just pre-implementation for "real", unique SessionTokens (Logout works without this request) */
 router.delete('/logout', auth, async function(request, response){
     try {
-        const user = await users.logout(request.token);
+        const authHeader = request.headers["authorization"];
+        const token = authHeader && authHeader.split(" ")[1];
+        const user = await users.logout(token);
         let data = Object.assign({"request": "successful"}, user)
         response.status(200).send(data);
     } catch (err) {

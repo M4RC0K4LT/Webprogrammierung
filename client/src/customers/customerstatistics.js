@@ -1,5 +1,5 @@
 import React from 'react'
-import { Container, CssBaseline, withStyles} from '@material-ui/core';
+import { Container, CssBaseline, withStyles, Typography} from '@material-ui/core';
 import { useStyles, ShowCustomerStatistics } from "../components/exports";
 
 /** Customer`s Statistic Component */
@@ -11,7 +11,10 @@ class CustomerStatistics extends React.Component {
       <Container component="main" maxWidth="xs">
           <CssBaseline />
           <div  className={classes.paper}>
-          <h1>Übersicht Kunde - Statistik</h1><br />
+          <Typography component="h1" variant="h4">
+            Kundenstatistik
+          </Typography>
+          <br/><br/>
           <ShowCustomerStatistics id={this.props.match.params.id}></ShowCustomerStatistics>
           </div>
         </Container>

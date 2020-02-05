@@ -21,6 +21,7 @@ import PrivateRoute from './others/privatRoute';
 import DeleteDialog from './others/deleteDialog';
 import ResponsiveDrawer from './others/responsiveDrawer';
 import NotFound from './others/notfound';
+import ListMyOrders from './orders/listMyOrders';
 
 /** Central components-ExportFile */
 export {
@@ -46,5 +47,6 @@ export {
     PrivateRoute,
     DeleteDialog,
     ResponsiveDrawer,
-    NotFound
+    NotFound,
+    ListMyOrders
 }

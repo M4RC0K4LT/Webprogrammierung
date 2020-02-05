@@ -7,8 +7,10 @@
 /** Import Database */
 const db = require('./database_new_init.js');
 
-/** Import NPM Modules to work correctly with date and time formats */
+/** Import NPM Modules to work correctly with date and time formats as well as User Tokens */
 const date = require('date-and-time');
+const jwt = require('jsonwebtoken')
+var JWT_KEY = process.env.TOKEN;
 
 module.exports = {
 
@@ -76,13 +78,25 @@ module.exports = {
    * Create new order.
    * @return {JSON} Order information.
    */
-  create: async jsonObject => {  
+  create: async (jsonObject, token) => {  
 
     //Check date format
     var datevalid = null;
     if(!(date.isValid(jsonObject.starting.toString(), "YYYY-MM-DD HH:mm"))){
         datevalid = false;
     }
+
+    //Add current UserToken
+    let user_id = null;
+    let userinvalid = false;
+    jwt.verify(token, JWT_KEY, async (err, userid) => {
+      if(err){
+          userinvalid = true;
+      }
+      else {
+        user_id = userid
+      }
+    })
 
     //check distance format
     var travelvalid = null;
@@ -155,10 +169,13 @@ module.exports = {
       if(durationvalid == false){
         reject({"error": "Keine gültige Auftragsdauer"});
       }
+      if(userinvalid == true){
+        reject({"error": "Fehler beim UserToken"});
+      }
 
       db.run(
 
-        `INSERT INTO orders (order_title, order_customer, order_description, order_starting, order_duration, order_hourlyrate, order_traveldistance) VALUES ($title, $customer, $description, $starting, $duration, $hourlyrate, $traveldistance)`, 
+        `INSERT INTO orders (order_title, order_customer, order_description, order_starting, order_duration, order_hourlyrate, order_traveldistance, order_user) VALUES ($title, $customer, $description, $starting, $duration, $hourlyrate, $traveldistance, $user)`, 
         {
           $title: jsonObject.title,
           $customer: jsonObject.customer,
@@ -166,7 +183,8 @@ module.exports = {
           $starting: jsonObject.starting,
           $duration: jsonObject.duration,
           $hourlyrate: hourlyrate,
-          $traveldistance: traveldistance
+          $traveldistance: traveldistance,
+          $user: user_id
         },
         function (err) {
           if (err) {
@@ -334,5 +352,42 @@ module.exports = {
           });
         
     });
-  }
+  },
+
+
+  /**
+   * Return all orders created/done by selected user.
+   * @return {Array} Full of single "OrderJSONs".
+   */
+  findOrdersByUser: (token, id) => {
+
+    //Add current UserToken
+    let user_id = null;
+    let userinvalid = false;
+    jwt.verify(token, JWT_KEY, async (err, userid) => {
+      if(err){
+          userinvalid = true;
+      }
+      else {
+        user_id = userid
+      }
+    })
+
+    if(id != null){
+      user_id = id
+    }
+
+    return new Promise((resolve, reject) => {
+      if(userinvalid){
+        reject({"error": "Fehler beim UserToken"})
+      }
+      db.all(`SELECT * FROM orders WHERE order_user = $userid ORDER BY order_starting`, {$userid: user_id}, (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  },
 };

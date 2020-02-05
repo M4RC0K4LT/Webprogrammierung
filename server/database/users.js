@@ -21,7 +21,7 @@ module.exports = {
    */
   getAll: () => {
     return new Promise((resolve, reject) => {
-      db.all(`SELECT * FROM users`, (err, result) => {
+      db.all(`SELECT user_id, user_name, user_mail FROM users`, (err, result) => {
         if (err) {
           reject(err);
         } else {
@@ -181,11 +181,12 @@ module.exports = {
   logout: token => {
     var tokenverify = true;
     var tokenvalid = true;
+    let user_id = null;
     jwt.verify(token, JWT_KEY, async (err, userid) => {
       if(err){
           tokenverify = false;
       }
-
+      user_id = userid;
       const user = await module.exports.findById(parseInt(userid));
       if(user.user_tokens != token){
           tokenvalid = false;
@@ -202,7 +203,7 @@ module.exports = {
       db.run(         
         `UPDATE users SET user_tokens = null WHERE user_id = $id`, 
         {
-          $id: userid
+          $id: user_id
         },
         function (err) {
           if (err) {

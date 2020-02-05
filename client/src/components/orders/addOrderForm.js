@@ -49,8 +49,11 @@ class AddOrderForm extends Component {
         this.setState({ isLoading: true });
         getCustomers().then(data => {
             this.setState({isLoading: false, customers: data});
-            if(data.length<1 || data.request === "failed"){
+            if(data.request === "failed"){
                 this.setState({ open: true, message: data.error});
+            }
+            if(data.length<1){
+                this.setState({ open: true, message: "Kein Kunde angelegt - Auftrag kann nicht gespeichert werden"});
             }
         })
     }

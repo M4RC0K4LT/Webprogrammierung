@@ -15,6 +15,9 @@ import postUser from './postUser';
 import putCustomer from './putCustomer';
 import putOrder from './putOrder';
 import putUser from './putUser';
+import getOrdersByUser from './getOrdersByUser';
+import deleteUserSession from './deleteUserSession';
+import getUsers from './getUsers';
 
 /** Central API-Requests Export-File */
 export {
@@ -35,4 +38,7 @@ export {
     putCustomer,
     putOrder,
     putUser,
+    getOrdersByUser,
+    deleteUserSession,
+    getUsers,
 }

@@ -39,6 +39,20 @@ router.get('/:id', async (request, response) => {
     }  
 });
 
+/** GET: All orders created/done by this user */
+router.post('/get/own', async (request, response) => {
+    try{
+        const authHeader = request.headers["authorization"];
+        const token = authHeader && authHeader.split(" ")[1];
+        const id = request.body.id
+        const myorders = await orders.findOrdersByUser(token, id);
+        response.status(200).send(myorders.reverse());
+    } catch(err){
+        let data = Object.assign({"request": "failed"}, err)
+        response.status(500).send(data);
+    }  
+});
+
 /** POST: Create invoice for posted OrderIDs */
 router.post('/get/invoice', async (request, response) => {
 
@@ -95,7 +109,9 @@ router.get('/customer/:id', async (request, response) => {
 /** POST: Create new order */
 router.post('/', async (request, response) => {
     try{
-        const order = await orders.create(request.body);
+        const authHeader = request.headers["authorization"];
+        const token = authHeader && authHeader.split(" ")[1];
+        const order = await orders.create(request.body, token);
         let data = Object.assign({"request": "successful"}, order)
         response.status(201).send(data);
     } catch(err){

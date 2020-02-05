@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import { Button, withStyles} from '@material-ui/core';
 import { SnackbarMessage, useStyles, LoginFields} from '../exports'
 import { postUser } from "../../api/exports";
@@ -92,7 +93,8 @@ class LoginUserForm extends Component {
                     Login
                 </Button>
                 <Button
-                    href="/register"
+                    component={Link}
+                    to="/register"
                     fullWidth
                     variant="contained"
                     color="primary"

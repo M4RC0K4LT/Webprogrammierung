@@ -41,7 +41,9 @@ if (!dbExist) {
       order_hourlyrate REAL,
       order_traveldistance REAL,
       order_customer INTEGER,
-      FOREIGN KEY(order_customer) REFERENCES 'customers'(customer_id)
+      order_user INTEGER,
+      FOREIGN KEY (order_customer) REFERENCES 'customers'(customer_id),
+      FOREIGN KEY (order_user) REFERENCES 'users'(user_id)
     )
   `);
 

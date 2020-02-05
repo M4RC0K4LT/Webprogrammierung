@@ -33,7 +33,6 @@ class CustomerFields extends Component {
                 <TextField
                     variant="outlined"
                     margin="normal"
-                    required
                     fullWidth
                     name="company"
                     label="Firma"
@@ -69,6 +68,7 @@ class CustomerFields extends Component {
                     margin="normal"
                     fullWidth
                     name="zip"
+                    required
                     label="Postleitzahl/Ort"
                     onChange={this.handleChange}
                     value={zip}

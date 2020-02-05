@@ -1,4 +1,5 @@
-import React from 'react'
+import React from 'react';
+import {Link} from 'react-router-dom';
 import { Container, CssBaseline, withStyles, Typography, Fab } from '@material-ui/core';
 import { Add as AddIcon } from '@material-ui/icons';
 import { useStyles, ListCustomers } from "../components/exports";
@@ -17,7 +18,7 @@ class Customers extends React.Component {
           </Typography>
           <br /><br />
           <ListCustomers></ListCustomers>
-          <Fab className={classes.addbutton} size="large" color="primary" aria-label="add" href="customers/add">
+          <Fab className={classes.addbutton} size="large" color="primary" aria-label="add" component={Link} to="customers/add">
             <AddIcon />
           </Fab>
         </div>

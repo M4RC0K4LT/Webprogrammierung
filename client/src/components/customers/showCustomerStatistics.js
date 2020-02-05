@@ -1,4 +1,5 @@
 import React from 'react'
+import {Link} from 'react-router-dom';
 import { CircularProgress, withStyles, Button, Grid } from '@material-ui/core';
 import { useStyles, SnackbarMessage } from "../exports";
 import { getCustomer } from "../../api/exports"
@@ -71,12 +72,12 @@ class ShowCustomerStatistics extends React.Component {
                     margin="normal" 
                 >
                     <Grid item>
-                        <Button variant="contained" color="primary" href={"/customers/" + this.props.id}>
+                        <Button variant="contained" color="primary" component={Link} to={"/customers/" + this.props.id}>
                         Bearbeiten
                     </Button>
                     </Grid>
                     <Grid item>
-                        <Button variant="contained" color="primary" href={"/customer/orders/" + this.props.id}>
+                        <Button variant="contained" color="primary" component={Link} to={"/customer/orders/" + this.props.id}>
                         Aufträge
                     </Button>
                     </Grid>

@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom'
 import { Route, BrowserRouter as Router, Switch } from 'react-router-dom'
 import { Customers, AddCustomer, CustomerOrders, CustomerStatistics, Customerdetail } from './customers/exports';
 import { Login, Profile, Register} from './users/exports';
-import { AddOrder, Orderdetail, Orders } from './orders/exports';
+import { AddOrder, Orderdetail, Orders, MyOrders } from './orders/exports';
 import { PrivateRoute, ResponsiveDrawer, NotFound } from './components/exports';
 
 //API-Route - has to be removed in Production build
@@ -22,6 +22,7 @@ class Index extends React.Component{
           <PrivateRoute exact path="/customer/orders/:id" component={CustomerOrders} />
           <PrivateRoute exact path="/customer/statistics/:id" component={CustomerStatistics} />
           <PrivateRoute exact path="/orders" component={Orders} />
+          <PrivateRoute exact path="/orders/mine" component={MyOrders} />
           <PrivateRoute exact path="/orders/add" component={AddOrder} />
           <PrivateRoute exact path="/orders/:id" component={Orderdetail} />
           <PrivateRoute exact path="/profile" component={Profile} />

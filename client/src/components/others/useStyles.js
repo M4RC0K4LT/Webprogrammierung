@@ -11,7 +11,7 @@ const useStyles = theme => ({
       flexDirection: 'column',
       alignItems: 'center',
       overflow: "hidden",
-      padding: "10px",
+      padding: "0px",
       marginTop: theme.spacing(1),
     },
     avatar: {
@@ -55,7 +55,8 @@ const useStyles = theme => ({
     },
     ListItems: {
         width: '100%',
-        textAlign: 'center'
+        textAlign: 'center',
+        padding: "0",
     },
     deleteDialog: {
       color: "black",
@@ -65,12 +66,21 @@ const useStyles = theme => ({
       left: "calc(50% - 50px)",
       top: "calc(50% - 50px)",
     },
+    logoutButton: {
+      position: "absolute", 
+      bottom: "30px", 
+      left: "75px",
+      backgroundColor: "white"
+    },
+    searchBar: {
+      margin: theme.spacing(1)
+    },
 
 
 
     /** Responsive Drawer styles */
     root: {
-      display: "flex"
+      display: "flex",
     },
     drawer: {
       [theme.breakpoints.up('md')]: {
@@ -99,7 +109,7 @@ const useStyles = theme => ({
     },
     content: {
       flexGrow: 1,
-      padding: theme.spacing(1),
+      padding: "5px",
     },
     logo: {
       display: "block",

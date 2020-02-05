@@ -1,5 +1,6 @@
-import React from 'react'
-import { CircularProgress, withStyles, List, ListItem, ListItemText, ListItemAvatar, Avatar, IconButton, ListItemSecondaryAction } from '@material-ui/core';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { CircularProgress, withStyles, List, ListItem, ListItemText, ListItemAvatar, Avatar, IconButton, ListItemSecondaryAction, Typography, TextField } from '@material-ui/core';
 import { Edit as EditIcon, Delete as DeleteIcon, List as ListIcon, PermIdentityOutlined as PermIdentityOutlinedIcon } from '@material-ui/icons';
 import { useStyles, SnackbarMessage, DeleteDialog } from "../exports";
 import { getCustomers, deleteCustomer} from "../../api/exports"
@@ -13,6 +14,8 @@ class ListCustomers extends React.Component {
     this.state = {
       customers: [],
       isLoading: false,
+      filtered: [],
+      filter: "",
 
       open: false,
       message: "",
@@ -25,6 +28,7 @@ class ListCustomers extends React.Component {
     this.handleSnackbarClose = this.handleSnackbarClose.bind(this);
     this.fetchCustomers = this.fetchCustomers.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
+    this.handleSearch = this.handleSearch.bind(this);
   }
 
   //Close Error/Success Message
@@ -37,10 +41,10 @@ class ListCustomers extends React.Component {
     this.setState({ isLoading: true });
     getCustomers().then(data => {
       this.setState({ isLoading: false })
-      if(data.length<1 || data.request === "failed"){
+      if(data.request === "failed"){
         this.setState({ message: data.error, open: true, snackcolor: "error" });
       }else{
-        this.setState({ customers: data })
+        this.setState({ customers: data, filtered: data })        
       }
     })
   }
@@ -61,13 +65,35 @@ class ListCustomers extends React.Component {
     })
   }
 
+  //EventHandler: changing Value of controlled Searchbar and search for a order
+  handleSearch(event) {
+    let new_value = event.target.value;
+    this.setState({
+      filter: new_value
+    });
+    let filterd_new = [];
+    this.state.customers.map((customer) => {
+      if(customer.customer_name.toLowerCase().includes(new_value) || customer.customer_company.toLowerCase().includes(new_value) || JSON.stringify(customer.customer_id).toLowerCase().includes(new_value) || JSON.stringify(customer.customer_zipcode).toLowerCase().includes(new_value) || JSON.stringify(customer.customer_town).toLowerCase().includes(new_value)){
+        filterd_new.push(customer);
+      }
+      return customer;
+    });
+    this.setState({filtered: filterd_new})
+  }
+
   componentDidMount() {
     this.fetchCustomers();
   }
 
   render() {
-    const { customers, isLoading } = this.state;
+    const { filtered, filter, isLoading } = this.state;
     const { classes } = this.props;
+
+    //No Entries
+    let nulltext = null;
+    if(filtered.length<1){
+      nulltext = <Typography component="h1" variant="subtitle2">- Keine Einträge vorhanden -</Typography>
+    }
 
     //LoadingIcon
     if (isLoading) {
@@ -91,23 +117,25 @@ class ListCustomers extends React.Component {
               }}
               delMessage={"Kunde '" + this.state.selectedCustomer + " - " + this.state.selectedCustomer_name + "'"}>
             </DeleteDialog>
+            <TextField className={classes.searchBar} size="small" placeholder="Suche nach Kunden..." variant="outlined" value={filter} onChange={this.handleSearch} autoFocus/>
             <List className={classes.mainlist}>
-            {customers.map((customer, i) => (
+            {nulltext}
+            {filtered.map((customer, i) => (
                 <ListItem key={i}>
                     <ListItemAvatar>
                     <Avatar >
                         <PermIdentityOutlinedIcon />
                     </Avatar>
                     </ListItemAvatar>
-                    <ListItemText primary={customer.customer_name} secondary={customer.customer_id + " - " + customer.customer_company + " - " + customer.customer_town} />
+                    <ListItemText primary={customer.customer_name} secondary={customer.customer_id + " - " + customer.customer_company} />
                     <ListItemSecondaryAction>
-                    <IconButton href={"/customers/" + customer.customer_id} edge="end">
+                    <IconButton component={Link} to={"/customers/" + customer.customer_id} edge="end">
                         <EditIcon />
                     </IconButton>
                     <IconButton title="Löschen" onClick={() => this.setState({selectedCustomer: customer.customer_id, selectedCustomer_name: customer.customer_name, openDeleteDialog: true})}edge="end">
                       <DeleteIcon />
                     </IconButton>
-                    <IconButton href={"/customer/statistics/" + customer.customer_id} edge="end">
+                    <IconButton component={Link} to={"/customer/statistics/" + customer.customer_id} edge="end">
                         <ListIcon />
                     </IconButton>
                     </ListItemSecondaryAction>

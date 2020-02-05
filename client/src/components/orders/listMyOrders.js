@@ -1,12 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { CircularProgress, withStyles, Avatar, List, ListItem, ListItemText, ListItemAvatar, IconButton, ListItemSecondaryAction, Typography, TextField } from '@material-ui/core';
-import { Edit as EditIcon, Delete as DeleteIcon, AccountBalance as AccountBalanceIcon } from '@material-ui/icons';
+import { CircularProgress, withStyles, Avatar, List, ListItem, ListItemText, ListItemAvatar, IconButton, ListItemSecondaryAction, Typography, TextField, Button, ButtonGroup } from '@material-ui/core';
+import { Edit as EditIcon, Delete as DeleteIcon, ArrowBack as ArrowBackIcon, ArrowForward as ArrowForwardIcon } from '@material-ui/icons';
 import { useStyles, SnackbarMessage, DeleteDialog } from "../exports";
-import { deleteOrder, getOrders, getInvoice } from "../../api/exports"
+import { deleteOrder, getOrdersByUser, getUsers, getUser } from "../../api/exports"
 
-/** ListOrders Component to display all registered orders */
-class ListOrders extends React.Component {
+/** ListMyOrders Component to display all registered orders created by current user */
+class ListMyOrders extends React.Component {
 
   //Initializes AlertDialog, error handling and empty list
   constructor(props) {
@@ -16,6 +16,12 @@ class ListOrders extends React.Component {
       isLoading: false,
       filter: "",
       filtered: [],
+      users: [],
+      currentUsername: null,
+
+      watchedUserID: null,
+      watchedUserName: null,
+      arrayposition: 0,
 
       message: "",
       open: false,
@@ -25,33 +31,17 @@ class ListOrders extends React.Component {
       selectedOrder: null,
       selectedOrder_title: null,
     };
-    this.requestInvoice = this.requestInvoice.bind(this);
-    this.fetchOrders = this.fetchOrders.bind(this);
+    this.fetchOrdersByUser = this.fetchOrdersByUser.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
     this.handleSnackbarClose = this.handleSnackbarClose.bind(this);
     this.handleSearch = this.handleSearch.bind(this);
+    this.fetchUser = this.fetchUser.bind(this);
+    this.getAllUsers = this.getAllUsers.bind(this);
   }
 
   //Close Error/Success Message
   handleSnackbarClose(){
     this.setState({ open: false })
-  }
-
-  //Create invoice for selected order
-  requestInvoice(id) {
-    var invoicelist = [];
-    invoicelist.push(id);
-    getInvoice(invoicelist).then(response => {
-      if(response.request === "failed"){
-        this.setState({ open: true, message: response.error, snackcolor: "error"});
-      }else{
-        const file = new Blob(
-          [response], 
-          {type: 'application/pdf'});
-        const fileURL = URL.createObjectURL(file);
-        window.open(fileURL);
-      }
-    })
   }
 
   //Handle delete of selected order
@@ -60,23 +50,72 @@ class ListOrders extends React.Component {
         if(data.length<1 || data.request === "failed"){
           this.setState({ open: true, message: data.error, snackcolor: "error"});
         }else{
-          this.fetchOrders() 
+          this.fetchOrdersByUser() 
         }
       })
   }
 
-  //Get all registered orders
-  fetchOrders() {
-    this.setState({ isLoading: true });
-    getOrders().then(data => {
+  //Get all registered orders created by current user
+  fetchOrdersByUser(id) {
+    this.setState({ isLoading: true, filtered: [] });
+    getOrdersByUser(id).then(data => {
       this.setState({ isLoading: false });
       if(data.request === "failed"){
           this.setState({ open: true, message: data.error, snackcolor: "error"});
       }else{
-        this.setState({ orders: data, filtered: data })
+          this.setState({ orders: data, filtered: data })
       }
     })
   }
+
+  //Get all registered orders created by current user
+  getAllUsers() {
+    getUsers().then(data => {
+      if(data.request === "failed"){
+          this.setState({ open: true, message: data.error, snackcolor: "error"});
+      }else{
+          this.setState({ users: data })
+          data.map((user, i) => {
+            if(user.user_name == this.state.currentUsername){
+              this.setState({ arrayposition: i });
+              this.fetchOrdersByUser(user.user_id)
+            }
+          })
+      }
+    })
+  }
+
+  //Select next user in "User-Array" and load his orders
+  showNextUser(newarrayposition){
+    let newposition = newarrayposition;
+    this.setState({ arrayposition: newarrayposition })
+    if(newarrayposition<0){
+      newposition = this.state.users.length-1;
+      this.setState({ arrayposition: newposition })
+    }
+    if(newarrayposition>this.state.users.length-1){
+      newposition = 0;
+      this.setState({ arrayposition: 0 })
+    }
+    this.fetchOrdersByUser(this.state.users[newposition].user_id);
+    this.setState({ watchedUserID: this.state.users[newposition].user_id, watchedUserName: this.state.users[newposition].user_name });
+  }
+
+  //Get data of current user
+  fetchUser() {
+    getUser().then(data => {
+        this.setState({ isLoading: false });
+        if(data.length<1 || data.request === "failed"){
+            this.setState({ open: true, snackcolor: "error", message: data.error })
+        }else {
+            this.setState({ 
+                watchedUserID: data.user_id,
+                watchedUserName: data.user_name,
+                currentUsername: data.user_name,
+             })
+        }
+    })
+}
 
   //EventHandler: changing Value of controlled Searchbar and search for a order
   handleSearch(event) {
@@ -94,25 +133,20 @@ class ListOrders extends React.Component {
     this.setState({filtered: filterd_new})
   }
 
+
   componentDidMount() {
-    if (sessionStorage.getItem("authToken") != null){
-      this.fetchOrders();
-    }
+    this.fetchUser();
+    this.getAllUsers();
   }
 
   render() {
-    const { isLoading, filter, filtered } = this.state;
+    const { isLoading, filtered, filter, watchedUserName, arrayposition } = this.state;
     const { classes } = this.props
 
     //No Entries
     let nulltext = null;
     if(filtered.length<1){
       nulltext = <Typography component="h1" variant="subtitle2">- Keine Einträge vorhanden -</Typography>
-    }
-    
-    //LoadingIcon
-    if (isLoading) {
-      return (<div className={classes.paper}><CircularProgress/></div>);
     }
 
     return (
@@ -132,6 +166,12 @@ class ListOrders extends React.Component {
               }}
               delMessage={"Auftrag '" + this.state.selectedOrder + " - " + this.state.selectedOrder_title + "'"}>
             </DeleteDialog>
+            Wähle anderen Techniker:<br/><br/>
+            <ButtonGroup variant="outlined" size="small" margin="normal" color="primary" aria-label="contained primary button group">
+              <Button onClick={() => this.showNextUser(arrayposition-1)}><ArrowBackIcon /></Button>
+              <Button>--  {watchedUserName}  --</Button>
+              <Button onClick={() => this.showNextUser(arrayposition+1)}><ArrowForwardIcon /></Button>
+            </ButtonGroup><br/><br/>
             <TextField className={classes.searchBar} size="small" placeholder="Suche nach Aufträgen..." variant="outlined" value={filter} onChange={this.handleSearch} autoFocus/>
             <List className={classes.mainlist}>
                 {nulltext}
@@ -150,9 +190,6 @@ class ListOrders extends React.Component {
                     <IconButton title="Löschen" onClick={() => this.setState({selectedOrder: order.order_id, selectedOrder_title: order.order_title, openDeleteDialog: true})}edge="end">
                       <DeleteIcon />
                     </IconButton>
-                    <IconButton title="Rechnung" onClick={() => this.requestInvoice(order.order_id)} edge="end">
-                      <AccountBalanceIcon />
-                    </IconButton>
                 </ListItemSecondaryAction>
                 </ListItem>
                 ))}        
@@ -163,9 +200,9 @@ class ListOrders extends React.Component {
 }
 
 /**
- * Defines the ListOrders Component.
- * Displays all registered orders.
+ * Defines the ListMyOrders Component.
+ * Displays all registered orders done/created by current user.
  * @param {props} props - Given properties of mother component (styling,...).
  * @return {Component} - ListOrders Component
  */
-export default withStyles(useStyles) (ListOrders);
+export default withStyles(useStyles) (ListMyOrders);

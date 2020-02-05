@@ -1,9 +1,25 @@
 import React from 'react';
 import { Link  } from 'react-router-dom'
-import { Divider, ListItemIcon, Typography, AppBar, CssBaseline, Drawer, Hidden, IconButton, List, ListItem, ListItemText, Toolbar, useTheme, withStyles } from '@material-ui/core';
-import { Menu as MenuIcon, Build as BuildIcon, People as PeopleIcon, Person as PersonIcon, AccountCircle as AccountCircleIcon } from '@material-ui/icons';
+import { Divider, ListItemIcon, Typography, AppBar, CssBaseline, Drawer, Hidden, IconButton, List, ListItem, ListItemText, Toolbar, useTheme, withStyles, Button } from '@material-ui/core';
+import { Menu as MenuIcon, Build as BuildIcon, People as PeopleIcon, Person as PersonIcon, AccountCircle as AccountCircleIcon, EmojiPeople as EmojiPeopleIcon, AccountTree as AccountTreeIcon } from '@material-ui/icons';
 import { useStyles } from "../exports";
 import logo from "./bearing.png";
+import { deleteUserSession } from '../../api/exports';
+
+ //Handle order delete
+ function handleLogout(){
+    deleteUserSession().then(data => {
+        if(data.request === "successful"){
+            sessionStorage.removeItem("authToken")
+            window.location.replace("/login")
+        } else {
+            //Just a pre-implementation for "real", unique SessionTokens
+            sessionStorage.removeItem("authToken")
+            window.location.replace("/login")
+        }
+    })
+}
+
 
 /** Responsible for suitable page-navigation regarding device width */
 function ResponsiveDrawer(props) {
@@ -16,6 +32,16 @@ function ResponsiveDrawer(props) {
     setMobileOpen(!mobileOpen);
   };
 
+  /** Logout Button */
+  let logout = null;
+  if(window.location.pathname !== "/login"){
+    logout = (
+        <Button variant="contained" className={classes.logoutButton} onClick={handleLogout}>
+            Logout
+        </Button>
+    )
+  }
+
   /** Drawer Content -> Menu Items */
   const drawer = (
     <div>
@@ -24,20 +50,26 @@ function ResponsiveDrawer(props) {
         <Divider></Divider>
         <List>
             <ListItem button key={1} component={Link} to={"/orders"} >
-            <ListItemIcon style={{ color: "#fff" }}><BuildIcon></BuildIcon></ListItemIcon>
-            <ListItemText primary={"Aufträge"} />
+                <ListItemIcon style={{ color: "#fff" }}><BuildIcon></BuildIcon></ListItemIcon>
+                <ListItemText primary={"Aufträge"} />
             </ListItem>
         </List>
-        <List >   
+        <List>   
             <ListItem button key={2} component={Link} to={"/customers"}>
-            <ListItemIcon style={{ color: "#fff" }}><PeopleIcon></PeopleIcon></ListItemIcon>
-            <ListItemText primary={"Kunden"} />
+                <ListItemIcon style={{ color: "#fff" }}><PeopleIcon></PeopleIcon></ListItemIcon>
+                <ListItemText primary={"Kunden"} />
             </ListItem>
         </List>
         <List>
-            <ListItem button key={3} component={Link} to={"/profile"}>
-            <ListItemIcon style={{ color: "#fff" }}><PersonIcon></PersonIcon></ListItemIcon>
-            <ListItemText primary={"Profil"} />
+            <ListItem button key={3} component={Link} to={"/orders/mine"} >
+                <ListItemIcon style={{ color: "#fff" }}><EmojiPeopleIcon></EmojiPeopleIcon></ListItemIcon>
+                <ListItemText primary={"Meine Aufträge"} />
+            </ListItem>
+        </List>
+        <List>
+            <ListItem button key={4} component={Link} to={"/profile"}>
+                <ListItemIcon style={{ color: "#fff" }}><PersonIcon></PersonIcon></ListItemIcon>
+                <ListItemText primary={"Profil"} />
             </ListItem>
         </List>
     </div>
@@ -93,6 +125,7 @@ function ResponsiveDrawer(props) {
                     }}
                 >
                     {drawer}
+                    {logout}
                 </Drawer>
             </Hidden>
 
@@ -107,6 +140,7 @@ function ResponsiveDrawer(props) {
                     
                 >
                     {drawer}
+                    {logout}
                 </Drawer>
             </Hidden>
         </nav>

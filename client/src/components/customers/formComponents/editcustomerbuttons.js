@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import { withStyles, Grid, Button } from '@material-ui/core';
 import { DeleteOutlineOutlined as DeleteOutlineOutlinedIcon } from '@material-ui/icons';
 import { useStyles, DeleteDialog } from "../../exports";
@@ -45,7 +46,7 @@ class EditCustomerButtons extends Component {
                   </Button>
                   </Grid>
                   <Grid item>
-                    <Button className={classes.submit} variant="outlined" color="primary" href={"/customer/statistics/" + customerid}>
+                    <Button className={classes.submit} variant="outlined" color="primary" component={Link} to={"/customer/statistics/" + customerid}>
                     Kundenstatistik
                   </Button>
                   </Grid>

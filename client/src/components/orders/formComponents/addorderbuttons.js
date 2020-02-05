@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import { withStyles, Grid, Button } from '@material-ui/core';
 import useStyles from "../../others/useStyles";
 
@@ -20,12 +21,12 @@ class AddOrderButtons extends Component {
               margin="normal" 
             >
               <Grid item>
-                <Button className={classes.submit} variant="outlined" color="primary" href={"/orders/" + order_id}>
+                <Button className={classes.submit} variant="outlined" color="primary" component={Link} to={"/orders/" + order_id}>
                 Bearbeiten
               </Button>
               </Grid>
               <Grid item>
-                <Button className={classes.submit} variant="outlined" color="primary" href={"/orders"}>
+                <Button className={classes.submit} variant="outlined" color="primary" component={Link} to={"/orders"}>
                 Zur Übersicht
               </Button>
               </Grid>
