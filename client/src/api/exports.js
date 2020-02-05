@@ -16,6 +16,7 @@ import putCustomer from './putCustomer';
 import putOrder from './putOrder';
 import putUser from './putUser';
 
+/** Central API-Requests Export-File */
 export {
     deleteOrder,
     deleteCustomer,

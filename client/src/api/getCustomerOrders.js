@@ -1,3 +1,8 @@
+/** 
+ * Function to request Express Backend and return JSON - Get Orders that belong to one customer (by ID) 
+ * @param {string} id - Selected CustomerID
+ * @returns {JSON} Array/JSON of Orders
+ */
 export default function getCustomerOrders(id){
 
     return (

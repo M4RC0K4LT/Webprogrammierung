@@ -3,8 +3,10 @@ import { withStyles, CircularProgress} from '@material-ui/core';
 import { SnackbarMessage, useStyles, UserFields} from '../exports'
 import { getUser, putUser } from "../../api/exports";
 
+/** EditUserForm Component to display current user data and to edit it */
 class EditUserForm extends Component {
 
+    //Initializes TextField values and error handling
     constructor(props){
         super(props);
         this.state = {
@@ -21,12 +23,12 @@ class EditUserForm extends Component {
             password: "",
             confirmpassword: ""
         };
-
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleSnackbarClose = this.handleSnackbarClose.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
     }
 
+    //EventHandler: changing Value of controlled TextField
     handleInputChange(event) {
         const target = event.target;
         const value = target.value;
@@ -34,10 +36,12 @@ class EditUserForm extends Component {
         this.setState({ [name]: value });
     }
     
+    //Close Error/Success Message
     handleSnackbarClose(){
         this.setState({ open: false })
     }
     
+    //Submit FormData (Updated Values)
     handleSubmit(event){ 
         event.preventDefault();
         const { username, mail, password, confirmpassword} = this.state;
@@ -57,6 +61,7 @@ class EditUserForm extends Component {
         })
     }
 
+    //Get current Userdata
     fetchUser() {
         this.setState({ isLoading: true });
         getUser().then(data => {
@@ -82,13 +87,10 @@ class EditUserForm extends Component {
         const { classes } = this.props;
         const { isLoading, userid, username, mail, password, confirmpassword, disablefields } = this.state;
 
+        //LoadingIcon
         let loading = null;
         if(isLoading && disablefields){
             loading = <CircularProgress className={classes.loading} size={100}></CircularProgress>
-        }
-
-        if (isLoading && disablefields === false) {
-            return (<div className={classes.paper}><CircularProgress/></div>);
         }
 
         return (
@@ -116,4 +118,10 @@ class EditUserForm extends Component {
     }
 }
 
+/**
+ * Defines the EditUserForm Component.
+ * Displays form for editing user information
+ * @param {props} props - Given properties of mother component (styling,...).
+ * @return {Component} - EditUserForm Component
+ */
 export default withStyles(useStyles) (EditUserForm);

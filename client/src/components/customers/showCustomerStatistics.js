@@ -5,9 +5,10 @@ import { getCustomer } from "../../api/exports"
 import CustomerStatsTable from './formComponents/customerStatsTable';
 import CustomerOrdersChart from './formComponents/customerOrdersChart';
 
-
+/** ListCustomerStatistics Component to display some customer stats */
 class ShowCustomerStatistics extends React.Component {
 
+    //Initializes error handling
     constructor(props) {
         super(props);
         this.state = {
@@ -15,9 +16,6 @@ class ShowCustomerStatistics extends React.Component {
             message: "",
             snackcolor: "error",
 
-            orders: [],
-            checkedforinvoice: [],
-            buttondisabled: true,
             customer: [],
             isLoading: false,
         };
@@ -25,10 +23,12 @@ class ShowCustomerStatistics extends React.Component {
         this.handleSnackbarClose = this.handleSnackbarClose.bind(this);
     }
 
+    //Close Error/Success Message
     handleSnackbarClose(){
         this.setState({ open: false });
     }
     
+    //Get Customerdata with some stats
     fetchCustomer() {
         const id = this.props.id;
         this.setState({ isLoading: true });
@@ -87,4 +87,10 @@ class ShowCustomerStatistics extends React.Component {
     }
 }
 
+/**
+ * Defines the ShowCustomerStatistics Component.
+ * Displays stats belonging to one customer (graph and table).
+ * @param {props} props - Given properties of mother component (styling,...).
+ * @return {Component} - ShowCustomerStatistics Component
+ */
 export default withStyles(useStyles) (ShowCustomerStatistics);

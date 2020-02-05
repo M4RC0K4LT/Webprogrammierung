@@ -244,7 +244,21 @@ module.exports = {
               if(result == null){
                 reject({"error": "Fehler bei der Erstellung"})
               }
-              resolve({"user_name": result.user_name, "user_mail": result.user_mail});
+              userid = result.user_id;
+              const token = jwt.sign(userid, JWT_KEY);
+              db.run(          
+                `UPDATE users SET user_tokens = $token WHERE user_id = $id`, 
+                {
+                  $token: token,
+                  $id: userid
+                },
+                function (err) {
+                  if (err) {
+                    return reject(err);
+                  }
+                  resolve({"token": token, "userid": userid});
+                }
+              )
             }
           });         
         }

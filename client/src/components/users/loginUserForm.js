@@ -3,15 +3,14 @@ import { Button, withStyles} from '@material-ui/core';
 import { SnackbarMessage, useStyles, LoginFields} from '../exports'
 import { postUser } from "../../api/exports";
 
+/** LoginUserForm Component displays form to log in existing user */
 class LoginUserForm extends Component {
 
+    //Initializes TextField values and error handling
     constructor(props){
         super(props);
         this.state = {
             disablefields: false,
-            response: [],
-            isLoading: false,
-            error: null,
             message: "",
             open: false,
             snackcolor: "error",
@@ -21,10 +20,10 @@ class LoginUserForm extends Component {
         };
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleSnackbarClose = this.handleSnackbarClose.bind(this);
-        this.handleInputChange = this.handleInputChange.bind(this);
-        
+        this.handleInputChange = this.handleInputChange.bind(this);     
     }   
     
+    //EventHandler: changing Value of controlled TextField
     handleInputChange(event) {
         const target = event.target;
         const value = target.value;
@@ -32,10 +31,12 @@ class LoginUserForm extends Component {
         this.setState({ [name]: value });
     }
     
+    //Close Error/Success Message
     handleSnackbarClose(){
         this.setState({ open: false })
     }
     
+    //Submit provided login data
     handleSubmit(event){ 
         event.preventDefault();
         this.setState({ disablefields: true });
@@ -50,20 +51,17 @@ class LoginUserForm extends Component {
         })
     };
 
-    handleClick(){
-        sessionStorage.removeItem("authToken");
-        window.location.reload();
-    }
-
     render() {
         
         const { classes } = this.props;
         const { success, disablefields, mail, password } = this.state;
         
+        //Successful Login
         if(success){
             return window.location.replace("/profile");
         }
 
+        //Already logged in?
         if (sessionStorage.getItem("authToken") != null){
             return window.location.replace("/profile");
         }
@@ -107,4 +105,10 @@ class LoginUserForm extends Component {
     }
 }
 
+/**
+ * Defines the LoginUserForm Component.
+ * Displays Login Fields.
+ * @param {props} props - Given properties of mother component (styling,...).
+ * @return {Component} - LoginUserForm Component
+ */
 export default withStyles(useStyles) (LoginUserForm);

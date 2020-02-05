@@ -1,3 +1,8 @@
+/** 
+ * Function to request Express Backend and return JSON - Add new customer
+ * @param {Array} contentlist Array with attribute values.
+ * @returns {JSON} Customerdata.
+ */
 export default function postCustomer(contentlist){
 
     return (

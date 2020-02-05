@@ -10,8 +10,7 @@ class EditCustomerForm extends Component {
 
     //Initializes TextField values and error handling
     constructor(props){
-        super(props);
-        
+        super(props);   
         this.state = {
             customerdata: [],
             updatedvalue: null, 
@@ -57,7 +56,7 @@ class EditCustomerForm extends Component {
         this.setState({ open: false })
     }
     
-    //Submit FormData
+    //Submit FormData (Updated Values)
     handleSubmit(event){ 
         event.preventDefault();
         const id = this.props.id;

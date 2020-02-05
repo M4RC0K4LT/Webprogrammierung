@@ -1,3 +1,8 @@
+/** Function to request Express Backend and return JSON - Get monthly amount of orders by CustomerID
+ * @param {string} id Selected CustomerID.
+ * @param {string} year Selected Year.
+ * @returns {JSON} Statistics about monthly amount of orders.
+ */
 export default function postCustomerStatistics(id, year){
 
     return (

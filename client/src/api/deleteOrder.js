@@ -1,3 +1,8 @@
+/** 
+ * Function to request Express Backend and return JSON - Delete Order 
+ * @param {string} id - Selected OrderID
+ * @returns {JSON} Successful request or failed
+ */
 export default function deleteOrder(id){
 
     return (

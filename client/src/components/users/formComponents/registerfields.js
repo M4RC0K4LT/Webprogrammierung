@@ -2,12 +2,14 @@ import React, { Component } from 'react';
 import { withStyles, TextField } from '@material-ui/core';
 import useStyles from "../../others/useStyles";
 
+/** RegisterFields Component */
 class RegisterFields extends Component {
     constructor(props){
         super(props);   
         this.handleChange = this.handleChange.bind(this)     
     }
 
+    /** Change values (onKeyboardInput) of controlled TextField components */
     handleChange(e, name, value) {
         this.props.onChange(e, name, value);
     }
@@ -71,4 +73,10 @@ class RegisterFields extends Component {
     }
 }
 
+/**
+ * Defines the RegisterFields Component.
+ * Shows all Fields needed for user registration.
+ * @param {props} props - Given properties of mother component (styling, TextField props,...)
+ * @return {Component} - RegisterFields Component
+ */
 export default withStyles(useStyles) (RegisterFields);

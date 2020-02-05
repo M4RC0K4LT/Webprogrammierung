@@ -20,10 +20,10 @@ const customers = require("../database/customers");
 router.get('/', async (request, response) => {
     try{
         const allorders = await orders.getAll();
-        response.status(201).send(allorders);
+        response.status(200).send(allorders);
     } catch (err){
         let data = Object.assign({"request": "failed"}, err)
-        responseawait.status(503).send(data);
+        responseawait.status(500).send(data);
     }
 });
   
@@ -32,10 +32,10 @@ router.get('/:id', async (request, response) => {
     try{
         const order = await orders.findById(request.params.id);
         let data = Object.assign({"request": "successful"}, order)
-        response.status(201).send(data);
+        response.status(200).send(data);
     } catch(err){
         let data = Object.assign({"request": "failed"}, err)
-        response.status(503).send(data);
+        response.status(500).send(data);
     }  
 });
 
@@ -84,10 +84,10 @@ router.post('/get/invoice', async (request, response) => {
 router.get('/customer/:id', async (request, response) => {
     try {
         const relatedorders = await orders.findByCustomer(request.params.id);
-        response.status(201).send(relatedorders);
+        response.status(200).send(relatedorders);
     } catch (err){
         let data = Object.assign({"request": "failed"}, err)
-        response.status(503).send(data);
+        response.status(500).send(data);
     }
     
 });
@@ -100,7 +100,7 @@ router.post('/', async (request, response) => {
         response.status(201).send(data);
     } catch(err){
         let data = Object.assign({"request": "failed"}, err)
-        response.status(503).send(data);
+        response.status(500).send(data);
     }  
 });
 
@@ -113,7 +113,7 @@ router.put('/:id', async (request, response) => {
     } catch (err){
         console.log(err)
         let data = Object.assign({"request": "failed"}, err)
-        response.status(503).send(data);
+        response.status(500).send(data);
     }
     
 });
@@ -126,10 +126,10 @@ router.delete('/', async (request, response) => {
             response.status(404).send({"request": "failed", "error": `Order ${request.params.id} not found`});
             return;
         }
-        response.status(202).send({"request": "successful"});
+        response.status(200).send({"request": "successful"});
     } catch (err){
         let data = Object.assign({"request": "failed"}, err)
-        response.status(503).send(data);
+        response.status(500).send(data);
     }
     
 });

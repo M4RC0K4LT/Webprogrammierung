@@ -1,26 +1,13 @@
 import React from 'react';
-import AppBar from '@material-ui/core/AppBar';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import Drawer from '@material-ui/core/Drawer';
-import Hidden from '@material-ui/core/Hidden';
-import IconButton from '@material-ui/core/IconButton';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import MenuIcon from '@material-ui/icons/Menu';
-import Toolbar from '@material-ui/core/Toolbar';
-import { useTheme } from '@material-ui/core/styles';
-import useStyles from "./useStyles";
-import { withStyles } from '@material-ui/core/styles';
 import { Link  } from 'react-router-dom'
-import { Divider, ListItemIcon, Typography } from '@material-ui/core';
-import BuildIcon from '@material-ui/icons/Build';
-import PeopleIcon from '@material-ui/icons/People';
-import PersonIcon from '@material-ui/icons/Person';
-import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+import { Divider, ListItemIcon, Typography, AppBar, CssBaseline, Drawer, Hidden, IconButton, List, ListItem, ListItemText, Toolbar, useTheme, withStyles } from '@material-ui/core';
+import { Menu as MenuIcon, Build as BuildIcon, People as PeopleIcon, Person as PersonIcon, AccountCircle as AccountCircleIcon } from '@material-ui/icons';
+import { useStyles } from "../exports";
 import logo from "./bearing.png";
 
+/** Responsible for suitable page-navigation regarding device width */
 function ResponsiveDrawer(props) {
+
   const { container, classes, content } = props;
   const theme = useTheme();
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -29,6 +16,7 @@ function ResponsiveDrawer(props) {
     setMobileOpen(!mobileOpen);
   };
 
+  /** Drawer Content -> Menu Items */
   const drawer = (
     <div>
         <img src={logo} alt="Logo" className={classes.logo} />
@@ -58,32 +46,38 @@ function ResponsiveDrawer(props) {
   return (
     <div className={classes.root}>  
         <CssBaseline />
+
+        {/** AppBar - Toolbar on page header: Hidden above MaterialUI size "md" */}
+        <Hidden mdUp implementation="css">
+            <AppBar position="absolute" className={classes.appBar}>
+                <Toolbar>
+                <IconButton
+                    color="inherit"
+                    edge="start"
+                    onClick={handleDrawerToggle}
+                    className={classes.menuButton}
+                >
+                    <MenuIcon />
+                </IconButton>
+                <Typography variant="subtitle2" className={classes.title}>Kugellager GmbH</Typography>
+                <IconButton
+                    component={Link}
+                    edge="end"
+                    to={"/profile"}
+                    
+                    className={classes.menuButton}
+                >
+                    <AccountCircleIcon />
+                </IconButton>
+                </Toolbar>
+            </AppBar>
+        </Hidden>
+
+        {/** Actual Navigation on SideBar (left) */}
+        <nav className={classes.drawer}>
+
+            {/** Smartphone-Drawer: hidden above MaterialUI size "md" */}
             <Hidden mdUp implementation="css">
-                <AppBar position="absolute" className={classes.appBar}>
-                    <Toolbar>
-                    <IconButton
-                        color="inherit"
-                        edge="start"
-                        onClick={handleDrawerToggle}
-                        className={classes.menuButton}
-                    >
-                        <MenuIcon />
-                    </IconButton>
-                    <Typography variant="subtitle2" className={classes.title}>Kugellager GmbH</Typography>
-                    <IconButton
-                        component={Link}
-                        edge="end"
-                        to={"/profile"}
-                        
-                        className={classes.menuButton}
-                    >
-                        <AccountCircleIcon />
-                    </IconButton>
-                    </Toolbar>
-                </AppBar>
-            </Hidden>
-            <nav className={classes.drawer}>
-                <Hidden mdUp implementation="css">
                 <Drawer
                     container={container}
                     variant="temporary"
@@ -92,19 +86,21 @@ function ResponsiveDrawer(props) {
                     onClick={handleDrawerToggle}
                     onClose={handleDrawerToggle}
                     classes={{
-                    paper: classes.drawerPaper,
+                        paper: classes.drawerPaper,
                     }}
                     ModalProps={{
-                    keepMounted: true,
+                        keepMounted: true,
                     }}
                 >
                     {drawer}
                 </Drawer>
-                </Hidden>
-                <Hidden smDown implementation="css">
+            </Hidden>
+
+            {/** Desktop-Drawer: hidden below MaterialUI size "sm" */}
+            <Hidden smDown implementation="css">
                 <Drawer
                     classes={{
-                    paper: classes.drawerPaper,
+                        paper: classes.drawerPaper,
                     }}
                     variant="permanent"
                     open
@@ -112,8 +108,10 @@ function ResponsiveDrawer(props) {
                 >
                     {drawer}
                 </Drawer>
-                </Hidden>
-            </nav>
+            </Hidden>
+        </nav>
+
+        {/** Website content next to drawer (passed as props) */}
         <main className={classes.content}>
             <div className={classes.toolbar} />
             {content}
@@ -123,4 +121,9 @@ function ResponsiveDrawer(props) {
   );
 }
 
+/**
+ * Responsive Page-Navigation as well as perfectly placed content.
+ * @param {props} props - Properties given from mother element: Page-Content Components (Switch)
+ * @return {Component} Including PageNavigation and content.
+ */
 export default withStyles(useStyles) (ResponsiveDrawer);

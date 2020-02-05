@@ -2,11 +2,11 @@
  * A module that checks authorization header on API request.
  * Used as express middleware.
  * Rejects if token does not belong to a user or if none is given.
- * @module database/auth
+ * @module routes/auth
  */
 
 /** Import Database */
-const users = require("./users");
+const users = require("../database/users");
 
 /** Import NPM-Module to decode and check authorization header */
 const jwt = require('jsonwebtoken');
@@ -23,7 +23,7 @@ function auth(request, response, next) {
     }
     jwt.verify(token, JWT_KEY, async (err, userid) => {
         if(err){
-            return response.status(503).send({"request": "failed", "error": ("UserToken: " + err.message)});
+            return response.status(500).send({"request": "failed", "error": ("UserToken: " + err.message)});
         }
 
         const user = await users.findById(parseInt(userid));

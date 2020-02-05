@@ -3,8 +3,11 @@ import { withStyles, Grid, Button } from '@material-ui/core';
 import { DeleteOutlineOutlined as DeleteOutlineOutlinedIcon } from '@material-ui/icons';
 import { useStyles, DeleteDialog } from "../../exports";
 
-
-class EditOrderButton extends Component {
+/** 
+ * EditOrderButtons Component
+ * Displays buttons on order editing - below input fields
+ */
+class EditOrderButtons extends Component {
     constructor(props){
         super(props);  
         this.state = {
@@ -14,10 +17,12 @@ class EditOrderButton extends Component {
         this.onDeleteClick = this.onDeleteClick.bind(this);  
     }
     
+    //Handle click on "Edit"-Button
     onEditClick(e){
         this.props.onEditClick();
     }
 
+    //Handle click on "Delete"-Button
     onDeleteClick(e){
         this.props.onDeleteClick();
     }
@@ -25,6 +30,8 @@ class EditOrderButton extends Component {
     render(){
         const { disablefields, isLoading, classes } = this.props;
         var buttons = ""
+        
+        //If edit was successfully sent to database
         if(disablefields && isLoading === false){
             buttons = (
                 <Grid
@@ -44,7 +51,10 @@ class EditOrderButton extends Component {
                   </Grid>
                 </Grid>
                 );
-        }else {
+        }
+        
+        //Before editing is submitted
+        else {
             buttons = (
                 <div>
                     <Button
@@ -83,4 +93,9 @@ class EditOrderButton extends Component {
     }
 }
 
-export default withStyles(useStyles) (EditOrderButton);
+/**
+ * Defines the EditOrderButtons Component.
+ * @param {props} props - Given properties of mother component (styling,...).
+ * @return {Component} - Buttons on order editing
+ */
+export default withStyles(useStyles) (EditOrderButtons);

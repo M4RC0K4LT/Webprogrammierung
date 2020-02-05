@@ -1,3 +1,8 @@
+/**
+ * Function to request Express Backend and return Blob - Get Order data by ID.
+ * @param {string} id Selected OrderID.
+ * @returns {JSON} Orderdata.
+ */
 export default function getOrder(id){
 
     return (

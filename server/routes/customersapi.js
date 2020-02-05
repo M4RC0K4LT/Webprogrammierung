@@ -15,10 +15,10 @@ const customers = require("../database/customers");
 router.get('/', async (request, response) => {
     try {
         const allcustomers = await customers.getAll();
-        response.status(201).send(allcustomers);
+        response.status(200).send(allcustomers);
     } catch(err){
         let data = Object.assign({"request": "failed"}, err)
-        response.status(503).send(data);
+        response.status(500).send(data);
     }
     
 });
@@ -32,18 +32,22 @@ router.get('/:id', async (request, response) => {
         const avgduration = await customers.getAvgDuration(request.params.id);
         const avgordercost = await customers.getAvgOrderCost(request.params.id);
         let data = Object.assign({"request": "succesful"}, customer, avghourlyrate, avgtraveldistance, avgduration, avgordercost);
-        response.status(201).send(data);
+        response.status(200).send(data);
     } catch (err){
         let data = Object.assign({"request": "failed"}, err)
-        response.status(503).send(data);
-    }
-    
+        response.status(500).send(data);
+    }   
 });
 
 /** POST: Returns amount of monthly orders */
-router.post('/statistics/', async (request, response) => {   
-    const month = await customers.getOrderAmountMonth(request.body);
-    response.send(month);
+router.post('/statistics/', async (request, response) => {  
+    try {
+        const month = await customers.getOrderAmountMonth(request.body);
+        response.status(200).send(month);
+    } catch (err) {
+        let data = Object.assign({"request": "failed"}, err)
+        response.status(500).send(data);
+    }  
 });
 
 /** POST: Create new customer */
@@ -51,12 +55,11 @@ router.post('/', async (request, response) => {
     try {
         const customer = await customers.create(request.body);
         let data = Object.assign({"request": "successful"}, customer)
-        response.status(201).send(data);
+        response.status(200).send(data);
     } catch (err) {
         let data = Object.assign({"request": "failed"}, err)
-        response.status(503).send(data);
+        response.status(500).send(data);
     }
-    
 });
 
 /** PUT: Update existing customer values */
@@ -67,21 +70,19 @@ router.put('/:id', async (request, response) => {
         response.status(201).send(data);
     } catch (err){
         let data = Object.assign({"request": "failed"}, err)
-        response.status(503).send(data)
-    }
-    
+        response.status(500).send(data)
+    }   
 });
 
 /** DELETE: Delete existing customer */
 router.delete('/', async (request, response) => {
     try {
         await customers.remove(request.body.id);
-        response.status(202).send({"request": "succesful"});
+        response.status(200).send({"request": "succesful"});
     } catch (err){
         let data = Object.assign({"request": "failed"}, err)
-        response.status(503).send(data);
-    }
-    
+        response.status(500).send(data);
+    }  
 });
 
 module.exports = router;

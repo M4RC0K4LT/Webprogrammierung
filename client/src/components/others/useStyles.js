@@ -2,8 +2,10 @@ import { green } from '@material-ui/core/colors';
 
 const drawerWidth = 240;
 
+/** Store CSS styles */
 const useStyles = theme => ({
     
+    /** Form, Messages, Alert Styles */
     paper: {
       display: 'flex',
       flexDirection: 'column',
@@ -65,6 +67,8 @@ const useStyles = theme => ({
     },
 
 
+
+    /** Responsive Drawer styles */
     root: {
       display: "flex"
     },
@@ -126,5 +130,8 @@ const useStyles = theme => ({
     
 });
 
-
+/**
+ * Store CSS styling elements.
+ * @return {theme} CSS styles.
+ */
 export default useStyles;

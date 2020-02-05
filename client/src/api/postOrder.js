@@ -1,5 +1,9 @@
 import moment from "moment";
 
+/** Function to request Express Backend and return JSON - Add new Order
+ * @param {Array} contentlist Array with attribute values.
+ * @returns {JSON} Orderdata.
+ */
 export default function postOrder(contentlist){
 
     return (

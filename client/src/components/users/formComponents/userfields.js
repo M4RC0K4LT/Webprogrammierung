@@ -2,12 +2,14 @@ import React, { Component } from 'react';
 import { withStyles, TextField, Button } from '@material-ui/core';
 import useStyles from "../../others/useStyles";
 
+/** UserFields Component */
 class UserFields extends Component {
     constructor(props){
         super(props);   
         this.handleChange = this.handleChange.bind(this)     
     }
 
+    /** Change values (onKeyboardInput) of controlled TextField components */
     handleChange(e) {
         this.props.onChange(e);
     }
@@ -87,4 +89,10 @@ class UserFields extends Component {
     }
 }
 
+/**
+ * Defines the UserFields Component.
+ * Shows all Fields needed for order creations, edits, etc. in profile overview
+ * @param {props} props - Given properties of mother component (styling, TextField props,...)
+ * @return {Component} - UserFields Component
+ */
 export default withStyles(useStyles) (UserFields);

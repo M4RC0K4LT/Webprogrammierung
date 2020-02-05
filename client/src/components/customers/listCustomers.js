@@ -7,13 +7,12 @@ import { getCustomers, deleteCustomer} from "../../api/exports"
 /** ListCustomers Component to display all registered customers */
 class ListCustomers extends React.Component {
 
-  //Initializes alertDialog and error handling
+  //Initializes AlertDialog, error handling and emtpy list
   constructor(props) {
     super(props);
     this.state = {
       customers: [],
       isLoading: false,
-      error: null,
 
       open: false,
       message: "",
@@ -33,6 +32,7 @@ class ListCustomers extends React.Component {
     this.setState({ open: false });
   }
 
+  //Get all Customers
   fetchCustomers() {    
     this.setState({ isLoading: true });
     getCustomers().then(data => {
@@ -45,6 +45,7 @@ class ListCustomers extends React.Component {
     })
   }
 
+  //Handle customer delete
   handleDelete(){
     const id = this.state.selectedCustomer;
     deleteCustomer(id).then(data => {
@@ -68,6 +69,7 @@ class ListCustomers extends React.Component {
     const { customers, isLoading } = this.state;
     const { classes } = this.props;
 
+    //LoadingIcon
     if (isLoading) {
       return (<div className={classes.paper}><CircularProgress/></div>);
     }
@@ -117,4 +119,10 @@ class ListCustomers extends React.Component {
   }
 }
 
-export default withStyles(useStyles) (ListOrders);
+/**
+ * Defines the ListCustomers Component.
+ * Displays all registered customers.
+ * @param {props} props - Given properties of mother component (styling,...).
+ * @return {Component} - ListCustomers Component
+ */
+export default withStyles(useStyles) (ListCustomers);

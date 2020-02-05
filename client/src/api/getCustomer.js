@@ -1,3 +1,8 @@
+/** 
+ * Function to request Express Backend and return JSON - Get Customer by ID.
+ * @param {string} id - Selected CustomerID.
+ * @returns {JSON} With customerdata.
+ */
 export default function getCustomer(id){
 
     return (

@@ -1,3 +1,7 @@
+/**
+ * Function to request Express Backend and return JSON - Get all registered Customers.
+ * @returns {JSON} Contains Array full of customerdata
+ */
 export default function getCustomers(){
 
     return (

@@ -1,5 +1,11 @@
 import moment from "moment";
 
+/** 
+ * Function to request Express Backend and return JSON - Change Order data
+ * @param {string} id Selected OrderID
+ * @param {Array} contentlist Array with updated attribute values.
+ * @returns {JSON} Updated Orderdata.
+ */
 export default function putOrder(id, contentlist){
 
     return (

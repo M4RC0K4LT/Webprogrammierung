@@ -1,23 +1,9 @@
 import React, { Component } from 'react';
-import { withStyles } from '@material-ui/core/styles';  
+import { withStyles, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';  
 import useStyles from "./useStyles";
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
 
-
+/** Shows warning dialog "onDeleteClick" */
 class DeleteDialog extends Component {
-    constructor(props){
-        super(props);   
-        this.handleClose = this.handleClose.bind(this)     
-    }
-
-    handleClose(e) {
-        this.props.onClose();
-    }
 
     render(){
         var { classes, open } = this.props
@@ -35,7 +21,7 @@ class DeleteDialog extends Component {
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                <Button onClick={this.handleClose} color="primary" autoFocus>
+                <Button onClick={this.props.onClose} color="primary" autoFocus>
                     Abbrechen
                 </Button>
                 <Button onClick={this.props.onAgree} color="primary">
@@ -47,4 +33,9 @@ class DeleteDialog extends Component {
     }
 }
 
+/**
+ * AlertMessage on trying to delete.
+ * @param {props} props - Properties given for element: open, onClose, onAgree, delMessage
+ * @return {Dialog} Suitable AlertDialog.
+ */
 export default withStyles(useStyles) (DeleteDialog);

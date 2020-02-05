@@ -1,3 +1,7 @@
+/** 
+ * Function to request Express Backend and return JSON - Get Userdata by AuthorizationToken.
+ * @returns {JSON} Userdata.
+ */
 export default function getUser(){
 
     return (

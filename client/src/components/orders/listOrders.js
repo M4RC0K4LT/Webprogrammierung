@@ -4,18 +4,20 @@ import { Edit as EditIcon, Delete as DeleteIcon, AccountBalance as AccountBalanc
 import { useStyles, SnackbarMessage, DeleteDialog } from "../exports";
 import { deleteOrder, getOrders, getInvoice } from "../../api/exports"
 
+/** ListOrders Component to display all registered orders */
 class ListOrders extends React.Component {
 
+  //Initializes AlertDialog, error handling and empty list
   constructor(props) {
     super(props);
     this.state = {
       orders: [],
       isLoading: false,
-      error: null,
-      filtered: [],
+
       message: "",
       open: false,
       snackcolor: "error",
+
       openDeleteDialog: false,
       selectedOrder: null,
       selectedOrder_title: null,
@@ -26,10 +28,12 @@ class ListOrders extends React.Component {
     this.handleSnackbarClose = this.handleSnackbarClose.bind(this);
   }
 
+  //Close Error/Success Message
   handleSnackbarClose(){
     this.setState({ open: false })
   }
 
+  //Create invoice for selected order
   requestInvoice(id) {
     var invoicelist = [];
     invoicelist.push(id);
@@ -46,6 +50,7 @@ class ListOrders extends React.Component {
     })
   }
 
+  //Handle delete of selected order
   handleDelete(id){
       deleteOrder(id).then(data => {
         if(data.length<1 || data.request === "failed"){
@@ -56,6 +61,7 @@ class ListOrders extends React.Component {
       })
   }
 
+  //Get all registered orders
   fetchOrders() {
     this.setState({ isLoading: true });
     getOrders().then(data => {
@@ -76,12 +82,14 @@ class ListOrders extends React.Component {
   }
 
   render() {
-    const { filtered, isLoading } = this.state;
+    const { orders, isLoading } = this.state;
     const { classes } = this.props
 
+    //LoadingIcon
     if (isLoading) {
       return (<div className={classes.paper}><CircularProgress/></div>);
     }
+
     return (
         <div className={classes.ListItems}>
             <SnackbarMessage
@@ -100,7 +108,7 @@ class ListOrders extends React.Component {
               delMessage={"Auftrag '" + this.state.selectedOrder + " - " + this.state.selectedOrder_title + "'"}>
             </DeleteDialog>
             <List className={classes.mainlist}>
-                {filtered.map((order, i) => (
+                {orders.map((order, i) => (
                 <ListItem key={i}>
                 <ListItemAvatar>
                     <Avatar >
@@ -127,4 +135,10 @@ class ListOrders extends React.Component {
   }
 }
 
+/**
+ * Defines the ListOrders Component.
+ * Displays all registered orders.
+ * @param {props} props - Given properties of mother component (styling,...).
+ * @return {Component} - ListOrders Component
+ */
 export default withStyles(useStyles) (ListOrders);

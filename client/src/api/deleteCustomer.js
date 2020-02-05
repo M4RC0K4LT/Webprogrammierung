@@ -1,3 +1,8 @@
+/** 
+ * Function to request Express Backend and return JSON - Delete Customer
+ * @param {string} id - Selected CustomerID
+ * @returns {JSON} Successful request or failed
+ */
 export default function deleteCustomer(id){
 
     return (

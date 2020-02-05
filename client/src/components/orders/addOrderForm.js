@@ -5,13 +5,13 @@ import { postOrder, getCustomers } from "../../api/exports";
 import AddOrderButtons from "./formComponents/addorderbuttons";
 import OrderFields from "./formComponents/orderfields";
 
+/** AddOrderForm Component to provide form for order creation */
 class AddOrderForm extends Component {
 
+    //Initializes TextField values and error handling
     constructor(props){
-        super(props);
-        
+        super(props);       
         var today = new Date().toISOString().slice(0,10).toString() + " 06:00";
-
         this.state = {
             customers: [],
             isLoading: false,
@@ -39,10 +39,12 @@ class AddOrderForm extends Component {
         this.handleInputChange = this.handleInputChange.bind(this);
     } 
 
+    //Close Error/Success Message
     handleSnackbarClose(){
         this.setState({ open: false });
     }
 
+    //Get all customers (for customer selection in TextField)
     fetchCustomers() {   
         this.setState({ isLoading: true });
         getCustomers().then(data => {
@@ -53,6 +55,7 @@ class AddOrderForm extends Component {
         })
     }
     
+    //Submit FormData
     handleSubmit(event){ 
         event.preventDefault();
         if(!(this.state.customers.includes(this.state.customer))){
@@ -93,6 +96,7 @@ class AddOrderForm extends Component {
         })
     }
 
+    //EventHandler: changing Value of controlled TextField
     handleInputChange(event, name, value) {
         if(event == null){
             this.setState({[name]: value});
@@ -115,6 +119,7 @@ class AddOrderForm extends Component {
         const { classes } = this.props;
         const { isLoading, disablefields, order_id, customers, title, description, customer, traveldistance, hourlyrate, startTime, duration } = this.state;
 
+        //LoadingIcon
         var loading = null;
         if (isLoading) {
             loading = <CircularProgress className={classes.loading} size={100}/>;
@@ -153,4 +158,10 @@ class AddOrderForm extends Component {
     }
 }
 
+/**
+ * Defines the AddOrderForm Component.
+ * Displays form for creating a new order
+ * @param {props} props - Given properties of mother component (styling,...).
+ * @return {Component} - AddOrderForm Component
+ */
 export default withStyles(useStyles) (AddOrderForm);

@@ -11,7 +11,7 @@ const PrivateRoute = ({ ...props }) => {
 }
 
 /**
- * Blend two colors together.
+ * Protected Routes (Client Side).
  * @param {props} props - Properties given for Route Element
  * @return {Route} Chosen route or redirecting.
  */

@@ -1,3 +1,11 @@
+/** 
+ * Function to request Express Backend and return JSON - Change User Data
+ * @param {string} mail Updated mail attribute.
+ * @param {string} name Updated username attribute.
+ * @param {string} password Updated password attribute.
+ * @returns {JSON} Updated Userdata.
+ */
+
 export default function putUser(name, mail, password){
 
     return (
@@ -14,6 +22,6 @@ export default function putUser(name, mail, password){
             })
         })
         .then(response => response.json())
-        .catch(error => JSON.parse('{"request": "failed", "error":' + JSON.stringify( "Kunde: " + error.message) + '}'))
+        .catch(error => JSON.parse('{"request": "failed", "error":' + JSON.stringify( "User: " + error.message) + '}'))
     )
 }

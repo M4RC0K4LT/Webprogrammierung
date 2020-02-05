@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 import { Button, withStyles} from '@material-ui/core';
-import { CheckCircle as CheckCircleIcon } from '@material-ui/icons';
 import { SnackbarMessage, useStyles, RegisterFields } from '../exports'
 import { postNewUser } from "../../api/exports";
+import { Redirect } from 'react-router-dom';
 
+/** RegisterUserForm Component to provide a form for registering new users */
 class RegisterUserForm extends Component {
 
+    //Initializes TextField values and error handling
     constructor(props){
         super(props);
         this.state = {
@@ -29,6 +31,7 @@ class RegisterUserForm extends Component {
         this.handleInputChange = this.handleInputChange.bind(this);
     }    
 
+    //EventHandler: changing Value of controlled TextField
     handleInputChange(event) {
         const target = event.target;
         const value = target.value
@@ -39,10 +42,12 @@ class RegisterUserForm extends Component {
         });
     }
 
+    //Close Error/Success Message
     handleSnackbarClose(){
         this.setState({ open: false })
     }
     
+    //Submit data
     handleSubmit(event){ 
         event.preventDefault();
         const { username, mail, password, confirmpassword} = this.state;
@@ -56,14 +61,10 @@ class RegisterUserForm extends Component {
             if(data.length<1 || data.request === "failed"){
                 this.setState({ open: true, snackcolor: "error", message: data.error, disablefields: false })
             } else {
-                this.setState({ name: data.user_name, mail: data.user_mail, success: true});
+                sessionStorage.setItem('authToken', data.token);
+                this.setState({ success: true })
             }
         })
-    }
-
-    handleClick(){
-        sessionStorage.removeItem("authToken");
-        window.location.reload();
     }
 
     render() {
@@ -71,12 +72,14 @@ class RegisterUserForm extends Component {
         const { classes } = this.props;
         const { username, mail, password, confirmpassword, disablefields, success } = this.state;
 
+        //Check if already logged in
         if (sessionStorage.getItem("authToken") != null){
-            return <div className={classes.paper}><CheckCircleIcon /><br/><h1>Bereits angemeldet!</h1><br/><Button variant="contained" color="primary" href="/profile">Profil</Button><br/><Button variant="contained" color="primary" onClick={this.handleClick}>Logout</Button></div>;
+            return <Redirect to={"/profile"} />;
         }
 
+        //Successful registration
         if(success === true){
-        return <div className={classes.paper}><p>User {username} mit E-Mail {mail} wurde erfolgreich erstellt! Bitte anmelden.</p><br/><br/><Button variant="contained" color="primary" href="/login">Login</Button></div>
+            return window.location.replace("/profile");
         }
 
         return (
@@ -111,4 +114,10 @@ class RegisterUserForm extends Component {
     }
 }
 
+/**
+ * Defines the RegisterUserForm Component.
+ * Displays form for the registration of a new user.
+ * @param {props} props - Given properties of mother component (styling,...).
+ * @return {Component} - RegisterUserForm Component
+ */
 export default withStyles(useStyles) (RegisterUserForm);

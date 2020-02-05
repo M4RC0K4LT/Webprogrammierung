@@ -1,3 +1,8 @@
+/**
+ * Function to request Express Backend and return Blob - Get invoice for selected orders.
+ * @param {Array} idlist Array with selected OrderIDs.
+ * @returns {Blob} Created invoice PDF.
+ */
 export default function getInvoice(idlist){
 
     return (

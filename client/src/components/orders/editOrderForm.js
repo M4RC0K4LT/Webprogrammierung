@@ -5,11 +5,12 @@ import { putOrder, getCustomers, deleteOrder, getOrder } from "../../api/exports
 import EditOrderButtons from "./formComponents/editorderbuttons";
 import OrderFields from "./formComponents/orderfields";
 
-class Orderdetail extends Component {
+/** EditOrderForm Component to display current order data and to edit it */
+class EditOrderForm extends Component {
 
+    //Initializes TextField values and error handling
     constructor(props){
-        super(props);
-        
+        super(props);       
         this.state = {
             customers: [],
             customer: null,
@@ -29,7 +30,6 @@ class Orderdetail extends Component {
             startTime: null,
             duration: 0,
         };
-
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleDelete = this.handleDelete.bind(this);
         this.fetchCustomers = this.fetchCustomers.bind(this);
@@ -37,10 +37,12 @@ class Orderdetail extends Component {
         this.handleInputChange = this.handleInputChange.bind(this);
     }   
     
+    //Close Error/Success Message
     handleSnackbarClose(){
         this.setState({ open: false })
     }
 
+    //EventHandler: changing Value of controlled TextField
     handleInputChange(event, name, value) {
         if(event == null){
             this.setState({[name]: value});
@@ -55,6 +57,7 @@ class Orderdetail extends Component {
         }
     }
     
+    //Submit FormData (Updated Values)
     handleSubmit(event){ 
         event.preventDefault();
         if(!(this.state.customers.includes(this.state.customer))){
@@ -91,6 +94,7 @@ class Orderdetail extends Component {
         })
     }
 
+    //Handle order delete
     handleDelete(){
         const id = this.props.id;
         this.setState({ isLoading: true });
@@ -104,6 +108,7 @@ class Orderdetail extends Component {
         })
     }
 
+    //Get current Orderdata
     fetchOrder() {
         const id = this.props.id;
         this.setState({ isLoading: true });
@@ -125,6 +130,7 @@ class Orderdetail extends Component {
         })
     }
 
+    //Get all customers for providing options in Customer TextField
     fetchCustomers() {  
         this.setState({ isLoading: true });
         getCustomers().then(data => {
@@ -154,6 +160,7 @@ class Orderdetail extends Component {
         const { classes } = this.props;
         const { isLoading, disablefields, order_id, customers, title, description, customer, traveldistance, hourlyrate, startTime, duration } = this.state;
 
+        //Loading Icon
         var loading = null;
         if (isLoading) {
             loading = <CircularProgress className={classes.loading} size={100}/>;
@@ -203,4 +210,10 @@ class Orderdetail extends Component {
     }
 }
 
-export default withStyles(useStyles) (Orderdetail);
+/**
+ * Defines the EditOrderFom Component.
+ * Displays form for editing order information
+ * @param {props} props - Given properties of mother component (styling,...).
+ * @return {Component} - EditOrderForm Component
+ */
+export default withStyles(useStyles) (EditOrderForm);

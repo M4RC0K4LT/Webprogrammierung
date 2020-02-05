@@ -15,7 +15,7 @@ const port = process.env.PORT || 3001
 const userapi = require("./routes/usersapi");
 const orderapi = require("./routes/ordersapi");
 const customerapi = require("./routes/customersapi");
-const auth = require("./database/auth");
+const auth = require("./routes/auth");
 
 /** Available routes */
 app.use("/api/user", userapi);

@@ -7,12 +7,14 @@ import 'date-fns';
 import moment from "moment";
 import DateFnsUtils from '@date-io/date-fns';
 
+/** OrderFields Component */
 class OrderFields extends Component {
     constructor(props){
         super(props);   
         this.handleChange = this.handleChange.bind(this)     
     }
 
+    /** Change values (onKeyboardInput) of controlled TextField components */
     handleChange(e, name, value) {
         this.props.onChange(e, name, value);
     }
@@ -126,4 +128,10 @@ class OrderFields extends Component {
     }
 }
 
+/**
+ * Defines the OrderFields Component.
+ * Shows all Fields needed for order creations, edits, etc..
+ * @param {props} props - Given properties of mother component (styling, TextField props,...)
+ * @return {Component} - OrderFields Component
+ */
 export default withStyles(useStyles) (OrderFields);

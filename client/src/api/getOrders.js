@@ -1,3 +1,7 @@
+/** 
+ * Function to request Express Backend and return JSON - Get all registered Orders 
+ * @returns {JSON} Filled with Array of Orders
+ */
 export default function getOrders(){
 
     return (

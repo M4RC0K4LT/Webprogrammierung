@@ -1,3 +1,9 @@
+/** 
+ * Function to request Express Backend and return JSON - Change Customer data
+ * @param {string} id SelectedCustomerID
+ * @param {Array} contentlist Array with updated attribute values.
+ * @returns {JSON} Updated Customerdata.
+ */
 export default function putCustomer(id, contentlist){
 
     return (
