@@ -7,7 +7,7 @@ import { AddOrder, Orderdetail, Orders, MyOrders } from './orders/exports';
 import { PrivateRoute, ResponsiveDrawer, NotFound } from './components/exports';
 
 //API-Route - has to be removed in Production build
-window.$apiroute = "http://localhost:3001/";
+window.$apiroute = "https://kaltenstadler.net/";
 
 /** Main component including Router */
 class Index extends React.Component{

@@ -1,10 +1,10 @@
-# DHBW Vorlesung Webprogrammierung: Georg Müller Kugellager GmbH
+# DHBW Vorlesung Webprogrammierung 2019
 
-First Demo: https://kaltenstadler.net
+Live Demo: https://kaltenstadler.net
 
 ## "Getting Started"
 
-Installiere Abhängigkeiten und starte den Entwicklungsserver.
+Installiere Abhängigkeiten und starte Entwicklungsserver.
 
 ### Voraussetzungen
 
@@ -15,7 +15,7 @@ cd server && npm install
 cd client && npm install
 ```
 
-### Erstes starten
+### Starten
 
 Der Start des ReactClients zieht sich beim ersten Starten etwas in die Länge, da importierte Module geladen werden müssen.
 
@@ -24,8 +24,8 @@ cd client && npm start
 cd server && npm start
 ```
 
-Nun ist der ExpressBackend-Server über Port 3001 erreichbar.
-Ebenso kann das React-FrontEnd über Port 80 aufgerufen werden.
+Express-Backend: Port 3001
+React-FrontEnd: Port 80
 
 ## Die Website öffnen
 
