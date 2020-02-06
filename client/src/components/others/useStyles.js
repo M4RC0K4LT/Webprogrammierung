@@ -67,9 +67,7 @@ const useStyles = theme => ({
       top: "calc(50% - 50px)",
     },
     logoutButton: {
-      position: "absolute", 
-      bottom: "30px", 
-      left: "75px",
+      margin: theme.spacing(5),
       backgroundColor: "white"
     },
     searchBar: {

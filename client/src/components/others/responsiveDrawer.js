@@ -34,7 +34,7 @@ function ResponsiveDrawer(props) {
 
   /** Logout Button */
   let logout = null;
-  if(window.location.pathname !== "/login"){
+  if(!(window.location.pathname === "/login" || window.location.pathname === "/")){
     logout = (
         <Button variant="contained" className={classes.logoutButton} onClick={handleLogout}>
             Logout
@@ -70,6 +70,11 @@ function ResponsiveDrawer(props) {
             <ListItem button key={4} component={Link} to={"/profile"}>
                 <ListItemIcon style={{ color: "#fff" }}><PersonIcon></PersonIcon></ListItemIcon>
                 <ListItemText primary={"Profil"} />
+            </ListItem>
+        </List>
+        <List>
+            <ListItem key={5}>
+                {logout}
             </ListItem>
         </List>
     </div>
@@ -125,7 +130,6 @@ function ResponsiveDrawer(props) {
                     }}
                 >
                     {drawer}
-                    {logout}
                 </Drawer>
             </Hidden>
 
@@ -136,11 +140,9 @@ function ResponsiveDrawer(props) {
                         paper: classes.drawerPaper,
                     }}
                     variant="permanent"
-                    open
-                    
+                    open  
                 >
                     {drawer}
-                    {logout}
                 </Drawer>
             </Hidden>
         </nav>

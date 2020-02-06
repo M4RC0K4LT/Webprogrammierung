@@ -117,7 +117,7 @@ class ListCustomers extends React.Component {
               }}
               delMessage={"Kunde '" + this.state.selectedCustomer + " - " + this.state.selectedCustomer_name + "'"}>
             </DeleteDialog>
-            <TextField className={classes.searchBar} size="small" placeholder="Suche nach Kunden..." variant="outlined" value={filter} onChange={this.handleSearch} autoFocus/>
+            <TextField className={classes.searchBar} size="small" placeholder="Suche nach Kunden..." variant="outlined" value={filter} onChange={this.handleSearch}/>
             <List className={classes.mainlist}>
             {nulltext}
             {filtered.map((customer, i) => (

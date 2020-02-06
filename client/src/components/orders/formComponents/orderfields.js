@@ -84,7 +84,6 @@ class OrderFields extends Component {
                 />
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                     <DateTimePicker
-                        disableFuture
                         inputVariant="outlined"
                         fullWidth
                         ampm={false}
@@ -100,9 +99,8 @@ class OrderFields extends Component {
                 <Grid container spacing={2} alignItems="center">
                     <Grid item xs={7}>
                         <Slider
-                            margin="normal"
+                            style={{ margin: "7px" }}
                             value={duration}
-                            aria-labelledby="discrete-slider-small-steps"
                             step={15}
                             min={0}
                             max={600}

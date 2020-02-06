@@ -132,7 +132,7 @@ class ListOrders extends React.Component {
               }}
               delMessage={"Auftrag '" + this.state.selectedOrder + " - " + this.state.selectedOrder_title + "'"}>
             </DeleteDialog>
-            <TextField className={classes.searchBar} size="small" placeholder="Suche nach Aufträgen..." variant="outlined" value={filter} onChange={this.handleSearch} autoFocus/>
+            <TextField className={classes.searchBar} size="small" placeholder="Suche nach Aufträgen..." variant="outlined" value={filter} onChange={this.handleSearch}/>
             <List className={classes.mainlist}>
                 {nulltext}
                 {filtered.map((order, i) => (

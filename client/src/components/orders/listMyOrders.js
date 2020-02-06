@@ -172,7 +172,7 @@ class ListMyOrders extends React.Component {
               <Button>--  {watchedUserName}  --</Button>
               <Button onClick={() => this.showNextUser(arrayposition+1)}><ArrowForwardIcon /></Button>
             </ButtonGroup><br/><br/>
-            <TextField className={classes.searchBar} size="small" placeholder="Suche nach Aufträgen..." variant="outlined" value={filter} onChange={this.handleSearch} autoFocus/>
+            <TextField className={classes.searchBar} size="small" placeholder="Suche nach Aufträgen..." variant="outlined" value={filter} onChange={this.handleSearch}/>
             <List className={classes.mainlist}>
                 {nulltext}
                 {filtered.map((order, i) => (
