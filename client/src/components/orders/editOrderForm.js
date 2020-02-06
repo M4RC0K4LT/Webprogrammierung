@@ -78,7 +78,7 @@ class EditOrderForm extends Component {
                 this.setState({ message: data.error, open: true, snackcolor: "error", disablefields: false });
             }else{
                 this.setState({ 
-                    message: "Auftrag erfolgreich hinzugefügt", 
+                    message: "Auftrag erfolgreich abgeändert", 
                     snackcolor: "success", 
                     open: true, 
                     order_id: data.order_id,

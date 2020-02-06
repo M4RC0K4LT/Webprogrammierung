@@ -120,6 +120,17 @@ router.post('/', async (request, response) => {
     }  
 });
 
+/** POST: Get monthly amount of orders for one year */
+router.post('/statistics', async (request, response) => {
+    try{
+        const order = await orders.getMonthlyAmountOfOrders(request.body.year);
+        response.status(200).send(order);
+    } catch(err){
+        let data = Object.assign({"request": "failed"}, err)
+        response.status(500).send(data);
+    }  
+});
+
 /** PUT: Update existing order values */
 router.put('/:id', async (request, response) => {
     try{

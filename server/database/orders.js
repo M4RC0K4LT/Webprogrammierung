@@ -390,4 +390,22 @@ module.exports = {
       });
     });
   },
+
+
+  /**
+   * Get monthly amount of orders by year.
+   * @param {string} year - Selected Year.
+   * @return {JSON} Monthly Order Amount for selected year.
+   */
+  getMonthlyAmountOfOrders: (year) => {
+    return  new Promise((resolve, reject) => {
+      db.all(`SELECT strftime('%m', order_starting) as month, COUNT(*) as anzahl FROM orders WHERE strftime('%Y', order_starting) = $year GROUP BY month`, { $year: year }, (err, result) =>{
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  },
 };

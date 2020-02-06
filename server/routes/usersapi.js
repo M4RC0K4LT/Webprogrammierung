@@ -40,6 +40,17 @@ router.get('/all', auth, async function(request, response) {
     }
 });
 
+/** POST: Get monthly amount of created orders for one year by this user  */
+router.post('/statistics', auth, async (request, response) => {
+    try{
+        const order = await users.getMonthlyAmountOfOrders(request.body.year, request.body.id);
+        response.status(200).send(order);
+    } catch(err){
+        let data = Object.assign({"request": "failed"}, err)
+        response.status(500).send(data);
+    }  
+});
+
 /** GET: Validate Session Token */
 router.get('/validate', async function(request, response) {
     try {

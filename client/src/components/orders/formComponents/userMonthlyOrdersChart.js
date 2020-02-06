@@ -1,12 +1,12 @@
 import React from 'react'
 import { Bar } from 'react-chartjs-2';
-import { CircularProgress, withStyles, Button, ButtonGroup } from '@material-ui/core';
+import { CircularProgress, withStyles, Button, ButtonGroup, Divider } from '@material-ui/core';
 import { ArrowBack as ArrowBackIcon, ArrowForward as ArrowForwardIcon } from '@material-ui/icons';
 import { useStyles, SnackbarMessage } from "../../exports";
-import { postCustomerStatistics} from "../../../api/exports"
+import { postUserStatistics } from "../../../api/exports"
 
-/** CustomerOrdersChart Component to show amount of monthly orders */
-class CustomerOrdersChart extends React.Component {
+/** UserOrdersChart Component to show amount of monthly orders created by user */
+class UserOrdersChart extends React.Component {
 
     /** Defines Chart labels, datasets, options,... */
     constructor(props) {
@@ -21,22 +21,24 @@ class CustomerOrdersChart extends React.Component {
                 labels: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"],
                 datasets: [
                 {
-                    label: 'Aufträge',
+                    label: 'Anzahl Aufträge User ',
                     backgroundColor: 'rgba(75,192,192,0.4)',
                     data: [null, null, null, null, null, null, null, null, null, null, null, null]
                 }
                 ],
             },
             options: {
+                responsive: true,
+                maintainAspectRatio: true,
                 scales: {
-                yAxes: [{
-                    display: true,
-                    ticks: {
-                    suggestedMin: 0,
-                    suggestedMax: 30,
-                    precision: 0
-                    }
-                }]
+                    yAxes: [{
+                        display: true,
+                        ticks: {
+                            suggestedMin: 0,
+                            suggestedMax: 30,
+                            precision: 0
+                        }
+                    }]
                 }
             }
         };
@@ -56,7 +58,7 @@ class CustomerOrdersChart extends React.Component {
             return;
         }
         year = year.toString();
-        postCustomerStatistics(this.props.id, year).then(data => {
+        postUserStatistics(year, this.props.userid).then(data => {
         if(data.request === "failed"){
             this.setState({ message: data.error, snackcolor: "error", open: true })
         }else{
@@ -78,6 +80,13 @@ class CustomerOrdersChart extends React.Component {
         this.fetchStatistics(this.state.year);
     }
 
+    /** Load statistics for selected year on update */
+    componentDidUpdate(prevProps) {
+        if(prevProps.userid !== this.props.userid){
+            this.fetchStatistics(this.state.year);
+        }
+    }
+
     render() {
         const { isLoading, open, message, snackcolor, diagram, options } = this.state;
         const { classes } = this.props;
@@ -87,19 +96,21 @@ class CustomerOrdersChart extends React.Component {
         }
 
         return (
-            <div className={classes.ListItems}>
+            <div className={classes.ListItems} >
                 <SnackbarMessage
                     open={open}
                     onClose={this.handleSnackbarClose}
                     message={message}
                     color={snackcolor}>
                 </SnackbarMessage>
-                <Bar data={diagram} options={options}/><br />
-                <ButtonGroup variant="text" size="small" margin="normal" color="primary" aria-label="contained primary button group">
+                <br/>
+                <Bar data={diagram} options={options} style={{ marginLeft: "10px" }}/><br />
+                <ButtonGroup variant="text" size="small" margin="normal" color="primary">
                     <Button onClick={() => this.fetchStatistics(this.state.year-1)}><ArrowBackIcon /></Button>
                     <Button>{this.state.year}</Button>
                     <Button onClick={() => this.fetchStatistics(this.state.year+1)}><ArrowForwardIcon /></Button>
                 </ButtonGroup>
+                <Divider style={{ margin: "30px" }}></Divider>
             </div>
             
         )
@@ -107,9 +118,9 @@ class CustomerOrdersChart extends React.Component {
 }
 
 /**
- * Defines the CustomerOrdersChart Component.
+ * Defines the UserOrdersChart Component.
  * Creates a ChartJS based graphic with amount of monthly orders in chosen year.
  * @param {props} props - Given properties of mother component (styling,...).
- * @return {Component} - CustomerOrdersChart
+ * @return {Component} - UserOrdersChart
  */
-export default withStyles(useStyles) (CustomerOrdersChart);
+export default withStyles(useStyles) (UserOrdersChart);

@@ -18,6 +18,8 @@ import putUser from './putUser';
 import getOrdersByUser from './getOrdersByUser';
 import deleteUserSession from './deleteUserSession';
 import getUsers from './getUsers';
+import postOrderStatistics from './postOrderStatistics';
+import postUserStatistics from './postUserStatistics';
 
 /** Central API-Requests Export-File */
 export {
@@ -41,4 +43,6 @@ export {
     getOrdersByUser,
     deleteUserSession,
     getUsers,
+    postOrderStatistics,
+    postUserStatistics
 }

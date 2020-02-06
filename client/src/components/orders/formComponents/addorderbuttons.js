@@ -31,7 +31,7 @@ class AddOrderButtons extends Component {
                 Zur Übersicht
               </Button>
               </Grid>
-              <Fab className={classes.addbutton} size="large" color="primary" aria-label="add" component={Link} to="/orders/add">
+              <Fab className={classes.addbutton} size="large" color="primary" aria-label="add" href="/orders/add">
                 <AddIcon/>
               </Fab>
             </Grid>

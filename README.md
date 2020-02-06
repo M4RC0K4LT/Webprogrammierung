@@ -4,7 +4,7 @@ Live Demo: https://kaltenstadler.net
 
 ## "Getting Started"
 
-Installiere Abhängigkeiten und starte Entwicklungsserver.
+Installiere Abhängigkeiten und starte Entwicklungsserver:
 
 ### Voraussetzungen
 
@@ -17,17 +17,17 @@ cd client && npm install
 
 ### Starten
 
-Der Start des ReactClients zieht sich beim ersten Starten etwas in die Länge, da importierte Module geladen werden müssen.
+Der Start des ReactClients zieht sich beim ersten Mal etwas in die Länge, da importierte Module geladen werden müssen.
 
 ```
 cd client && npm start
 cd server && npm start
 ```
 
-Express-Backend: Port 3001
-React-FrontEnd: Port 80
+Express-Backend: Port 3001  React-FrontEnd: Port 80
 
 ## Die Website öffnen
 
-Öffne folgenden Link im Browser um die Website zu öffnen: http://localhost/
+Öffne folgenden Link im Browser um die Website zu öffnen: http://localhost/  
+  
 Eine bereits bereitgestellte Umgebung ist unter diesem Link zu finden: https://kaltenstadler.net

@@ -22,6 +22,8 @@ import DeleteDialog from './others/deleteDialog';
 import ResponsiveDrawer from './others/responsiveDrawer';
 import NotFound from './others/notfound';
 import ListMyOrders from './orders/listMyOrders';
+import MonthlyOrdersChart from './orders/formComponents/monthlyOrdersChart';
+import UserOrdersChart from './orders/formComponents/userMonthlyOrdersChart';
 
 /** Central components-ExportFile */
 export {
@@ -48,5 +50,7 @@ export {
     DeleteDialog,
     ResponsiveDrawer,
     NotFound,
-    ListMyOrders
+    ListMyOrders,
+    MonthlyOrdersChart,
+    UserOrdersChart,
 }

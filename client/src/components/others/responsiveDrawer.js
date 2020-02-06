@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link  } from 'react-router-dom'
 import { Divider, ListItemIcon, Typography, AppBar, CssBaseline, Drawer, Hidden, IconButton, List, ListItem, ListItemText, Toolbar, useTheme, withStyles, Button, Container } from '@material-ui/core';
-import { Menu as MenuIcon, Build as BuildIcon, People as PeopleIcon, Person as PersonIcon, AccountCircle as AccountCircleIcon, EmojiPeople as EmojiPeopleIcon, AccountTree as AccountTreeIcon } from '@material-ui/icons';
+import { Menu as MenuIcon, Build as BuildIcon, People as PeopleIcon, Person as PersonIcon, AccountCircle as AccountCircleIcon, EmojiPeople as EmojiPeopleIcon } from '@material-ui/icons';
 import { useStyles } from "../exports";
 import logo from "./bearing.png";
 import { deleteUserSession } from '../../api/exports';

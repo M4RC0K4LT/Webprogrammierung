@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { CircularProgress, withStyles, Avatar, List, ListItem, ListItemText, ListItemAvatar, IconButton, ListItemSecondaryAction, Typography, TextField } from '@material-ui/core';
 import { Edit as EditIcon, Delete as DeleteIcon, AccountBalance as AccountBalanceIcon } from '@material-ui/icons';
-import { useStyles, SnackbarMessage, DeleteDialog } from "../exports";
+import { useStyles, SnackbarMessage, DeleteDialog, MonthlyOrdersChart } from "../exports";
 import { deleteOrder, getOrders, getInvoice } from "../../api/exports"
 
 /** ListOrders Component to display all registered orders */
@@ -81,12 +81,13 @@ class ListOrders extends React.Component {
   //EventHandler: changing Value of controlled Searchbar and search for a order
   handleSearch(event) {
     let new_value = event.target.value;
+    let compareval = new_value.toLowerCase();
     this.setState({
       filter: new_value
     });
     let filterd_new = [];
     this.state.orders.map((order) => {
-      if(order.order_description.toLowerCase().includes(new_value) || order.order_title.toLowerCase().includes(new_value) || JSON.stringify(order.order_id).toLowerCase().includes(new_value) || JSON.stringify(order.order_starting).toLowerCase().includes(new_value)){
+      if(order.order_description.toLowerCase().includes(compareval) || order.order_title.toLowerCase().includes(compareval) || JSON.stringify(order.order_id).toLowerCase().includes(compareval) || JSON.stringify(order.order_starting).toLowerCase().includes(compareval)){
         filterd_new.push(order);
       }
       return order;
@@ -132,6 +133,7 @@ class ListOrders extends React.Component {
               }}
               delMessage={"Auftrag '" + this.state.selectedOrder + " - " + this.state.selectedOrder_title + "'"}>
             </DeleteDialog>
+            <MonthlyOrdersChart></MonthlyOrdersChart>
             <TextField className={classes.searchBar} size="small" placeholder="Suche nach Aufträgen..." variant="outlined" value={filter} onChange={this.handleSearch}/>
             <List className={classes.mainlist}>
                 {nulltext}

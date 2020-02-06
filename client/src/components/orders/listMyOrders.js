@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { CircularProgress, withStyles, Avatar, List, ListItem, ListItemText, ListItemAvatar, IconButton, ListItemSecondaryAction, Typography, TextField, Button, ButtonGroup } from '@material-ui/core';
+import { withStyles, Avatar, List, ListItem, ListItemText, ListItemAvatar, IconButton, ListItemSecondaryAction, Typography, TextField, Button, ButtonGroup } from '@material-ui/core';
 import { Edit as EditIcon, Delete as DeleteIcon, ArrowBack as ArrowBackIcon, ArrowForward as ArrowForwardIcon } from '@material-ui/icons';
-import { useStyles, SnackbarMessage, DeleteDialog } from "../exports";
+import { useStyles, SnackbarMessage, DeleteDialog, UserOrdersChart } from "../exports";
 import { deleteOrder, getOrdersByUser, getUsers, getUser } from "../../api/exports"
 
 /** ListMyOrders Component to display all registered orders created by current user */
@@ -12,6 +12,7 @@ class ListMyOrders extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      showList: false,
       orders: [],
       isLoading: false,
       filter: "",
@@ -31,6 +32,7 @@ class ListMyOrders extends React.Component {
       selectedOrder: null,
       selectedOrder_title: null,
     };
+
     this.fetchOrdersByUser = this.fetchOrdersByUser.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
     this.handleSnackbarClose = this.handleSnackbarClose.bind(this);
@@ -76,10 +78,11 @@ class ListMyOrders extends React.Component {
       }else{
           this.setState({ users: data })
           data.map((user, i) => {
-            if(user.user_name == this.state.currentUsername){
+            if(user.user_name === this.state.currentUsername){
               this.setState({ arrayposition: i });
               this.fetchOrdersByUser(user.user_id)
             }
+            return user;
           })
       }
     })
@@ -140,7 +143,7 @@ class ListMyOrders extends React.Component {
   }
 
   render() {
-    const { isLoading, filtered, filter, watchedUserName, arrayposition } = this.state;
+    const { filtered, filter, watchedUserName, watchedUserID, arrayposition, showList } = this.state;
     const { classes } = this.props
 
     //No Entries
@@ -151,6 +154,7 @@ class ListMyOrders extends React.Component {
 
     return (
         <div className={classes.ListItems}>
+
             <SnackbarMessage
                 open={this.state.open}
                 onClose={this.handleSnackbarClose}
@@ -166,14 +170,19 @@ class ListMyOrders extends React.Component {
               }}
               delMessage={"Auftrag '" + this.state.selectedOrder + " - " + this.state.selectedOrder_title + "'"}>
             </DeleteDialog>
-            Wähle anderen Techniker:<br/><br/>
-            <ButtonGroup variant="outlined" size="small" margin="normal" color="primary" aria-label="contained primary button group">
+
+
+            Wähle deine Kollegen:<br/><br/>
+            <ButtonGroup variant="contained" size="small" color="primary" aria-label="contained primary button group">
               <Button onClick={() => this.showNextUser(arrayposition-1)}><ArrowBackIcon /></Button>
-              <Button>--  {watchedUserName}  --</Button>
+              <Button>  {watchedUserName}  </Button>
               <Button onClick={() => this.showNextUser(arrayposition+1)}><ArrowForwardIcon /></Button>
             </ButtonGroup><br/><br/>
-            <TextField className={classes.searchBar} size="small" placeholder="Suche nach Aufträgen..." variant="outlined" value={filter} onChange={this.handleSearch}/>
-            <List className={classes.mainlist}>
+
+            <UserOrdersChart userid={watchedUserID}></UserOrdersChart>
+
+            <List className={classes.mainlist} style={{display: showList ? 'block' : 'none' }}>
+              <TextField className={classes.searchBar} size="small" placeholder="Suche nach Aufträgen..." variant="outlined" value={filter} onChange={this.handleSearch}/>
                 {nulltext}
                 {filtered.map((order, i) => (
                 <ListItem key={i}>
@@ -194,6 +203,17 @@ class ListMyOrders extends React.Component {
                 </ListItem>
                 ))}        
             </List>
+
+            <ButtonGroup variant="outlined" size="small" color="primary" style={{display: showList ? 'none' : 'block' }}>
+              <Button onClick={() => {
+                if(showList){
+                  this.setState({ showList: false });
+                }else {
+                  this.setState({ showList: true });
+                }}}>
+                  Zeige dem User zugehörige Aufträge<br/>........
+                </Button>
+            </ButtonGroup>
         </div>
     )
   }

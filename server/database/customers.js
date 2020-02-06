@@ -299,7 +299,7 @@ module.exports = {
   getOrderAmountMonth: (jsonObject) => {
     return  new Promise((resolve, reject) => {
       id = parseInt(jsonObject.id);
-      db.all(`SELECT strftime('%m', order_starting) as month, strftime('%Y', order_starting) as year, COUNT(*) as anzahl FROM orders WHERE order_customer = $id AND Year = $year GROUP BY month`, { $id: id, $year: jsonObject.year }, (err, result) =>{
+      db.all(`SELECT strftime('%m', order_starting) as month, COUNT(*) as anzahl FROM orders WHERE order_customer = $id AND strftime('%Y', order_starting) = $year GROUP BY month`, { $id: id, $year: jsonObject.year }, (err, result) =>{
         if (err) {
           reject(err);
         } else {

@@ -333,5 +333,23 @@ module.exports = {
             }
           });      
     });
-  }
+  },
+
+  /**
+   * Get users`s monthly amount of created orders.
+   * @param {string} year - Selected Year.
+   * @param {string} token - UserToken.
+   * @return {JSON} Monthly Order Amount for selected year.
+   */
+  getMonthlyAmountOfOrders: (year, id) => {
+    return  new Promise((resolve, reject) => {
+      db.all(`SELECT strftime('%m', order_starting) as month, COUNT(*) as anzahl FROM orders WHERE order_user = $id AND strftime('%Y', order_starting) = $year GROUP BY month`, { $id: id, $year: year }, (err, result) =>{
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  },
 };

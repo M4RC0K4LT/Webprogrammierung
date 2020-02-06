@@ -56,7 +56,7 @@ class ShowCustomerStatistics extends React.Component {
         }
 
         return (
-            <div>
+            <div className={classes.ListItems}>
                 <SnackbarMessage
                     open={open}
                     onClose={this.handleSnackbarClose}
