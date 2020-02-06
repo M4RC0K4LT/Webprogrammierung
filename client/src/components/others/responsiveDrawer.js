@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link  } from 'react-router-dom'
-import { Divider, ListItemIcon, Typography, AppBar, CssBaseline, Drawer, Hidden, IconButton, List, ListItem, ListItemText, Toolbar, useTheme, withStyles, Button } from '@material-ui/core';
+import { Divider, ListItemIcon, Typography, AppBar, CssBaseline, Drawer, Hidden, IconButton, List, ListItem, ListItemText, Toolbar, useTheme, withStyles, Button, Container } from '@material-ui/core';
 import { Menu as MenuIcon, Build as BuildIcon, People as PeopleIcon, Person as PersonIcon, AccountCircle as AccountCircleIcon, EmojiPeople as EmojiPeopleIcon, AccountTree as AccountTreeIcon } from '@material-ui/icons';
 import { useStyles } from "../exports";
 import logo from "./bearing.png";
@@ -45,7 +45,9 @@ function ResponsiveDrawer(props) {
   /** Drawer Content -> Menu Items */
   const drawer = (
     <div>
-        <img src={logo} alt="Logo" className={classes.logo} />
+        <Container component={Link} to={"/orders"} style={{ margin: "0", padding: "0" }}>
+            <img src={logo} alt="Logo" className={classes.logo} />
+        </Container>
         <div className={classes.companylogo}>Georg Müller<br></br>Kugellager GmbH</div>
         <Divider></Divider>
         <List>

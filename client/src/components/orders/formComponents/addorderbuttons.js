@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { withStyles, Grid, Button } from '@material-ui/core';
+import { withStyles, Grid, Button, Fab } from '@material-ui/core';
+import { Add as AddIcon} from '@material-ui/icons';
 import useStyles from "../../others/useStyles";
 
 /** 
@@ -30,6 +31,9 @@ class AddOrderButtons extends Component {
                 Zur Übersicht
               </Button>
               </Grid>
+              <Fab className={classes.addbutton} size="large" color="primary" aria-label="add" component={Link} to="/orders/add">
+                <AddIcon/>
+              </Fab>
             </Grid>
             );
         }

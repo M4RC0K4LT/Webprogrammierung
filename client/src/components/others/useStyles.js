@@ -129,7 +129,11 @@ const useStyles = theme => ({
       marginTop: "5px",
       marginBottom: "30px",
       marginLeft: "auto",
-      textAlign: "center"    
+      textAlign: "center",
+      textDecoration: "none",
+    },
+    logoContainer: {
+      textDecoration: "none",
     },
     title: {
       flexGrow: 1,
