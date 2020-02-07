@@ -11,7 +11,7 @@ const db = require('./database_new_init.js');
 const NodeGeocoder = require('node-geocoder');
 var options = {
   provider: 'google',
-  apiKey: 'AIzaSyBSxN4qq-CR-HeNyxVlvQ06oTxscljozCI'
+  apiKey: 'YourAPIKey'
 };
 var geocoder = NodeGeocoder(options);
 
@@ -75,7 +75,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
 
       if(notfound){
-        reject({"error": "Keine gültige Adressangabe"});
+        return reject({"error": "Keine gültige Adressangabe"});
       }
 
       //Check hourlyrate format
@@ -83,7 +83,7 @@ module.exports = {
       if(typeof hourlyrate == "string"){
         hourlyrate = parseFloat(jsonObject.hourlyrate.replace(",", "."));
         if(Number.isNaN(hourlyrate)){
-          reject({"error": "Kein gültiger Stundensatz"});
+          return reject({"error": "Kein gültiger Stundensatz"});
         }
       }
 
@@ -101,7 +101,7 @@ module.exports = {
         },
         function (err) {
           if (err) {
-            reject(err);
+            return reject(err);
           }
           db.get(`SELECT * FROM customers WHERE customer_id = $id`, { $id: this.lastID }, (err, result) => {
             if (err) {
@@ -136,7 +136,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       
       if(notfound){
-        reject({"error": "Keine gültige Adressangabe"});
+        return reject({"error": "Keine gültige Adressangabe"});
       }
 
       //Check hourlyrate format
@@ -144,7 +144,7 @@ module.exports = {
       if(typeof hourlyrate == "string"){
         hourlyrate = parseFloat(jsonObject.hourlyrate.replace(",", "."));
         if(Number.isNaN(hourlyrate)){
-          reject({"error": " Kein gültiger Stundensatz "});
+          return reject({"error": " Kein gültiger Stundensatz "});
         }
       }
 
@@ -165,14 +165,14 @@ module.exports = {
         },
         function (err) {
           if (err) {
-            reject(err);
+            return reject(err);
           }
           db.get(`SELECT * FROM customers WHERE customer_id = $id`, { $id: id }, (err, result) => {
             if (err) {
               reject(err);
             } else {
               if(result == null){
-                reject({"error": "Kunde nicht gefunden"})
+                return reject({"error": "Kunde nicht gefunden"})
               }
               resolve(result);
             }

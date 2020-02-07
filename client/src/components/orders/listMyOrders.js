@@ -211,7 +211,7 @@ class ListMyOrders extends React.Component {
                 }else {
                   this.setState({ showList: true });
                 }}}>
-                  Zeige dem User zugehörige Aufträge<br/>........
+                  Zeige dem User zugehörige Aufträge
                 </Button>
             </ButtonGroup>
         </div>

@@ -161,16 +161,16 @@ module.exports = {
 
     return new Promise((resolve, reject) => {
       if(datevalid == false){
-        reject({"error": "Verwende ein gültiges Zeitformat"});
+        return reject({"error": "Verwende ein gültiges Zeitformat"});
       }
       if(travelvalid == false){
-        reject({"error": "Keine gültige Fahrtstrecke"});
+        return reject({"error": "Keine gültige Fahrtstrecke"});
       }
       if(durationvalid == false){
-        reject({"error": "Keine gültige Auftragsdauer"});
+        return reject({"error": "Keine gültige Auftragsdauer"});
       }
       if(userinvalid == true){
-        reject({"error": "Fehler beim UserToken"});
+        return reject({"error": "Fehler beim UserToken"});
       }
 
       db.run(
@@ -282,13 +282,13 @@ module.exports = {
     return new Promise((resolve, reject) => {
         id = parseInt(id);
         if(datevalid == false){
-          reject({"error": "Verwende ein gültiges Zeitformat"});
+          return reject({"error": "Verwende ein gültiges Zeitformat"});
         }
         if(travelvalid == false){
-          reject({"error": "Keine gültige Fahrtsrecke"});
+          return reject({"error": "Keine gültige Fahrtsrecke"});
         }
         if(durationvalid == false){
-          reject({"error": "Keine gültige Auftragsdauer"});
+          return reject({"error": "Keine gültige Auftragsdauer"});
         }
         
         db.run(
