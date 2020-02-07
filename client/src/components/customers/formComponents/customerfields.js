@@ -58,7 +58,7 @@ class CustomerFields extends Component {
                     required
                     fullWidth
                     name="country"
-                    label="Country"
+                    label="Land"
                     onChange={this.handleChange}
                     value={country}
                     disabled={disablefields}
